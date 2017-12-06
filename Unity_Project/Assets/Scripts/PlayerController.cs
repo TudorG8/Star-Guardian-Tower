@@ -1,176 +1,214 @@
 ﻿using UnityEngine;
 using System.Collections;
+using CustomPropertyDrawers;
 
-public class PlayerController : MonoBehaviour
-{
-    // --------------------------------------------------------------
+public class PlayerController : MonoBehaviour {
+	// Imports --------------------------------------------------------------
+	[SerializeField] PhysicsController2D physicsController;
+	[SerializeField] AttackTrigger       attackTrigger    ;
 
-    // The character's running speed
-    [SerializeField]
-    float m_RunSpeed = 5.0f;
+    // Settings -------------------------------------------------------------
+	[SerializeField] float runSpeed       =  5.0f; // The character's running speed
+	[SerializeField] float attackCooldown =  0.5f; // Cooldown between each attacks
+	[SerializeField] float maxJumpHeight  =  4.0f; // The character's maximum jump height
+	[SerializeField] float minJumpHeight  =  1.0f; // The character's minimum jump height
+	[SerializeField] float timeToJump     =  0.5f; // The time it takes to reach jumpHeight
+	[SerializeField] float maxFallSpeed   = 20.0f; // The maximum speed the character can fall
+	[SerializeField] float accelerationGrounded = 0.1f;
+	[SerializeField] float accelerationAirborne = 0.2f;
+	[SerializeField] float maxWallSlideSpeed = 1;
+	[SerializeField] float wallStickTime = 0.25f;
+	[SerializeField] float timeToJumpAfterFalling = 0.20f;
+	[SerializeField] Vector2 wallJumpLeap;
+	[SerializeField] Vector2 wallJumpHop ;
+	[SerializeField] Vector2 wallJumpLet ;
 
-    // The gravity strength
-    [SerializeField]
-    float m_Gravity = 60.0f;
+    // Read Only ------------------------------------------------------------
+	[SerializeField][ReadOnly] Vector2 velocity    ; // Current velocity of the player
+	[SerializeField][ReadOnly] Vector2 input       ; // Current input of the player
+	[SerializeField][ReadOnly] float   gravity     ; // Calculated based on jumpHeight and timeToJump
+	[SerializeField][ReadOnly] float   maxJumpVelocity; // Calculated based on jumpHeight and timeToJump
+	[SerializeField][ReadOnly] float   minJumpVelocity; // Calculated based on jumpHeight and timeToJump
+	[SerializeField][ReadOnly] bool    canAttack   ;
+	[SerializeField][ReadOnly] bool    canJump     ;
+	[SerializeField][ReadOnly] bool    canJumpWhileSliding;
 
-    // The maximum speed the character can fall
-    [SerializeField]
-    float m_MaxFallSpeed = 20.0f;
+	// Private Stuff --------------------------------------------------------
+	float smoothingX;
+	Coroutine jumpOffCoroutine;
+	public bool inputDisabled;
 
-    // The character's jump height
-    [SerializeField]
-    float m_JumpHeight = 4.0f;
+	// Unity Stuff ----------------------------------------------------------
+	/* Solve for gravity and jumpVelocity using jumpHeight and timeToJump
+	 * from physics we know:
+	 * 		velocity      = initialVelocity * time + (acceleration * time^2) / 2
+	 * 		finalVelocity = initialVelocity + acceleration * time;
+	 * using our variables:
+	 * 		jumpHeight   = (gravity * timeToJump^2) / 2
+	 * 
+	 * 		gravity      = 2 * jumpHeight / timeToJump^2
+	 * 		jumpVelocity = gravity * timeToJump
+	 */
+	void CalculatePhysics () {
+		gravity      = (2 * maxJumpHeight) / Mathf.Pow (timeToJump, 2);
+		maxJumpVelocity = gravity * timeToJump;
+		minJumpVelocity = Mathf.Sqrt (2 * Mathf.Abs (gravity) * minJumpHeight);
+	}
 
-    // Identifier for Input
-    [SerializeField]
-    string m_PlayerInputString = "_P1";
+	public void EnableInput() {
+		inputDisabled = false;
+	}
 
-    // --------------------------------------------------------------
+	public delegate void FunctionCall();
 
-    // The charactercontroller of the player
-    CharacterController m_CharacterController;
+	IEnumerator WaitForCooldown(FunctionCall before, float time, FunctionCall after) {
+		before();
+		yield return new WaitForSeconds (time);
+		after ();
+	}
 
-    // The current movement direction in x & z.
-    Vector3 m_MovementDirection = Vector3.zero;
+	void Start() {
+		CalculatePhysics   ();
+		canAttack           = true ;
+		canJump             = true;
+		canJumpWhileSliding = false;
+	}
 
-    // The current movement speed
-    float m_MovementSpeed = 0.0f;
 
-    // The current vertical / falling speed
-    float m_VerticalSpeed = 0.0f;
 
-    // The current movement offset
-    Vector3 m_CurrentMovementOffset = Vector3.zero;
+	void UpdateMovementState() {
+		float smoothingAmount = physicsController.raycastShooter.collisionInfo.below ? accelerationGrounded : accelerationAirborne;
 
-    // The starting position of the player
-    Vector3 m_SpawningPosition = Vector3.zero;
+		float targetVelocity = Mathf.SmoothDamp (velocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
+		// We want to accelerate towards our target velocity smoothly rather than instantly.
+		velocity.x = targetVelocity;
+	}
 
-    // Whether the player is alive or not
-    bool m_IsAlive = true;
+	void ApplyGravity() {
+		if (physicsController.raycastShooter.collisionInfo.below || physicsController.raycastShooter.collisionInfo.above)
+			velocity.y = 0;
+		// Apply gravity
+		velocity.y -= gravity * Time.deltaTime;
 
-    // The time it takes to respawn
-    const float MAX_RESPAWN_TIME = 1.0f;
-    float m_RespawnTime = MAX_RESPAWN_TIME;
+		// Make sure we don't fall any faster than maxFallSpeed.
+		velocity.y = Mathf.Clamp(velocity.y, -maxFallSpeed, maxFallSpeed);
+	}
 
-    // --------------------------------------------------------------
+	void UpdateJumpState() {
+		CollisionInfo info = physicsController.raycastShooter.collisionInfo;
+		int  wallDirection = info.left ? -1 : 1;
+		bool wallSliding   = false;
 
-    void Awake()
-    {
-        m_CharacterController = GetComponent<CharacterController>();
-    }
+		if ((info.left || info.right) && !info.below) {
+			wallSliding = true;
 
-    // Use this for initialization
-    void Start()
-    {
-        m_SpawningPosition = transform.position;
-    }
+			if (velocity.y < -maxWallSlideSpeed) {
+				velocity.y = -maxWallSlideSpeed;
+			}
+				
+			if (!canJumpWhileSliding) {
+				StartCoroutine (WaitForCooldown (
+					() => { canJumpWhileSliding = true ; },
+					wallStickTime,
+					() => { canJumpWhileSliding = false; }
+				));
+			} 
+			else {
+				//velocity.x = 0;
+				smoothingX = 0;
+			}
+		}
+		// Character can jump when standing on the ground
+		if (Input.GetButtonDown("Jump_P1")) {
+			if (info.hangingOnEdge) {
+				GetComponent<Animator> ().SetTrigger ("jump");
+				inputDisabled = true;
+				StartCoroutine (WaitForCooldown (
+					() => { physicsController.checkForEdges = false; },
+					0.50f,
+					() => { physicsController.checkForEdges = true ; }
+				));
+			}
+			else if (wallSliding) {
+				// We are hopping up the wall
+				if (input.x == wallDirection) {
+					velocity.x = -wallDirection * wallJumpHop.x;
+					velocity.y = wallJumpHop.y;
+				} 
+				// We are just jumping off
+				else if (input.x == 0) {
+					velocity.x = -wallDirection * wallJumpLet.x;
+					velocity.y = wallJumpLet.y;
+				} 
+				// We are leaping off the wall
+				else {
+					velocity.x = -wallDirection * wallJumpLeap.x;
+					velocity.y = wallJumpLeap.y;
+				}
+			}
+			else if(canJump) {
+				velocity.y = maxJumpVelocity;
+			}
+			canJump = false;
+			if(jumpOffCoroutine != null)
+				StopCoroutine (jumpOffCoroutine);
+		}
+		if (Input.GetButtonUp ("Jump_P1")) {
+			if (velocity.y > minJumpVelocity) {
+				velocity.y = minJumpVelocity;
+			}
+		}
+	}
 
-    void Jump()
-    {
-        m_VerticalSpeed = Mathf.Sqrt(m_JumpHeight * m_Gravity);
-    }
+	void UpdateAttackState() {
+		if (Input.GetKeyDown (KeyCode.LeftControl) && canAttack) {
+			attackTrigger.Attack (new Vector2(Mathf.Sign(velocity.x), 0));
+			StartCoroutine (WaitForCooldown (
+				() => {canAttack = false;},
+				attackCooldown,
+				() => {canAttack = true ;}
+			));
+		}
+	}
 
-    void ApplyGravity()
-    {
-        // Apply gravity
-        m_VerticalSpeed -= m_Gravity * Time.deltaTime;
+	void Update() {
+		if (!inputDisabled) {
+			input = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
+			UpdateMovementState ();
+			ApplyGravity ();
+			UpdateJumpState ();
+			UpdateAttackState ();
 
-        // Make sure we don't fall any faster than m_MaxFallSpeed.
-        m_VerticalSpeed = Mathf.Max(m_VerticalSpeed, -m_MaxFallSpeed);
-        m_VerticalSpeed = Mathf.Min(m_VerticalSpeed, m_MaxFallSpeed);
-    }
+			if (velocity.x != 0) {
+				Vector2 scale = transform.localScale;
+				scale.x = Mathf.Sign (velocity.x);
+				transform.localScale = scale;
+			}
 
-    void UpdateMovementState()
-    {
-        // Get Player's movement input and determine direction and set run speed
-        float horizontalInput = Input.GetAxisRaw("Horizontal" + m_PlayerInputString);
-        float verticalInput = Input.GetAxisRaw("Vertical" + m_PlayerInputString);
+			// Move character
+			bool previouslyGrounded = physicsController.raycastShooter.collisionInfo.below;
 
-        m_MovementDirection = new Vector3(horizontalInput, 0, verticalInput);
-        m_MovementSpeed = m_RunSpeed;
-    }
+			physicsController.Move (velocity * Time.deltaTime, input);
 
-    void UpdateJumpState()
-    {
-        // Character can jump when standing on the ground
-        if (Input.GetButtonDown("Jump" + m_PlayerInputString) && m_CharacterController.isGrounded)
-        {
-            Jump();
-        }
-    }
+			// If we are previously grounded but now arent and are falling, it means we are jumping off a platform
+			if (previouslyGrounded && !physicsController.raycastShooter.collisionInfo.below && (int)Mathf.Sign (velocity.y) == -1) {
+				jumpOffCoroutine = StartCoroutine (WaitForCooldown (
+					() => { canJump = true; },
+					timeToJumpAfterFalling,
+					() => { canJump = false;}
+				));
+			}
 
-    // Update is called once per frame
-    void Update()
-    {
-        // If the player is dead update the respawn timer and exit update loop
-        if(!m_IsAlive)
-        {
-            UpdateRespawnTime();
-            return;
-        }
+			if (physicsController.raycastShooter.collisionInfo.below) {
+				canJump = true;
+				if (jumpOffCoroutine != null)
+					StopCoroutine (jumpOffCoroutine);
+			}
 
-        // Update movement input
-        UpdateMovementState();
-
-        // Update jumping input and apply gravity
-        UpdateJumpState();
-        ApplyGravity();
-
-        // Calculate actual motion
-        m_CurrentMovementOffset = (m_MovementDirection * m_MovementSpeed + new Vector3(0, m_VerticalSpeed, 0)) * Time.deltaTime;
-
-        // Move character
-        m_CharacterController.Move(m_CurrentMovementOffset);
-
-        // Rotate the character in movement direction
-        if(m_MovementDirection != Vector3.zero)
-        {
-            RotateCharacter(m_MovementDirection);
-        }
-    }
-
-    void RotateCharacter(Vector3 movementDirection)
-    {
-        Quaternion lookRotation = Quaternion.LookRotation(movementDirection);
-        if (transform.rotation != lookRotation)
-        {
-            transform.rotation = lookRotation;
-        }
-    }
-
-    public int GetPlayerNum()
-    {
-        if(m_PlayerInputString == "_P1")
-        {
-            return 1;
-        }
-        else if (m_PlayerInputString == "_P2")
-        {
-            return 2;
-        }
-
-        return 0;
-    }
-
-    public void Die()
-    {
-        m_IsAlive = false;
-        m_RespawnTime = MAX_RESPAWN_TIME;
-    }
-
-    void UpdateRespawnTime()
-    {
-        m_RespawnTime -= Time.deltaTime;
-        if (m_RespawnTime < 0.0f)
-        {
-            Respawn();
-        }
-    }
-
-    void Respawn()
-    {
-        m_IsAlive = true;
-        transform.position = m_SpawningPosition;
-        transform.rotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-    }
+			if (physicsController.raycastShooter.collisionInfo.below || physicsController.raycastShooter.collisionInfo.above) {
+				if(!physicsController.raycastShooter.collisionInfo.slidingDownSlope)
+					velocity.y = 0;
+			}
+		}
+	}
 }

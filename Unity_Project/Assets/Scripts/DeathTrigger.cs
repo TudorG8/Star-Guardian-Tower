@@ -20,12 +20,12 @@ public class DeathTrigger : MonoBehaviour
             if(playerController)
             {
                 // Kill the player
-                playerController.Die();
+                //playerController.Die();
 
                 // Increase the score for the opposing player
                 if(OnPlayerDeath != null)
                 {
-                    OnPlayerDeath(playerController.GetPlayerNum());
+                    //OnPlayerDeath(playerController.GetPlayerNum());
                 }
             }
         }
