@@ -187,7 +187,6 @@ public class PhysicsController2D : ControllerBase {
 		if (hit) {
 			float slopeAngle = Vector2.Angle (hit.normal, Vector2.up);
 
-			Debug.Log (slopeAngle);
 			if (slopeAngle >= maxSlopeAngle) {
 				velocity.x = Mathf.Sign(hit.normal.x) * (Mathf.Abs (velocity.y) - hit.distance - raycastShooter.boxCorners.Inset) / Mathf.Tan (slopeAngle * Mathf.Deg2Rad);
 				raycastShooter.collisionInfo.slopeAngle = slopeAngle;
