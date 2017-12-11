@@ -1,0 +1,118 @@
+﻿#if UNITY_EDITOR
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEditor;
+
+[ExecuteInEditMode]
+public class RoomGeneratorRoomHelper : MonoBehaviour {
+	[System.Serializable]
+	public class PlatformRefs {
+		public GameObject top1   , top2   ;
+		public GameObject bottom1, bottom2;
+		public GameObject left1  , left2  ;
+		public GameObject right1 , right2 ;
+
+		public List<GameObject> platforms;
+
+		public void SetXScale(PointDTO.Direction side, float xScale) {
+			foreach (GameObject platform in platforms) {
+				if(platform.name.Contains(side.ToString())) {
+					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
+				}
+			}
+		}
+	}
+
+	[System.Serializable]
+	public class PointRefs {
+		public GameObject top1   , top2   ;
+		public GameObject bottom1, bottom2;
+		public GameObject left1  , left2  ;
+		public GameObject right1 , right2 ;
+
+		public List<PointHelper> points;
+
+		public void TurnOff(PointDTO.Direction side) {
+			foreach (PointHelper point in points) {
+				if(point.name.Contains(side.ToString())) {
+					point.gameObject.SetActive (false);
+				}
+			}
+		}
+		public void TurnOn (PointDTO.Direction side) {
+			foreach (PointHelper point in points) {
+				if(point.name.Contains(side.ToString())) {
+					point.gameObject.SetActive (true);
+				}
+			}
+		}
+	}
+	[System.Serializable]
+	public class Neighbours {
+		public RoomGeneratorRoomHelper top   ;
+		public RoomGeneratorRoomHelper bottom;
+		public RoomGeneratorRoomHelper left  ;
+		public RoomGeneratorRoomHelper right ; 
+	}
+
+	// Prefabs
+	[SerializeField] GameObject roomPrefab; // Room that will be spawned
+
+	// Imports
+	[SerializeField] public RoomGenerator roomGenerator; // Parent that holds all editor information
+	[SerializeField] public Room          roomScript   ; // This is were the final data used for level generation is stored
+	[SerializeField] public PlatformRefs  platformRefs ; // References to the platforms
+	[SerializeField] public PointRefs     pointRefs    ; // References to the points
+
+	// Readonly
+	[SerializeField] Neighbours neighbours;
+
+	public void SetRoom(PointDTO.Direction side, RoomGeneratorRoomHelper roomHelper) {
+		if      (side == PointDTO.Direction.Top   ) neighbours.top    = roomHelper;
+		else if (side == PointDTO.Direction.Bottom) neighbours.bottom = roomHelper;
+		else if (side == PointDTO.Direction.Left  ) neighbours.left   = roomHelper;
+		else if (side == PointDTO.Direction.Right ) neighbours.right  = roomHelper;
+	}
+		
+	void AddRoom(PointDTO.Direction side) {
+		Vector2 spawnPosition = transform.position;
+		spawnPosition += UsefullMethods.vectorProduct(roomGenerator.RoomSize, PointDTO.GetDirectionVector(side));
+
+		GameObject roomObj = Instantiate (roomGenerator.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		roomObj.transform.SetParent (roomGenerator.transform);
+		roomObj.transform.SetAsLastSibling ();
+
+		RoomGeneratorRoomHelper roomHelper = roomObj.GetComponent<RoomGeneratorRoomHelper> ();
+		roomHelper.roomGenerator = roomGenerator;
+		roomHelper.SetRoom (PointDTO.GetOpposite(side), this);
+
+		roomGenerator.rooms.Add (roomHelper);
+
+		SetRoom (side, roomHelper);
+
+		pointRefs   .TurnOff   (side);
+		platformRefs.SetXScale (side, roomGenerator.MinimumPlatformSize.x);
+
+		roomHelper.pointRefs   .TurnOff   (PointDTO.GetOpposite(side));
+		roomHelper.platformRefs.SetXScale (PointDTO.GetOpposite(side), roomGenerator.MinimumPlatformSize.x);
+	}
+
+	public void AddRoomToTheTop   () {
+		if (neighbours.top    != null) return;	
+		AddRoom (PointDTO.Direction.Top   );
+	}
+	public void AddRoomToTheBottom() {
+		if (neighbours.bottom != null) return;	
+		AddRoom (PointDTO.Direction.Bottom);
+	}
+	public void AddRoomToTheLeft  () {
+		if (neighbours.left   != null) return;	
+		AddRoom (PointDTO.Direction.Left  );
+	}
+	public void AddRoomToTheRight () {
+		if (neighbours.right  != null) return;	
+		AddRoom (PointDTO.Direction.Right );
+	}
+}
+#endif

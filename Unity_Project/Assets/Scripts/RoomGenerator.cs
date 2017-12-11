@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿#if UNITY_EDITOR
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomPropertyDrawers;
 
-#if UNITY_EDITOR
 [ExecuteInEditMode]
-public class RoomSceneHelper : MonoBehaviour {
+public class RoomGenerator : MonoBehaviour {
 	[System.Serializable]
 	public class PointExtraInfo {
 		public Transform  point;
@@ -12,16 +13,43 @@ public class RoomSceneHelper : MonoBehaviour {
 		public GameObject previousPlatform1;
 		public GameObject previousPlatform2;
 		public float      previousSize;
-	}	
-	public GameObject roomPrefab;
-	public List<RoomSceneEditor> rooms;
+	}
+	// Imports
+	[SerializeField] public GameObject roomPrefab;
+	[SerializeField] public List<RoomGeneratorRoomHelper> rooms;
 
-	public PointExtraInfo entryPoint;
-	public PointExtraInfo exitPoint ;
+	// Fields
+	[SerializeField] PointExtraInfo entryPoint;
+	[SerializeField] PointExtraInfo exitPoint ;
+	[SerializeField] float pointGap;
+	[SerializeField] Vector2 minimumPlatformSize;
+	[SerializeField] Vector2 roomSize;
 
-	public float pointGap;
+	[SerializeField][ReadOnly] int rows, cols;
+	List<List<RoomGeneratorRoomHelper>> arr;
 
-	void HandlePlatformSize(string minPointName, PointExtraInfo pointExtraInfo, PointDTO pointToModify, PointHelper pointHelper, RoomSceneEditor.PlatformRefs platformRefs) {
+	// Properties
+	public Vector2 MinimumPlatformSize { get { return minimumPlatformSize;} }
+	public Vector2 RoomSize            { get { return roomSize           ;} }
+
+	public void AddRowToTop   () {
+		arr.Insert (0, new List<RoomGeneratorRoomHelper> (cols));
+	}
+	public void AddRowToBottom() {
+		arr.Add(new List<RoomGeneratorRoomHelper>(cols));
+	}
+	public void AddRowToLeft() {
+		for (int i = 0; i < rows; i++) {
+			arr [i].Insert (0, null);
+		}
+	}
+	public void AddRowToRight() {
+		for (int i = 0; i < rows; i++) {
+			arr [i].Add(null);
+		}
+	}
+
+	void HandlePlatformSize(string minPointName, PointExtraInfo pointExtraInfo, PointDTO pointToModify, PointHelper pointHelper, RoomGeneratorRoomHelper.PlatformRefs platformRefs) {
 		float newSize;
 		GameObject platform1;
 		GameObject platform2;
@@ -95,10 +123,14 @@ public class RoomSceneHelper : MonoBehaviour {
 		pointExtraInfo.previousPlatform2 = platform2;
 	}
 
+	void Start() {
+		rows = cols = 1;
+	}
+
 	void Update () {
 		// Gather all points from all rooms
 		List<PointHelper> validPoints = new List<PointHelper>();
-		foreach (RoomSceneEditor roomSceneEditor in rooms) {
+		foreach (RoomGeneratorRoomHelper roomSceneEditor in rooms) {
 			validPoints.AddRange (roomSceneEditor.pointRefs.points);
 		}
 
@@ -118,7 +150,7 @@ public class RoomSceneHelper : MonoBehaviour {
 		exitPoint.point.transform.rotation = minPoint.transform.rotation;
 		HandlePlatformSize (minPoint.name, exitPoint, minPoint.roomEditor.roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
 
-
+		// Handle entry point
 		minDistance = float.MaxValue;
 		minPoint = null;
 		foreach (PointHelper point in validPoints) {
@@ -133,7 +165,6 @@ public class RoomSceneHelper : MonoBehaviour {
 		entryPoint.point.transform.position = minPoint.transform.position;
 		entryPoint.point.transform.rotation = minPoint.transform.rotation;
 		HandlePlatformSize (minPoint.name, entryPoint, minPoint.roomEditor.roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
-
 	}
 }
 #endif
