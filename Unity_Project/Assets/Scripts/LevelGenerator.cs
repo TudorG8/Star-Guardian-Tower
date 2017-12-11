@@ -13,15 +13,17 @@ public class LevelGenerator : MonoBehaviour {
 
 	public Vector2 roomSize = new Vector2 (20, 15);
 
-	Dictionary<Room.DirectionNames, List<Room>> entryPoints;
+	//Dictionary<Room.DirectionNames, List<Room>> entryPoints;
 
 	void CalculateDictionary() {
+		/*
 		entryPoints = new Dictionary<Room.DirectionNames, List<Room>> ();
 		foreach (Room room in rooms) {
 			if (!entryPoints.ContainsKey(room.entryPoint))
 				entryPoints [room.entryPoint] = new List<Room> ();
 			entryPoints [room.entryPoint].Add (room);
 		}
+		*/
 	}
 	Vector2 vectorProduct(Vector2 a, Vector2 b) {
 		return new Vector2 (a.x * b.x, a.y * b.y);
@@ -32,6 +34,7 @@ public class LevelGenerator : MonoBehaviour {
 		CalculateDictionary ();
         int generatedRooms = 0;
         while(generatedRooms < roomsToGenerate) {
+			/*
 			Room.DirectionNames exit = currentRoom.exitPoint;
 			Vector2 newPositionDirection = Room.GetDirectionVector (exit);
 			currentColumn += (int)newPositionDirection.x;
@@ -62,6 +65,7 @@ public class LevelGenerator : MonoBehaviour {
 			GameObject roomObj = Instantiate (newRoom.gameObject, location, Quaternion.identity) as GameObject;
 			currentRoom = roomObj.GetComponent<Room>();
 			generatedRooms++;
+			*/
         }
 		tower.localScale = new Vector2 (80, 15 * (currentHeight + 1));
     }

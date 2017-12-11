@@ -5,17 +5,6 @@ using UnityEditor;
 #if UNITY_EDITOR
 [ExecuteInEditMode]
 public class RoomSceneEditor : MonoBehaviour {
-	public enum Direction {
-		None, Left, Right, Top, Bottom
-	}
-
-	[System.Serializable]
-	public class Point {
-		public Direction main     ;
-		public Direction secondary;
-		public Vector2   roomIndex;
-	}
-
 	[System.Serializable]
 	public class PlatformRefs {
 		public GameObject top1;
@@ -45,134 +34,136 @@ public class RoomSceneEditor : MonoBehaviour {
 		public GameObject right1;
 		public GameObject right2;
 
-		public List<GameObject> points;
+		public List<PointHelper> points;
 	}
-	[System.Serializable]
-	public class PointExtraInfo {
-		public Transform  point;
-		public GameObject previousPlatform1;
-		public GameObject previousPlatform2;
-		public float previousSize;
-	}
+	public RoomSceneHelper roomSceneHelper;
 	public Room roomScript;
 
 	public PlatformRefs platformRefs;
 	public PointRefs    pointRefs   ;
 
-	public PointExtraInfo  entryPoint;
-	public PointExtraInfo  exitPoint ;
-
 	public GameObject room    ;
-	public GameObject platform;
 
+	public RoomSceneEditor top   ;
+	public RoomSceneEditor bottom;
+	public RoomSceneEditor left  ;
+	public RoomSceneEditor right ;
 
-
-	public float pointGap;
-
-	public Point desiredExitPoint;
-
-	public void AddRoom() {
+	public void AddRoomToTheTop() {
+		if (top != null)
+			return;
 		
+		Vector2 spawnPosition = transform.position;
+		spawnPosition += new Vector2 (0f, 15f);
+
+		GameObject roomObj = Instantiate (roomSceneHelper.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		roomObj.transform.SetParent (roomSceneHelper.transform);
+		roomObj.transform.SetAsLastSibling ();
+
+		RoomSceneEditor roomEditorScript = roomObj.GetComponent<RoomSceneEditor> ();
+		roomEditorScript.roomSceneHelper = roomSceneHelper;
+		roomEditorScript.bottom = this;
+
+		roomSceneHelper.rooms.Add (roomEditorScript);
+
+		top = roomEditorScript;
+
+		pointRefs.top1.SetActive (false);
+		pointRefs.top2.SetActive (false);
+		platformRefs.top1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		platformRefs.top2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+
+		roomEditorScript.pointRefs.bottom1.SetActive (false);
+		roomEditorScript.pointRefs.bottom2.SetActive (false);
+		roomEditorScript.platformRefs.bottom1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		roomEditorScript.platformRefs.bottom2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
 	}
+	public void AddRoomToTheBottom() {
+		if (bottom != null)
+			return;
 
-	void HandlePlatformSize(string minPointName, PointExtraInfo pointExtraInfo, Room.Point pointToModify) {
-		float newSize;
-		GameObject platform1;
-		GameObject platform2;
-		if (minPointName.Contains ("Top")) {
-			pointToModify.main = Room.Direction.Top;
-			if(minPointName.Contains("1")) {
-				platform1 = platformRefs.top1;
-				platform2 = platformRefs.top2;
-				pointToModify.secondary = Room.Direction.Left;
-			}
-			else {
-				platform1 = platformRefs.top2;
-				platform2 = platformRefs.top1;
-				pointToModify.secondary = Room.Direction.Right;
-			}
-			newSize = 10f;
-		}
-		else if (minPointName.Contains ("Bottom")) {
-			pointToModify.main = Room.Direction.Bottom;
-			if(minPointName.Contains("1")) {
-				platform1 = platformRefs.bottom1;
-				platform2 = platformRefs.bottom2;
-				pointToModify.secondary = Room.Direction.Left;
-			}
-			else {
-				platform1 = platformRefs.bottom2;
-				platform2 = platformRefs.bottom1;
-				pointToModify.secondary = Room.Direction.Right;
-			}
-			newSize = 10f;
-		}
-		else if (minPointName.Contains ("Left")) {
-			pointToModify.main = Room.Direction.Left;
-			if(minPointName.Contains("1")) {
-				platform1 = platformRefs.left1;
-				platform2 = platformRefs.left2;
-				pointToModify.secondary = Room.Direction.Bottom;
-			}
-			else {
-				platform1 = platformRefs.left2;
-				platform2 = platformRefs.left1;
-				pointToModify.secondary = Room.Direction.Top;
-			}
-			newSize = 7.5f;
-		}
-		else { //minPointName.Contains ("Right")
-			pointToModify.main = Room.Direction.Right;
-			if(minPointName.Contains("1")) {
-				platform1 = platformRefs.right1;
-				platform2 = platformRefs.right2;
-				pointToModify.secondary = Room.Direction.Bottom;
-			}
-			else {
-				platform1 = platformRefs.right2;
-				platform2 = platformRefs.right1;
-				pointToModify.secondary = Room.Direction.Top;
-			}
-			newSize = 7.5f;
-		}
-		pointExtraInfo.previousPlatform1.transform.localScale = new Vector2 (pointExtraInfo.previousSize, pointExtraInfo.previousPlatform1.transform.localScale.y);
-		pointExtraInfo.previousPlatform2.transform.localScale = new Vector2 (pointExtraInfo.previousSize, pointExtraInfo.previousPlatform2.transform.localScale.y);
+		Vector2 spawnPosition = transform.position;
+		spawnPosition += new Vector2 (0f, -15f);
 
-		platform1.transform.localScale = new Vector2 (0.5f, platform1.transform.localScale.y);
-		platform2.transform.localScale = new Vector2 (newSize * 2 - pointGap, platform2.transform.localScale.y);
+		GameObject roomObj = Instantiate (roomSceneHelper.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		roomObj.transform.SetParent (roomSceneHelper.transform);
+		roomObj.transform.SetAsLastSibling ();
 
-		pointExtraInfo.previousSize = newSize;
-		pointExtraInfo.previousPlatform1 = platform1;
-		pointExtraInfo.previousPlatform2 = platform2;
+		RoomSceneEditor roomEditorScript = roomObj.GetComponent<RoomSceneEditor> ();
+		roomEditorScript.roomSceneHelper = roomSceneHelper;
+		roomEditorScript.top = this;
+
+		roomSceneHelper.rooms.Add (roomEditorScript);
+
+		bottom = roomEditorScript;
+
+		pointRefs.bottom1.SetActive (false);
+		pointRefs.bottom2.SetActive (false);
+		platformRefs.bottom1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		platformRefs.bottom2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+
+		roomEditorScript.pointRefs.top1.SetActive (false);
+		roomEditorScript.pointRefs.top2.SetActive (false);
+		roomEditorScript.platformRefs.top1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		roomEditorScript.platformRefs.top2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
 	}
+	public void AddRoomToTheLeft() {
+		if (left != null)
+			return;
 
-	void Update () {
-		float minDistance = float.MaxValue;
-		GameObject minPoint = room;
-		foreach (GameObject point in pointRefs.points) {
-			float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
-			if (pointDistance < minDistance) {
-				minDistance = pointDistance;
-				minPoint = point;
-			}
-		}
-		exitPoint.point.transform.position = minPoint.transform.position;
-		exitPoint.point.transform.rotation = minPoint.transform.rotation;
-		HandlePlatformSize (minPoint.name, exitPoint, roomScript.exit);
+		Vector2 spawnPosition = transform.position;
+		spawnPosition += new Vector2 (-20f, 0f);
 
+		GameObject roomObj = Instantiate (roomSceneHelper.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		roomObj.transform.SetParent (roomSceneHelper.transform);
+		roomObj.transform.SetAsLastSibling ();
 
-		minDistance = float.MaxValue;
-		minPoint = room;
-		foreach (GameObject point in pointRefs.points) {
-			float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
-			if (pointDistance < minDistance) {
-				minDistance = pointDistance;
-				minPoint = point;
-			}
-		}
-		entryPoint.point.transform.position = minPoint.transform.position;
-		entryPoint.point.transform.rotation = minPoint.transform.rotation;
-		HandlePlatformSize (minPoint.name, entryPoint, roomScript.entry);
+		RoomSceneEditor roomEditorScript = roomObj.GetComponent<RoomSceneEditor> ();
+		roomEditorScript.roomSceneHelper = roomSceneHelper;
+		roomEditorScript.right = this;
+
+		roomSceneHelper.rooms.Add (roomEditorScript);
+
+		left = roomEditorScript;
+
+		pointRefs.left1.SetActive (false);
+		pointRefs.left2.SetActive (false);
+		platformRefs.left1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		platformRefs.left2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+
+		roomEditorScript.pointRefs.right1.SetActive (false);
+		roomEditorScript.pointRefs.right2.SetActive (false);
+		roomEditorScript.platformRefs.right1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		roomEditorScript.platformRefs.right2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+	}
+	public void AddRoomToTheRight() {
+		if (right != null)
+			return;
+
+		Vector2 spawnPosition = transform.position;
+		spawnPosition += new Vector2 (20f, 0f);
+
+		GameObject roomObj = Instantiate (roomSceneHelper.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		roomObj.transform.SetParent (roomSceneHelper.transform);
+		roomObj.transform.SetAsLastSibling ();
+
+		RoomSceneEditor roomEditorScript = roomObj.GetComponent<RoomSceneEditor> ();
+		roomEditorScript.roomSceneHelper = roomSceneHelper;
+		roomEditorScript.left = this;
+
+		roomSceneHelper.rooms.Add (roomEditorScript);
+
+		right = roomEditorScript;
+
+		pointRefs.right1.SetActive (false);
+		pointRefs.right2.SetActive (false);
+		platformRefs.right1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		platformRefs.right2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+
+		roomEditorScript.pointRefs.left1.SetActive (false);
+		roomEditorScript.pointRefs.left2.SetActive (false);
+		roomEditorScript.platformRefs.left1.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
+		roomEditorScript.platformRefs.left2.transform.localScale = new Vector2 (0.5f, platformRefs.top1.transform.localScale.y);
 	}
 }
 #endif
