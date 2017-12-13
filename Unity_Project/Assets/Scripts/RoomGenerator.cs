@@ -16,7 +16,6 @@ public class RoomGenerator : MonoBehaviour {
 	}
 	// Imports
 	[SerializeField] public GameObject roomPrefab;
-	[SerializeField] public List<RoomGeneratorRoomHelper> rooms;
 
 	public RoomGeneratorRoomHelper originalRoom;
 
@@ -35,14 +34,36 @@ public class RoomGenerator : MonoBehaviour {
 	public Vector2 RoomSize            { get { return roomSize           ;} }
 
 	public void AddRowToTop   () {
-		arr.Insert (0, new List<RoomGeneratorRoomHelper> (cols));
+		arr.Add(new List<RoomGeneratorRoomHelper>());
+		for (int i = 0; i < cols; i++) {
+			arr [rows].Add(null);
+		}
 		rows++;
 	}
 	public void AddRowToBottom() {
-		arr.Add(new List<RoomGeneratorRoomHelper>(cols));
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++){
+				if (arr [i] [j] != null) {
+					arr [i] [j].index.y++;
+					arr [i] [j].SetName ();
+				}
+			}
+		}
+		arr.Insert (0, new List<RoomGeneratorRoomHelper> ());
+		for (int i = 0; i < cols; i++) {
+			arr [0].Add(null);
+		}
 		rows++;
 	}
 	public void AddRowToLeft() {
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++){
+				if (arr [i] [j] != null) {
+					arr [i] [j].index.x++;
+					arr [i] [j].SetName ();
+				}
+			}
+		}
 		for (int i = 0; i < rows; i++) {
 			arr [i].Insert (0, null);
 		}
@@ -55,19 +76,53 @@ public class RoomGenerator : MonoBehaviour {
 		cols++;
 	}
 
+	public void CheckForNearbyRooms(Vector2 index, PointDTO.Direction side) {
+		Vector2 desiredPosition = index + PointDTO.GetDirectionVector (side);
+		if (desiredPosition.x < 0 || desiredPosition.x == cols)
+			return;
+		if (desiredPosition.y < 0 || desiredPosition.y == rows)
+			return;
+		RoomGeneratorRoomHelper neighbour = arr [(int)desiredPosition.y] [(int)desiredPosition.x];
+		RoomGeneratorRoomHelper actual    = arr [(int)index.y] [(int)index.x];
+		if (neighbour != null) {
+			actual.pointRefs   .TurnOff   (side);
+			actual.platformRefs.SetXScale (side, 0);
+
+			neighbour.pointRefs   .TurnOff   (PointDTO.GetOpposite(side));
+			neighbour.platformRefs.SetXScale (PointDTO.GetOpposite(side), 0);
+		}
+	}
+
+	public void DestroyRoom(Vector2 position) {
+		if (arr == null) {
+			ResetArray ();
+		}
+		if (rows == 1 && cols == 1) {
+			Debug.LogError ("Cannot destroy the only room");
+			return;
+		}
+	}
+
 	public void AddRoom(Vector2 originalPosition, PointDTO.Direction direction, RoomGeneratorRoomHelper newRoom) {
-		Debug.Log ("Adding");
+		if (arr == null) {
+			ResetArray ();
+		}
 		Vector2 desiredPosition = originalPosition + PointDTO.GetDirectionVector (direction);
 		if      (desiredPosition.x >= cols) AddRowToRight  ();
 		else if (desiredPosition.x <     0) AddRowToLeft   ();
-		else if (desiredPosition.y >= rows) AddRowToBottom ();
-		else if (desiredPosition.y <     0) AddRowToTop    ();
+		else if (desiredPosition.y >= rows) AddRowToTop    ();
+		else if (desiredPosition.y <     0) AddRowToBottom ();
 
-		newRoom.index = desiredPosition;
 		if (desiredPosition.x < 0) desiredPosition.x = 0;
 		if (desiredPosition.y < 0) desiredPosition.y = 0;
+		newRoom.index = desiredPosition;
+		Debug.Log (desiredPosition);
 		arr [(int)desiredPosition.y] [(int)desiredPosition.x] = newRoom;
-		rooms.Add (newRoom);
+		newRoom.SetName ();
+		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Top   );
+		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Bottom);
+		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Left  );
+		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Right );
 	}
 
 	public void ResetArray() {
@@ -80,12 +135,13 @@ public class RoomGenerator : MonoBehaviour {
 	public void PrintArray() {
 		Debug.Log ("Rows: " + rows + " Cols: " + cols);
 
-		for (int i = 0; i < rows; i++) {
+		for (int i = rows - 1; i >= 0; i--) {
 			string message = "";
 			for (int j = 0; j < cols; j++) {
 				if (arr [i] [j] == null)
 					message += "null ";
-				message += arr [i] [j] + " ";
+				else
+					message += arr [i] [j].gameObject.name + " ";
 			}
 			Debug.Log (message);
 		}
@@ -172,8 +228,10 @@ public class RoomGenerator : MonoBehaviour {
 	void Update () {
 		// Gather all points from all rooms
 		List<PointHelper> validPoints = new List<PointHelper>();
-		foreach (RoomGeneratorRoomHelper roomSceneEditor in rooms) {
-			validPoints.AddRange (roomSceneEditor.pointRefs.points);
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++) {
+				validPoints.Add (arr[i][j]);
+			}
 		}
 
 		// Handle exit point

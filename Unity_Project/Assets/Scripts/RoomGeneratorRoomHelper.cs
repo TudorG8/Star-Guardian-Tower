@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEditor;
 
 [ExecuteInEditMode]
+[SelectionBase]
 public class RoomGeneratorRoomHelper : MonoBehaviour {
 	[System.Serializable]
 	public class PlatformRefs {
@@ -69,11 +70,21 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	[SerializeField] public Vector2    index;
 	[SerializeField] Neighbours neighbours;
 
+	public void SetName() {
+		name = "Room " + index.y + " " + index.x;
+	}
 	public void SetRoom(PointDTO.Direction side, RoomGeneratorRoomHelper roomHelper) {
 		if      (side == PointDTO.Direction.Top   ) neighbours.top    = roomHelper;
 		else if (side == PointDTO.Direction.Bottom) neighbours.bottom = roomHelper;
 		else if (side == PointDTO.Direction.Left  ) neighbours.left   = roomHelper;
 		else if (side == PointDTO.Direction.Right ) neighbours.right  = roomHelper;
+	}
+
+	public void ResetNeighbour(PointDTO.Direction side) {
+		if      (side == PointDTO.Direction.Top   ) neighbours.top    = null;
+		else if (side == PointDTO.Direction.Bottom) neighbours.bottom = null;
+		else if (side == PointDTO.Direction.Left  ) neighbours.left   = null;
+		else if (side == PointDTO.Direction.Right ) neighbours.right  = null;
 	}
 		
 	void AddRoom(PointDTO.Direction side) {
@@ -91,12 +102,6 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 		roomGenerator.AddRoom (index, side, roomHelper);
 
 		SetRoom (side, roomHelper);
-
-		pointRefs   .TurnOff   (side);
-		platformRefs.SetXScale (side, roomGenerator.MinimumPlatformSize.x);
-
-		roomHelper.pointRefs   .TurnOff   (PointDTO.GetOpposite(side));
-		roomHelper.platformRefs.SetXScale (PointDTO.GetOpposite(side), roomGenerator.MinimumPlatformSize.x);
 	}
 
 	public void AddRoomToTheTop   () {
