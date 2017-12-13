@@ -11,5 +11,14 @@ public class RoomSceneEditorEditor : Editor {
 		if (GUILayout.Button ("Add Top Room")) {
 			script.AddRoomToTheTop ();
 		}
+		if (GUILayout.Button ("Add Bottom Room")) {
+			script.AddRoomToTheBottom ();
+		}
+		if (GUILayout.Button ("Add Left Room")) {
+			script.AddRoomToTheLeft ();
+		}
+		if (GUILayout.Button ("Add Right Room")) {
+			script.AddRoomToTheRight ();
+		}
 	}
 }

@@ -18,6 +18,8 @@ public class RoomGenerator : MonoBehaviour {
 	[SerializeField] public GameObject roomPrefab;
 	[SerializeField] public List<RoomGeneratorRoomHelper> rooms;
 
+	public RoomGeneratorRoomHelper originalRoom;
+
 	// Fields
 	[SerializeField] PointExtraInfo entryPoint;
 	[SerializeField] PointExtraInfo exitPoint ;
@@ -34,18 +36,58 @@ public class RoomGenerator : MonoBehaviour {
 
 	public void AddRowToTop   () {
 		arr.Insert (0, new List<RoomGeneratorRoomHelper> (cols));
+		rows++;
 	}
 	public void AddRowToBottom() {
 		arr.Add(new List<RoomGeneratorRoomHelper>(cols));
+		rows++;
 	}
 	public void AddRowToLeft() {
 		for (int i = 0; i < rows; i++) {
 			arr [i].Insert (0, null);
 		}
+		cols++;
 	}
 	public void AddRowToRight() {
 		for (int i = 0; i < rows; i++) {
 			arr [i].Add(null);
+		}
+		cols++;
+	}
+
+	public void AddRoom(Vector2 originalPosition, PointDTO.Direction direction, RoomGeneratorRoomHelper newRoom) {
+		Debug.Log ("Adding");
+		Vector2 desiredPosition = originalPosition + PointDTO.GetDirectionVector (direction);
+		if      (desiredPosition.x >= cols) AddRowToRight  ();
+		else if (desiredPosition.x <     0) AddRowToLeft   ();
+		else if (desiredPosition.y >= rows) AddRowToBottom ();
+		else if (desiredPosition.y <     0) AddRowToTop    ();
+
+		newRoom.index = desiredPosition;
+		if (desiredPosition.x < 0) desiredPosition.x = 0;
+		if (desiredPosition.y < 0) desiredPosition.y = 0;
+		arr [(int)desiredPosition.y] [(int)desiredPosition.x] = newRoom;
+		rooms.Add (newRoom);
+	}
+
+	public void ResetArray() {
+		arr = new List<List<RoomGeneratorRoomHelper>> ();
+		arr.Add (new List<RoomGeneratorRoomHelper> ());
+		arr [0].Add (originalRoom);
+		cols = rows = 1;
+	}
+
+	public void PrintArray() {
+		Debug.Log ("Rows: " + rows + " Cols: " + cols);
+
+		for (int i = 0; i < rows; i++) {
+			string message = "";
+			for (int j = 0; j < cols; j++) {
+				if (arr [i] [j] == null)
+					message += "null ";
+				message += arr [i] [j] + " ";
+			}
+			Debug.Log (message);
 		}
 	}
 

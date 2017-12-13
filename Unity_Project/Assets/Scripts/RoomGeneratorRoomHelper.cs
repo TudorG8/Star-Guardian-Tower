@@ -66,6 +66,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	[SerializeField] public PointRefs     pointRefs    ; // References to the points
 
 	// Readonly
+	[SerializeField] public Vector2    index;
 	[SerializeField] Neighbours neighbours;
 
 	public void SetRoom(PointDTO.Direction side, RoomGeneratorRoomHelper roomHelper) {
@@ -87,7 +88,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 		roomHelper.roomGenerator = roomGenerator;
 		roomHelper.SetRoom (PointDTO.GetOpposite(side), this);
 
-		roomGenerator.rooms.Add (roomHelper);
+		roomGenerator.AddRoom (index, side, roomHelper);
 
 		SetRoom (side, roomHelper);
 
