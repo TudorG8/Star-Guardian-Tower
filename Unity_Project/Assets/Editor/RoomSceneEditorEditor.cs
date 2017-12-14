@@ -20,5 +20,8 @@ public class RoomSceneEditorEditor : Editor {
 		if (GUILayout.Button ("Add Right Room")) {
 			script.AddRoomToTheRight ();
 		}
+		if (GUILayout.Button ("Delete Room")) {
+			script.DeleteRoom ();
+		}
 	}
 }

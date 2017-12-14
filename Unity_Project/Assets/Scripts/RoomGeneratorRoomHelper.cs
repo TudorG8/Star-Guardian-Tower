@@ -86,6 +86,11 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 		else if (side == PointDTO.Direction.Left  ) neighbours.left   = null;
 		else if (side == PointDTO.Direction.Right ) neighbours.right  = null;
 	}
+
+	public void DeleteRoom() {
+		if(roomGenerator.DeleteRoom (index));
+		DestroyImmediate (this.gameObject);
+	}
 		
 	void AddRoom(PointDTO.Direction side) {
 		Vector2 spawnPosition = transform.position;
