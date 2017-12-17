@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using CustomPropertyDrawers;
 
 [ExecuteInEditMode]
@@ -83,11 +84,17 @@ public class RoomGenerator : MonoBehaviour {
 		RoomGeneratorRoomHelper actual    = arr [(int)index.y] [(int)index.x];
 		if (neighbour != null) {
 			actual.pointRefs   .TurnOff   (side);
-			actual.platformRefs.SetXScale (side, 0);
+			actual.platformRefs.SetXScale (side, 0.5f);
 
 			neighbour.pointRefs   .TurnOff   (PointDTO.GetOpposite(side));
-			neighbour.platformRefs.SetXScale (PointDTO.GetOpposite(side), 0);
+			neighbour.platformRefs.SetXScale (PointDTO.GetOpposite(side), 0.5f);
 		}
+	}
+
+	bool isValidPosition(Vector2 position) {
+		if (position.x < 0 || position.x == cols) return false;
+		if (position.y < 0 || position.y == rows) return false;
+		return true;
 	}
 
 	public void CheckForNearbyRoomsForDelete(Vector2 index, PointDTO.Direction side) {
@@ -136,7 +143,6 @@ public class RoomGenerator : MonoBehaviour {
 				break;
 			} 
 			else {
-				Debug.Log ("removing row");
 				rowsToDisplace++;
 			}
 		}
@@ -162,6 +168,28 @@ public class RoomGenerator : MonoBehaviour {
 				cols--;
 			}
 		}
+		// Left
+		int colsToDisplace = 0;
+		for (int j = 0; j < cols; j++) {
+			bool foundEntity = false;
+			for (int i = 0; i < rows; i++) {
+				if (arr [i] [j] != null)
+					foundEntity = true;
+			}
+			if (foundEntity) {
+				break;
+			} 
+			else {
+				colsToDisplace++;
+			}
+		}
+		for (int times = 0; times < colsToDisplace; times++) {
+			for (int i = 0; i < rows; i++) {
+				arr [i].RemoveAt (0);
+			}
+		}
+		cols -= colsToDisplace;
+		IncreaseIndexes(new Vector2(-colsToDisplace, 0));
 	}
 		
 	public bool DeleteRoom (Vector2 position) {
@@ -178,7 +206,69 @@ public class RoomGenerator : MonoBehaviour {
 		CheckForNearbyRoomsForDelete (position, PointDTO.Direction.Right );
 		arr [(int)position.y] [(int)position.x] = null;
 		DeleteUselessSpots ();
+		CheckCorner (position, PointDTO.Direction.Top   , PointDTO.Direction.Right, MinimumPlatformSize.x);
+		CheckCorner (position, PointDTO.Direction.Top   , PointDTO.Direction.Left , MinimumPlatformSize.x);
+		CheckCorner (position, PointDTO.Direction.Bottom, PointDTO.Direction.Right, MinimumPlatformSize.x);
+		CheckCorner (position, PointDTO.Direction.Bottom, PointDTO.Direction.Left , MinimumPlatformSize.x);
 		return true;
+	}
+
+	RoomGeneratorRoomHelper RoomAt(Vector2 position) {
+		if (!isValidPosition (position)) {
+			Debug.LogError ("Bad position");
+		}
+		return arr [(int)position.y] [(int)position.x];
+	}
+
+	Vector2 ReverseCoordinates(Vector2 input) {
+		return new Vector2 (input.y, input.x);
+	}
+
+	void CheckCorner(Vector2 index, PointDTO.Direction dir1, PointDTO.Direction dir2, float size) {
+		if (dir1 != PointDTO.Direction.Top && dir1 != PointDTO.Direction.Bottom) {
+			Debug.LogError ("Direction 1 cannot be left or right"); return;
+		}
+
+		if (dir2 != PointDTO.Direction.Left && dir2 != PointDTO.Direction.Right) {
+			Debug.LogError ("Direction 2 cannot be top or bottom"); return;
+		}
+		int index1, index2, index3, index4;
+		if      (dir1 == PointDTO.Direction.Top    && dir2 == PointDTO.Direction.Right)  {
+			index1 = 2; index2 = 2; index3 = 1; index4 = 1;
+		}
+		else if (dir1 == PointDTO.Direction.Top    && dir2 == PointDTO.Direction.Left )  {
+			index1 = 1; index2 = 2; index3 = 2; index4 = 1;
+		}
+		else if (dir1 == PointDTO.Direction.Bottom && dir2 == PointDTO.Direction.Left )  {
+			index1 = 1; index2 = 1; index3 = 2; index4 = 2;
+		}
+		else  /*(dir1 == PointDTO.Direction.Bottom && dir2 == PointDTO.Direction.Right)*/{
+			index1 = 2; index2 = 1; index3 = 1; index4 = 2;
+		}
+
+		Vector2 direction1 = PointDTO.GetDirectionVector (dir1);
+		Vector2 direction2 = PointDTO.GetDirectionVector (dir2);
+
+		Vector2 position1 = index + direction1;
+		Vector2 position2 = index + direction2;
+		Vector2 position3 = index + direction1 + direction2;
+		if (isValidPosition (position1) && isValidPosition (position2) && isValidPosition (position3)) {
+			if (RoomAt (position1) != null && RoomAt (position2) != null && RoomAt (position3) != null) {
+				RoomAt (position1).platformRefs.SetXScale (PointDTO.GetOpposite(dir1), index1, size);
+				RoomAt (position1).platformRefs.SetXScale (dir2, dir1 == PointDTO.Direction.Top   ? 1 : 2, size);
+
+				RoomAt (position2).platformRefs.SetXScale (PointDTO.GetOpposite(dir2), index2, size);
+				RoomAt (position2).platformRefs.SetXScale (dir1, dir2 == PointDTO.Direction.Right ? 1 : 2, size);
+
+				RoomAt (position3).platformRefs.SetXScale (PointDTO.GetOpposite(dir1), index3, size);
+				RoomAt (position3).platformRefs.SetXScale (PointDTO.GetOpposite(dir2), index4, size);
+
+				if (isValidPosition (index) && RoomAt (index) != null) {
+					RoomAt (index).platformRefs.SetXScale (dir1, index1, size);
+					RoomAt (index).platformRefs.SetXScale (dir2, index2, size);
+				}
+			}
+		}
 	}
 
 	public void AddRoom(Vector2 originalPosition, PointDTO.Direction direction, RoomGeneratorRoomHelper newRoom) {
@@ -196,10 +286,18 @@ public class RoomGenerator : MonoBehaviour {
 		newRoom.index = desiredPosition;
 		arr [(int)desiredPosition.y] [(int)desiredPosition.x] = newRoom;
 		newRoom.SetName ();
+
 		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Top   );
 		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Bottom);
 		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Left  );
 		CheckForNearbyRooms (desiredPosition, PointDTO.Direction.Right );
+
+		CheckCorner (desiredPosition, PointDTO.Direction.Top   , PointDTO.Direction.Right, 0f);
+		CheckCorner (desiredPosition, PointDTO.Direction.Top   , PointDTO.Direction.Left , 0f);
+		CheckCorner (desiredPosition, PointDTO.Direction.Bottom, PointDTO.Direction.Right, 0f);
+		CheckCorner (desiredPosition, PointDTO.Direction.Bottom, PointDTO.Direction.Left , 0f);
+
+		Selection.objects = new Object[] { newRoom.gameObject };
 	}
 
 	public void ResetArray() {
@@ -327,9 +425,11 @@ public class RoomGenerator : MonoBehaviour {
 				}
 			}
 		}
-		exitPoint.point.transform.position = minPoint.transform.position;
-		exitPoint.point.transform.rotation = minPoint.transform.rotation;
-		HandlePlatformSize (minPoint.name, exitPoint, minPoint.roomEditor.roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
+		if (minPoint != null) {
+			exitPoint.point.transform.position = minPoint.transform.position;
+			exitPoint.point.transform.rotation = minPoint.transform.rotation;
+			HandlePlatformSize (minPoint.name, exitPoint, minPoint.roomEditor.roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
+		}
 
 		// Handle entry point
 		minDistance = float.MaxValue;
@@ -343,9 +443,11 @@ public class RoomGenerator : MonoBehaviour {
 				}
 			}
 		}
-		entryPoint.point.transform.position = minPoint.transform.position;
-		entryPoint.point.transform.rotation = minPoint.transform.rotation;
-		HandlePlatformSize (minPoint.name, entryPoint, minPoint.roomEditor.roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
+		if (minPoint != null) {
+			entryPoint.point.transform.position = minPoint.transform.position;
+			entryPoint.point.transform.rotation = minPoint.transform.rotation;
+			HandlePlatformSize (minPoint.name, entryPoint, minPoint.roomEditor.roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
+		}
 	}
 }
 #endif

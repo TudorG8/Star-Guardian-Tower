@@ -23,6 +23,13 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 				}
 			}
 		}
+		public void SetXScale(PointDTO.Direction side, int index, float xScale) {
+			foreach (GameObject platform in platforms) {
+				if(platform.name.Contains(side.ToString()) && platform.name.Contains(index.ToString())) {
+					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
+				}
+			}
+		}
 	}
 
 	[System.Serializable]
@@ -88,8 +95,8 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	}
 
 	public void DeleteRoom() {
-		if(roomGenerator.DeleteRoom (index));
-		DestroyImmediate (this.gameObject);
+		if(roomGenerator.DeleteRoom (index))
+			DestroyImmediate (this.gameObject);
 	}
 		
 	void AddRoom(PointDTO.Direction side) {
