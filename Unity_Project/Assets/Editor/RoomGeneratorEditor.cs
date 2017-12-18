@@ -8,11 +8,7 @@ public class RoomGeneratorEditor : Editor {
 	public override void OnInspectorGUI () {
 		DrawDefaultInspector ();
 		RoomGenerator script = (RoomGenerator)target;
-		if (GUILayout.Button ("Clear")) {
-			script.ResetArray ();
-		}
-		if (GUILayout.Button ("Print")) {
-			script.PrintArray ();
-		}
+		if (GUILayout.Button ("Reset")) { script.Reset      (); }
+		if (GUILayout.Button ("Print")) { script.PrintRooms (); }
 	}
 }

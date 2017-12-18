@@ -24,6 +24,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 			}
 		}
 		public void SetXScale(PointDTO.Direction side, int index, float xScale) {
+			Debug.Log (side + " " + index);
 			foreach (GameObject platform in platforms) {
 				if(platform.name.Contains(side.ToString()) && platform.name.Contains(index.ToString())) {
 					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
@@ -80,7 +81,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	public void SetName() {
 		name = "Room " + index.y + " " + index.x;
 	}
-	public void SetRoom(PointDTO.Direction side, RoomGeneratorRoomHelper roomHelper) {
+	public void SetNeighbour(PointDTO.Direction side, RoomGeneratorRoomHelper roomHelper) {
 		if      (side == PointDTO.Direction.Top   ) neighbours.top    = roomHelper;
 		else if (side == PointDTO.Direction.Bottom) neighbours.bottom = roomHelper;
 		else if (side == PointDTO.Direction.Left  ) neighbours.left   = roomHelper;
@@ -100,20 +101,12 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	}
 		
 	void AddRoom(PointDTO.Direction side) {
-		Vector2 spawnPosition = transform.position;
-		spawnPosition += UsefullMethods.vectorProduct(roomGenerator.RoomSize, PointDTO.GetDirectionVector(side));
+		RoomGeneratorRoomHelper newRoom = this.roomGenerator.CreateRoom (transform.localPosition, side);
 
-		GameObject roomObj = Instantiate (roomGenerator.roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
-		roomObj.transform.SetParent (roomGenerator.transform);
-		roomObj.transform.SetAsLastSibling ();
+		this   .SetNeighbour (side                      , newRoom);
+		newRoom.SetNeighbour (PointDTO.GetOpposite(side), this   );
 
-		RoomGeneratorRoomHelper roomHelper = roomObj.GetComponent<RoomGeneratorRoomHelper> ();
-		roomHelper.roomGenerator = roomGenerator;
-		roomHelper.SetRoom (PointDTO.GetOpposite(side), this);
-
-		roomGenerator.AddRoom (index, side, roomHelper);
-
-		SetRoom (side, roomHelper);
+		roomGenerator.AddRoom (index, side, newRoom);
 	}
 
 	public void AddRoomToTheTop   () {
