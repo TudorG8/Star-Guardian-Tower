@@ -6,6 +6,7 @@ using UnityEditor;
 
 [ExecuteInEditMode]
 [SelectionBase]
+[System.Serializable]
 public class RoomGeneratorRoomHelper : MonoBehaviour {
 	[System.Serializable]
 	public class PlatformRefs {
@@ -24,7 +25,6 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 			}
 		}
 		public void SetXScale(PointDTO.Direction side, int index, float xScale) {
-			Debug.Log (side + " " + index);
 			foreach (GameObject platform in platforms) {
 				if(platform.name.Contains(side.ToString()) && platform.name.Contains(index.ToString())) {
 					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
@@ -70,9 +70,11 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 
 	// Imports
 	[SerializeField] public RoomGenerator roomGenerator; // Parent that holds all editor information
-	[SerializeField] public Room          roomScript   ; // This is were the final data used for level generation is stored
 	[SerializeField] public PlatformRefs  platformRefs ; // References to the platforms
 	[SerializeField] public PointRefs     pointRefs    ; // References to the points
+	[SerializeField] public GameObject hazardParent       ;
+	[SerializeField] public GameObject innerPlatformParent;
+	[SerializeField] public GameObject backgroundParent   ;
 
 	// Readonly
 	[SerializeField] public Vector2    index;

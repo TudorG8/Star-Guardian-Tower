@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Room : MonoBehaviour {
+	public long id;
 	public PointDTO entry;
 	public PointDTO exit ;
-
 	public Vector2 size;
 
-	Vector2 vectorProduct(Vector2 a, Vector2 b) {
-		return new Vector2 (a.x * b.x, a.y * b.y);
+	public void CopyValuesFrom(Room other) {
+		entry = other.entry.GetCopy();
+		exit  = other.exit.GetCopy();
+		size  = other.size;
 	}
 }

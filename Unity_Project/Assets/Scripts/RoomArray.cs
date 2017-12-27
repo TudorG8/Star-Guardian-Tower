@@ -5,46 +5,66 @@ using CustomPropertyDrawers;
 
 [System.Serializable]
 public class RoomArray {
+	[System.Serializable]
+	public class ListWrapper {
+		public List<RoomGeneratorRoomHelper> list;
+
+		public ListWrapper() {
+			list = new List<RoomGeneratorRoomHelper>();
+		}
+	}
+
 	[SerializeField][ReadOnly] int rows, cols;
 	[SerializeField] Transform attachedTo;
-	List<List<RoomGeneratorRoomHelper>> array;
+	[SerializeField] List<ListWrapper> array;
 
 	public int Rows { get { return rows; } }
 	public int Cols { get { return cols; } }
 
 	public bool IsNull() {
-		return array == null;
+		return array == null; 
 	}
 
 	public bool ThereIsOnlyOneRoom() {
-		return Rows == 1 && Cols == 1;
+		return Rows == 1 && Cols == 1; 
+	}
+
+	public List<RoomGeneratorRoomHelper> GetValidRooms() {
+		List<RoomGeneratorRoomHelper> validRooms = new List<RoomGeneratorRoomHelper> ();
+		for (int i = 0; i < Rows; i++) {
+			for (int j = 0; j < Cols; j++) {
+				if (array [i].list [j] != null)
+					validRooms.Add (array [i].list [j]);
+			}
+		}
+		return validRooms;
 	}
 
 	public void AddRowToTop   () {
-		array.Add(new List<RoomGeneratorRoomHelper>());
+		array.Add(new ListWrapper());
 		for (int i = 0; i < cols; i++) 
-			array [rows].Add(null);
+			array [rows].list.Add(null);
 		
 		rows++;
 	}
 	public void AddRowToBottom() {
 		IncreaseIndexes(Vector2.up);
-		array.Insert (0, new List<RoomGeneratorRoomHelper> ());
+		array.Insert (0, new ListWrapper());
 		for (int i = 0; i < cols; i++) 
-			array [0].Add(null);
+			array [0].list.Add(null);
 		
 		rows++;
 	}
 	public void AddRowToLeft() {
 		IncreaseIndexes(Vector2.right);
 		for (int i = 0; i < rows; i++) 
-			array [i].Insert (0, null);
+			array [i].list.Insert (0, null);
 		
 		cols++;
 	}
 	public void AddRowToRight() {
 		for (int i = 0; i < rows; i++) 
-			array [i].Add(null);
+			array [i].list.Add(null);
 		
 		cols++;
 	}
@@ -55,9 +75,9 @@ public class RoomArray {
 	public void IncreaseIndexes(Vector2 increase) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++){
-				if (array [i] [j] != null) {
-					array [i] [j].index += increase;
-					array [i] [j].SetName ();
+				if (array [i].list [j] != null) {
+					array [i].list [j].index += increase;
+					array [i].list [j].SetName ();
 				}
 			}
 		}
@@ -77,19 +97,19 @@ public class RoomArray {
 		if (!isValidPosition (position)) {
 			Debug.LogError ("Bad position");
 		}
-		return array [(int)position.y] [(int)position.x];
+		return array [(int)position.y].list [(int)position.x];
 	}
 
 	public void SetRoom(Vector2 position, RoomGeneratorRoomHelper newRoom) {
 		if (!isValidPosition (position)) {
 			Debug.LogError ("Bad position");
 		}
-		array [(int)position.y] [(int)position.x] = newRoom;
+		array [(int)position.y].list [(int)position.x] = newRoom;
 	}
 
-	public void Reset() {
-		array = new List<List<RoomGeneratorRoomHelper>> ();
-		array.Add (new List<RoomGeneratorRoomHelper> ());
+	public void Reset() {  
+		array = new List<ListWrapper> ();
+		//array.Add (new ListWrapper());
 		cols = rows = 0;
 		// Delete all rooms
 		foreach (Transform room in attachedTo.transform) {
@@ -104,10 +124,10 @@ public class RoomArray {
 		for (int i = rows - 1; i >= 0; i--) {
 			string message = "";
 			for (int j = 0; j < cols; j++) {
-				if (array [i] [j] == null)
+				if (array [i].list [j] == null)
 					message += "null ";
 				else
-					message += array [i] [j].gameObject.name + " ";
+					message += array [i].list [j].gameObject.name + " ";
 			}
 			Debug.Log (message);
 		}
@@ -122,7 +142,7 @@ public class RoomArray {
 		for (int i = rows - 1; i >= 0; i--) {
 			bool foundEntity = false;
 			for (int j = 0; j < cols; j++) {
-				if (array [i] [j] != null)
+				if (array [i].list [j] != null)
 					foundEntity = true;
 			}
 			if (foundEntity) break;		
@@ -137,7 +157,7 @@ public class RoomArray {
 		for (int i = 0; i < rows; i++) {
 			bool foundEntity = false;
 			for (int j = 0; j < cols; j++) {
-				if (array [i] [j] != null)
+				if (array [i].list [j] != null)
 					foundEntity = true;
 			}
 			if     (foundEntity)  break;
@@ -152,13 +172,13 @@ public class RoomArray {
 		for (int j = cols - 1; j >= 0; j--) {
 			bool foundEntity = false;
 			for (int i = 0; i < rows; i++) {
-				if (array [i] [j] != null)
+				if (array [i].list [j] != null)
 					foundEntity = true;
 			}
 			if (foundEntity) { break; } 
 			else {
 				for (int i = 0; i < rows; i++) 
-					array [i].RemoveAt (j); 
+					array [i].list.RemoveAt (j); 
 				cols--;
 			}
 		}
@@ -168,7 +188,7 @@ public class RoomArray {
 		for (int j = 0; j < cols; j++) {
 			bool foundEntity = false;
 			for (int i = 0; i < rows; i++) {
-				if (array [i] [j] != null)
+				if (array [i].list [j] != null)
 					foundEntity = true;
 			}
 			if     (foundEntity)  break;
@@ -177,7 +197,7 @@ public class RoomArray {
 		}
 		for (int times = 0; times < colsToDisplace; times++) {
 			for (int i = 0; i < rows; i++) 
-				array [i].RemoveAt (0);
+				array [i].list.RemoveAt (0);
 		}
 		cols -= colsToDisplace;
 		IncreaseIndexes(new Vector2(-colsToDisplace, 0));

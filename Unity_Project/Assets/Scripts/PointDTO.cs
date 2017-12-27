@@ -10,6 +10,16 @@ public class PointDTO {
 	public Direction secondary;
 	public Vector2   roomIndex;
 
+	public PointDTO GetCopy() {
+		PointDTO newPoint = new PointDTO ();
+
+		newPoint.main      = this.main;
+		newPoint.secondary = this.secondary;
+		newPoint.roomIndex = this.roomIndex;
+
+		return newPoint;
+	}
+
 	public static Direction GetOpposite(Direction direction) {
 		if (direction == Direction.None  ) return Direction.None  ;
 		if (direction == Direction.Top   ) return Direction.Bottom;

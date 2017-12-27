@@ -29,6 +29,10 @@ public class RoomGenerator : MonoBehaviour {
 	}
 	// Variables -------------------------------------------------------------------------------------------------
 	// Imports
+	[SerializeField] RoomCache roomCache ;
+	[SerializeField] Room      roomScript;
+
+	// Prefabs
 	[SerializeField] public GameObject roomPrefab;
 
 	// Information Fields
@@ -84,7 +88,6 @@ public class RoomGenerator : MonoBehaviour {
 		if (rooms.IsNull()) Reset ();
 
 		Vector2 desiredPosition = originalPosition + PointDTO.GetDirectionVector (direction);
-		Debug.Log (rooms.Rows);
 		if      (desiredPosition.y >= rooms.Rows) rooms.AddRowToTop    ();
 		else if (desiredPosition.y <           0) rooms.AddRowToBottom ();
 		if      (desiredPosition.x >= rooms.Cols) rooms.AddRowToRight  ();
@@ -233,6 +236,52 @@ public class RoomGenerator : MonoBehaviour {
 		}
 	}
 
+	public void AddRoomToCache() {
+		GameObject newRoom = new GameObject ("Room");
+		List<RoomGeneratorRoomHelper> validRooms = rooms.GetValidRooms ();
+		foreach (RoomGeneratorRoomHelper room in validRooms) {
+			GameObject roomSegment    = new GameObject (room.gameObject.name);
+			GameObject outerPlatforms = new GameObject ("Outer Platforms");
+			foreach (GameObject platform in room.platformRefs.platforms) {
+				GameObject newPlatform = Instantiate (platform, platform.transform.localPosition, platform.transform.localRotation) as GameObject;
+				newPlatform.transform.SetParent (outerPlatforms.transform);
+			}
+			outerPlatforms.transform.SetParent (roomSegment.transform);
+
+			GameObject innerPlatforms = new GameObject ("Inner Platforms");
+			foreach (Transform platform in room.innerPlatformParent.transform) {
+				GameObject newPlatform = Instantiate (platform.gameObject, platform.localPosition, platform.localRotation) as GameObject;
+				newPlatform.transform.SetParent (innerPlatforms.transform);
+			}
+			innerPlatforms.transform.SetParent (roomSegment.transform);
+
+			GameObject hazards = new GameObject ("Hazards");
+			foreach (Transform hazard in room.hazardParent.transform) {
+				GameObject newHazard = Instantiate (hazard.gameObject, hazard.localPosition, hazard.localRotation) as GameObject;
+				newHazard.transform.SetParent (innerPlatforms.transform);
+			}
+			hazards.transform.SetParent (roomSegment.transform);
+
+			GameObject backgrounds = new GameObject ("Backgrounds");
+			foreach (Transform background in room.backgroundParent.transform) {
+				GameObject newBackground = Instantiate (background.gameObject, background.localPosition, background.localRotation) as GameObject;
+				newBackground.transform.SetParent (backgrounds.transform);
+			}
+			backgrounds.transform.SetParent (roomSegment.transform);
+
+			roomSegment.transform.SetParent (newRoom.transform);
+			roomSegment.transform.localPosition = room.transform.localPosition;
+		}
+		newRoom.AddComponent<Room> ();
+		Room newRoomScript = newRoom.GetComponent<Room> ();
+		newRoomScript.CopyValuesFrom(roomScript);
+
+		newRoomScript.id = newRoom.GetInstanceID ();
+		newRoom.name = "Room " + newRoom.GetInstanceID ();
+
+		roomCache.AddNewRoom (newRoomScript);
+	}
+
 	// Handling Exit and Enter arrows ----------------------------------------------------------------------------
 	/**
 	 * Most likely modify this
@@ -312,7 +361,10 @@ public class RoomGenerator : MonoBehaviour {
 	}
 
 	void Update () {
-		if (rooms.IsNull()) Reset ();
+		if (rooms.IsNull ()) {
+			Debug.Log ("yes");
+			Reset ();
+		}
 		
 		// Gather all points from all rooms
 		List<PointHelper> validPoints = new List<PointHelper>();
@@ -339,7 +391,7 @@ public class RoomGenerator : MonoBehaviour {
 		if (minPoint != null) {
 			exitPoint.point.transform.position = minPoint.transform.position;
 			exitPoint.point.transform.rotation = minPoint.transform.rotation;
-			HandlePlatformSize (minPoint.name, exitPoint, minPoint.roomEditor.roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
+			HandlePlatformSize (minPoint.name, exitPoint, roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
 		}
 
 		// Handle entry point
@@ -358,7 +410,7 @@ public class RoomGenerator : MonoBehaviour {
 		if (minPoint != null) {
 			entryPoint.point.transform.position = minPoint.transform.position;
 			entryPoint.point.transform.rotation = minPoint.transform.rotation;
-			HandlePlatformSize (minPoint.name, entryPoint, minPoint.roomEditor.roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
+			HandlePlatformSize (minPoint.name, entryPoint, roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------
