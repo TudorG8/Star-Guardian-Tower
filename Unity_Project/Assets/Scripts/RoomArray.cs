@@ -78,6 +78,10 @@ public class RoomArray {
 				if (array [i].list [j] != null) {
 					array [i].list [j].index += increase;
 					array [i].list [j].SetName ();
+
+					Vector2 position = array [i].list [j].transform.position;
+					position += UsefulMethods.vectorProduct(increase, new Vector2 (26.7f, 15f));
+					array [i].list [j].transform.position = position;
 				}
 			}
 		}

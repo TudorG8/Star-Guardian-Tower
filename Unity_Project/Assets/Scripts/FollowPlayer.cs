@@ -10,7 +10,7 @@ public class FollowPlayer : MonoBehaviour {
 	Vector3 velocity;
 
 	void LateUpdate () {
-		Vector3 targetPosition = offset + objToFollow.position;
+		Vector3 targetPosition = objToFollow.position + offset;
 		transform.position = Vector3.SmoothDamp (transform.position, targetPosition, ref velocity, smoothing);
 	}
 } 

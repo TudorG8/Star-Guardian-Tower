@@ -41,6 +41,7 @@ public class RoomGenerator : MonoBehaviour {
 	[SerializeField] RoomArray      rooms     ;
 
 	// Settings
+	[SerializeField] bool disconnectPrefabInstance;
 	[SerializeField] float   pointGap;
 	[SerializeField] Vector2 roomSize;
 	[SerializeField] Vector2 minimumPlatformSize;
@@ -55,9 +56,16 @@ public class RoomGenerator : MonoBehaviour {
 
 	// Reset the room array and spawn in a new room
 	public void Reset() {
+		Debug.Log ("resetting");
 		rooms.Reset ();
+		GenerateUniqueId ();
 		RoomGeneratorRoomHelper newRoom = CreateRoom (new Vector2(0, 0), PointDTO.Direction.None);
 		AddRoom (new Vector2(0, 0), PointDTO.Direction.None, newRoom);
+	}
+
+	void Start() {
+		if(disconnectPrefabInstance)
+			PrefabUtility.DisconnectPrefabInstance(gameObject);
 	}
 
 	/**
@@ -67,6 +75,7 @@ public class RoomGenerator : MonoBehaviour {
 	 * @return: the script on the generated room
 	 */
 	public RoomGeneratorRoomHelper CreateRoom(Vector2 position, PointDTO.Direction side) {
+		Debug.Log ("create");
 		Vector2 spawnPosition = position;
 		spawnPosition += UsefulMethods.vectorProduct(RoomSize, PointDTO.GetDirectionVector(side));
 
@@ -94,8 +103,13 @@ public class RoomGenerator : MonoBehaviour {
 		else if (desiredPosition.x <           0) rooms.AddRowToLeft   ();
 
 		// If we are adding a row to the left or bottom, the new position will be 0
-		if (desiredPosition.x < 0) desiredPosition.x = 0;
-		if (desiredPosition.y < 0) desiredPosition.y = 0;
+		Vector2 newPosition = new Vector2(0, 0);
+		if (desiredPosition.x < 0) { desiredPosition.x = 0; newPosition.x = 1; }
+		if (desiredPosition.y < 0) { desiredPosition.y = 0; newPosition.y = 1; }
+
+		Vector2 position = newRoom.transform.position;
+		position += UsefulMethods.vectorProduct (newPosition, RoomSize);
+		newRoom.transform.position = position;
 
 		newRoom.index = desiredPosition;
 		newRoom.SetName ();
@@ -237,49 +251,18 @@ public class RoomGenerator : MonoBehaviour {
 	}
 
 	public void AddRoomToCache() {
-		GameObject newRoom = new GameObject ("Room");
-		List<RoomGeneratorRoomHelper> validRooms = rooms.GetValidRooms ();
-		foreach (RoomGeneratorRoomHelper room in validRooms) {
-			GameObject roomSegment    = new GameObject (room.gameObject.name);
-			GameObject outerPlatforms = new GameObject ("Outer Platforms");
-			foreach (GameObject platform in room.platformRefs.platforms) {
-				GameObject newPlatform = Instantiate (platform, platform.transform.localPosition, platform.transform.localRotation) as GameObject;
-				newPlatform.transform.SetParent (outerPlatforms.transform);
-			}
-			outerPlatforms.transform.SetParent (roomSegment.transform);
+		if (roomScript.id == 0) 
+			GenerateUniqueId ();
 
-			GameObject innerPlatforms = new GameObject ("Inner Platforms");
-			foreach (Transform platform in room.innerPlatformParent.transform) {
-				GameObject newPlatform = Instantiate (platform.gameObject, platform.localPosition, platform.localRotation) as GameObject;
-				newPlatform.transform.SetParent (innerPlatforms.transform);
-			}
-			innerPlatforms.transform.SetParent (roomSegment.transform);
+		if(roomScript.levelGenerator == null)
+			roomScript.levelGenerator = FindObjectOfType<LevelGenerator> ();
+		
+		roomCache.AddNewRoom (roomScript);
+	}
 
-			GameObject hazards = new GameObject ("Hazards");
-			foreach (Transform hazard in room.hazardParent.transform) {
-				GameObject newHazard = Instantiate (hazard.gameObject, hazard.localPosition, hazard.localRotation) as GameObject;
-				newHazard.transform.SetParent (innerPlatforms.transform);
-			}
-			hazards.transform.SetParent (roomSegment.transform);
-
-			GameObject backgrounds = new GameObject ("Backgrounds");
-			foreach (Transform background in room.backgroundParent.transform) {
-				GameObject newBackground = Instantiate (background.gameObject, background.localPosition, background.localRotation) as GameObject;
-				newBackground.transform.SetParent (backgrounds.transform);
-			}
-			backgrounds.transform.SetParent (roomSegment.transform);
-
-			roomSegment.transform.SetParent (newRoom.transform);
-			roomSegment.transform.localPosition = room.transform.localPosition;
-		}
-		newRoom.AddComponent<Room> ();
-		Room newRoomScript = newRoom.GetComponent<Room> ();
-		newRoomScript.CopyValuesFrom(roomScript);
-
-		newRoomScript.id = newRoom.GetInstanceID ();
-		newRoom.name = "Room " + newRoom.GetInstanceID ();
-
-		roomCache.AddNewRoom (newRoomScript);
+	public void GenerateUniqueId() {
+		gameObject.name = "Room " + gameObject.GetInstanceID ();
+		roomScript.id = gameObject.GetInstanceID ();
 	}
 
 	// Handling Exit and Enter arrows ----------------------------------------------------------------------------
@@ -302,7 +285,7 @@ public class RoomGenerator : MonoBehaviour {
 				platform2 = platformRefs.top1;
 				pointToModify.secondary = PointDTO.Direction.Right;
 			}
-			newSize = 10f;
+			newSize = RoomSize.x / 2;
 		}
 		else if (minPointName.Contains ("Bottom")) {
 			pointToModify.main = PointDTO.Direction.Bottom;
@@ -316,7 +299,7 @@ public class RoomGenerator : MonoBehaviour {
 				platform2 = platformRefs.bottom1;
 				pointToModify.secondary = PointDTO.Direction.Right;
 			}
-			newSize = 10f;
+			newSize = RoomSize.x / 2;
 		}
 		else if (minPointName.Contains ("Left")) {
 			pointToModify.main = PointDTO.Direction.Left;
@@ -330,7 +313,7 @@ public class RoomGenerator : MonoBehaviour {
 				platform2 = platformRefs.left1;
 				pointToModify.secondary = PointDTO.Direction.Top;
 			}
-			newSize = 7.5f;
+			newSize = RoomSize.y / 2;
 		}
 		else { //minPointName.Contains ("Right")
 			pointToModify.main = PointDTO.Direction.Right;
@@ -344,7 +327,7 @@ public class RoomGenerator : MonoBehaviour {
 				platform2 = platformRefs.right1;
 				pointToModify.secondary = PointDTO.Direction.Top;
 			}
-			newSize = 7.5f;
+			newSize = RoomSize.y / 2;
 		}
 		if (pointExtraInfo.previousPoint != null && pointExtraInfo.previousPoint.gameObject.activeSelf) {
 			pointExtraInfo.previousPlatform1.transform.localScale = new Vector2 (pointExtraInfo.previousSize, pointExtraInfo.previousPlatform1.transform.localScale.y);
@@ -361,10 +344,19 @@ public class RoomGenerator : MonoBehaviour {
 	}
 
 	void Update () {
+		if (roomScript.id == 0) 
+			GenerateUniqueId ();
+		
 		if (rooms.IsNull ()) {
 			Debug.Log ("yes");
 			Reset ();
 		}
+
+		roomScript.size.x = rooms.Cols;
+		roomScript.size.y = rooms.Rows;
+
+		if(!roomScript.inUse)
+			this.roomScript.previousPosition = transform.localPosition;
 		
 		// Gather all points from all rooms
 		List<PointHelper> validPoints = new List<PointHelper>();
@@ -391,6 +383,7 @@ public class RoomGenerator : MonoBehaviour {
 		if (minPoint != null) {
 			exitPoint.point.transform.position = minPoint.transform.position;
 			exitPoint.point.transform.rotation = minPoint.transform.rotation;
+			roomScript.exit.roomIndex = minPoint.roomEditor.index;
 			HandlePlatformSize (minPoint.name, exitPoint, roomScript.exit, minPoint, minPoint.roomEditor.platformRefs);
 		}
 
@@ -410,6 +403,7 @@ public class RoomGenerator : MonoBehaviour {
 		if (minPoint != null) {
 			entryPoint.point.transform.position = minPoint.transform.position;
 			entryPoint.point.transform.rotation = minPoint.transform.rotation;
+			roomScript.entry.roomIndex = minPoint.roomEditor.index;
 			HandlePlatformSize (minPoint.name, entryPoint, roomScript.entry, minPoint, minPoint.roomEditor.platformRefs);
 		}
 	}

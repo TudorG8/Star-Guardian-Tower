@@ -6,67 +6,71 @@ public class LevelGenerator : MonoBehaviour {
 	public Transform tower;
     public int roomsToGenerate;
 	public int maxColumns;
-    public List<Room> rooms;
-	public Room currentRoom;
+
 	public int currentColumn;
 	public int currentHeight;
 
+	public Room previousRoom;
+	public Room currentRoom ;
+	public Room nextRoom    ;
+
 	public Vector2 roomSize = new Vector2 (20, 15);
 
-	//Dictionary<Room.DirectionNames, List<Room>> entryPoints;
+	public FollowPlayer cameraScript;
 
-	void CalculateDictionary() {
-		/*
-		entryPoints = new Dictionary<Room.DirectionNames, List<Room>> ();
-		foreach (Room room in rooms) {
-			if (!entryPoints.ContainsKey(room.entryPoint))
-				entryPoints [room.entryPoint] = new List<Room> ();
-			entryPoints [room.entryPoint].Add (room);
-		}
-		*/
-	}
-	Vector2 vectorProduct(Vector2 a, Vector2 b) {
-		return new Vector2 (a.x * b.x, a.y * b.y);
-	}
-    void Awake() {
-		currentColumn = maxColumns - 1;
+	[SerializeField] RoomCache roomCache   ;
+	[SerializeField] Room      startingRoom;
+
+	private IEnumerator StartUp() {
+		yield return new WaitForSeconds (0.25f);
 		currentHeight = 0;
-		CalculateDictionary ();
-        int generatedRooms = 0;
-        while(generatedRooms < roomsToGenerate) {
-			/*
-			Room.DirectionNames exit = currentRoom.exitPoint;
-			Vector2 newPositionDirection = Room.GetDirectionVector (exit);
-			currentColumn += (int)newPositionDirection.x;
-			currentHeight += (int)newPositionDirection.y;
-			List<Room> possibleRooms = entryPoints [Room.GetOpposite(exit)];
-			List<Room> validRooms = new List<Room> ();
-			foreach (Room room in possibleRooms) {
-				if (currentColumn == 0) {
-					if (room.exitPoint == Room.DirectionNames.LeftTop || room.exitPoint == Room.DirectionNames.LeftBottom) {
-						continue;
-					}
-				} 
-				if (currentColumn == maxColumns - 1) {
-					if (room.exitPoint == Room.DirectionNames.RightTop || room.exitPoint == Room.DirectionNames.RightBottom) {
-						continue;
-					}
-				}
-				validRooms.Add (room);
+		currentColumn = maxColumns - 1;
+		currentRoom = startingRoom;
 
-			}
-			int randomRoomIndex = Random.Range (0, validRooms.Count);
-
-			Room newRoom = validRooms [randomRoomIndex];
-			Vector2 location = 
-				(Vector2)currentRoom.transform.position + 
-				vectorProduct(Room.GetDirectionVector (exit), roomSize);
-			;
-			GameObject roomObj = Instantiate (newRoom.gameObject, location, Quaternion.identity) as GameObject;
-			currentRoom = roomObj.GetComponent<Room>();
-			generatedRooms++;
-			*/
-        }
-		tower.localScale = new Vector2 (80, 15 * (currentHeight + 1));
+		nextRoom = GenerateRandomRoom(currentRoom);
+	}
+    void Start () {
+		StartCoroutine (StartUp ());
     }
+
+	public void WhenPlayerEntersNewRoom(Transform roomCenter) {
+		if (previousRoom != null) {
+			roomCache.ReturnRoomToCache (previousRoom);
+		}
+		previousRoom = currentRoom;
+		currentRoom  = nextRoom   ;
+		nextRoom     = GenerateRandomRoom(currentRoom);
+		cameraScript.objToFollow = roomCenter;
+	}
+
+	Room GenerateRandomRoom(Room currentRoom) {
+		int leftDistance  = currentColumn;
+		int rightDistance = maxColumns - currentColumn + 1;
+		Room room = roomCache.GetRandomRoom (currentRoom.exit.main, currentRoom.exit.secondary, leftDistance, rightDistance);
+
+		int offset = (int)room.entry.roomIndex.x;
+		Vector2 currentIndex = new Vector2 (currentColumn, currentHeight) + PointDTO.GetDirectionVector (currentRoom.exit.main);
+		currentIndex.x -= offset;
+		room.transform.position = UsefulMethods.vectorProduct (currentIndex, roomSize);
+		currentIndex.x += offset;
+
+		Debug.Log (currentIndex);
+		Vector2 newIndexOffset = currentIndex + room.exit.roomIndex - room.entry.roomIndex;
+		currentHeight = (int)newIndexOffset.y;
+		currentColumn = (int)newIndexOffset.x;
+
+
+
+		return room;
+	}
+
+	public void Test() {
+		if (nextRoom != null) {
+			roomCache.ReturnRoomToCache (nextRoom);
+			nextRoom = null;
+		} 
+		else {
+			nextRoom = GenerateRandomRoom (currentRoom);
+		}
+	}
 }

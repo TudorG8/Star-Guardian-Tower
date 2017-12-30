@@ -9,6 +9,7 @@ public class PointDTO {
 	public Direction main     ;
 	public Direction secondary;
 	public Vector2   roomIndex;
+	public TriggerScript triggerScript;
 
 	public PointDTO GetCopy() {
 		PointDTO newPoint = new PointDTO ();
@@ -18,6 +19,10 @@ public class PointDTO {
 		newPoint.roomIndex = this.roomIndex;
 
 		return newPoint;
+	}
+
+	public override string ToString () {
+		return main + " " + secondary + " " + roomIndex;
 	}
 
 	public static Direction GetOpposite(Direction direction) {

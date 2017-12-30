@@ -25,7 +25,7 @@ public class RoomCache : MonoBehaviour {
 		else {
 			instantiatedRooms [roomIndex] = room;
 		}
-		room.transform.SetParent (this.transform, false);  
+		room.transform.SetParent (this.transform, true);  
 	}
 
 	public void PrintCache() {
@@ -39,6 +39,12 @@ public class RoomCache : MonoBehaviour {
 		if (instantiatedRooms == null) {
 			instantiatedRooms = new List<Room> ();
 			Debug.LogError ("Empty Cache");
+		}
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			if (instantiatedRooms [i] == null) {
+				instantiatedRooms.RemoveAt (i);
+				break;
+			}
 		}
 	}
 
@@ -66,7 +72,46 @@ public class RoomCache : MonoBehaviour {
 		}
 	}
 
-	public void GetRandomRoom(PointDTO point) {
-		
+	public Room GetRandomRoom(PointDTO.Direction main, PointDTO.Direction secondary, int leftDistance, int rightDistance) {
+		List<Room> rooms = new List<Room> ();
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Room room = instantiatedRooms [i];
+			if (room.inUse)
+				continue;
+
+			if (room.entry.main == PointDTO.GetOpposite (main) && room.entry.secondary == secondary) {
+				Vector2 entryIndex = room.entry.roomIndex;
+				int leftSize = (int)entryIndex.x;
+				int rightSize = (int)(room.size.x - entryIndex.x + 1);
+
+				if (room.exit.roomIndex.x == 0 && room.exit.main == PointDTO.Direction.Left)
+					leftSize++;
+				else if (room.exit.roomIndex.x == room.size.x - 1 && room.exit.main == PointDTO.Direction.Right)
+					rightSize++;
+
+				if (leftSize > leftDistance || rightSize > rightDistance)
+					continue;
+			} 
+			else
+				continue;
+
+			rooms.Add (room);
+		}
+		if (rooms.Count == 0) {
+			Debug.LogError ("No Available Rooms");
+			return null;
+		}
+		int random = Random.Range (0, rooms.Count);
+		Room chosenRoom = rooms [random];
+
+		chosenRoom.inUse = true;
+
+		return chosenRoom;
+	}
+
+	public void ReturnRoomToCache(Room room) {
+		room.transform.localPosition = room.previousPosition;
+		room.entry.triggerScript.triggered = false;
+		room.inUse = false;
 	}
 }

@@ -75,6 +75,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 	[SerializeField] public GameObject hazardParent       ;
 	[SerializeField] public GameObject innerPlatformParent;
 	[SerializeField] public GameObject backgroundParent   ;
+	[SerializeField] public Transform  middle;
 
 	// Readonly
 	[SerializeField] public Vector2    index;
