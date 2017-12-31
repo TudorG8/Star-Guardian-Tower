@@ -40,12 +40,16 @@ public class LevelGenerator : MonoBehaviour {
 		previousRoom = currentRoom;
 		currentRoom  = nextRoom   ;
 		nextRoom     = GenerateRandomRoom(currentRoom);
-		cameraScript.objToFollow = roomCenter;
+		cameraScript.currentRoom  = currentRoom.roomGenerator;
+		cameraScript.currentIndex = currentRoom.entry.roomIndex;
+		cameraScript.objToFollow  = roomCenter;
 	}
 
 	Room GenerateRandomRoom(Room currentRoom) {
-		int leftDistance  = currentColumn;
-		int rightDistance = maxColumns - currentColumn + 1;
+		Vector2 newRoomDirection = PointDTO.GetDirectionVector (currentRoom.exit.main);
+		Debug.Log (currentColumn);
+		int leftDistance  = currentColumn + 1 + (int)newRoomDirection.x;
+		int rightDistance = maxColumns - currentColumn - (int)newRoomDirection.x;
 		Room room = roomCache.GetRandomRoom (currentRoom.exit.main, currentRoom.exit.secondary, leftDistance, rightDistance);
 
 		int offset = (int)room.entry.roomIndex.x;
@@ -54,7 +58,6 @@ public class LevelGenerator : MonoBehaviour {
 		room.transform.position = UsefulMethods.vectorProduct (currentIndex, roomSize);
 		currentIndex.x += offset;
 
-		Debug.Log (currentIndex);
 		Vector2 newIndexOffset = currentIndex + room.exit.roomIndex - room.entry.roomIndex;
 		currentHeight = (int)newIndexOffset.y;
 		currentColumn = (int)newIndexOffset.x;

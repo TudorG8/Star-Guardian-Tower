@@ -38,7 +38,7 @@ public class RoomGenerator : MonoBehaviour {
 	// Information Fields
 	[SerializeField] PointExtraInfo entryPoint;
 	[SerializeField] PointExtraInfo exitPoint ;
-	[SerializeField] RoomArray      rooms     ;
+	[SerializeField] public RoomArray      rooms     ;
 
 	// Settings
 	[SerializeField] bool disconnectPrefabInstance;
@@ -175,6 +175,9 @@ public class RoomGenerator : MonoBehaviour {
 
 			neighbour.pointRefs   .TurnOff   (PointDTO.GetOpposite(side));
 			neighbour.platformRefs.SetXScale (PointDTO.GetOpposite(side), MinimumPlatformSize.x);
+
+			actual   .SetNeighbour (side                      , neighbour);
+			neighbour.SetNeighbour (PointDTO.GetOpposite(side), actual   );
 		}
 	}
 

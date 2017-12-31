@@ -81,8 +81,9 @@ public class RoomCache : MonoBehaviour {
 
 			if (room.entry.main == PointDTO.GetOpposite (main) && room.entry.secondary == secondary) {
 				Vector2 entryIndex = room.entry.roomIndex;
-				int leftSize = (int)entryIndex.x;
-				int rightSize = (int)(room.size.x - entryIndex.x + 1);
+				int leftSize  = (int)entryIndex.x + 1;
+				int rightSize = (int)(room.size.x - entryIndex.x);
+
 
 				if (room.exit.roomIndex.x == 0 && room.exit.main == PointDTO.Direction.Left)
 					leftSize++;
@@ -97,6 +98,7 @@ public class RoomCache : MonoBehaviour {
 
 			rooms.Add (room);
 		}
+		Debug.Log (rooms.Count);
 		if (rooms.Count == 0) {
 			Debug.LogError ("No Available Rooms");
 			return null;

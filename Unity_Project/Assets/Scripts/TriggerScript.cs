@@ -8,7 +8,6 @@ public class TriggerScript : MonoBehaviour {
 	public UnityEvent eventToCall;
 	void OnTriggerEnter2D(Collider2D other) {
 		if (!triggered) {
-			Debug.Log ("trihher");
 			eventToCall.Invoke ();
 			triggered = true;
 		}

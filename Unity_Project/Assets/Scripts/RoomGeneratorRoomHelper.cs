@@ -79,7 +79,7 @@ public class RoomGeneratorRoomHelper : MonoBehaviour {
 
 	// Readonly
 	[SerializeField] public Vector2    index;
-	[SerializeField] Neighbours neighbours;
+	[SerializeField] public Neighbours neighbours;
 
 	public void SetName() {
 		name = "Room " + index.y + " " + index.x;

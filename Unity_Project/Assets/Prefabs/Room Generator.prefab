@@ -572,8 +572,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1531773166078112}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 26.7, y: 15, z: 1}
+  m_LocalPosition: {x: -0.025, y: -0.025, z: 0}
+  m_LocalScale: {x: 26.75, y: 15.05, z: 1}
   m_Children: []
   m_Father: {fileID: 4932975090114028}
   m_RootOrder: 0
@@ -1350,6 +1350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelGenerator: {fileID: 0}
+  roomGenerator: {fileID: 114468147995572966}
   center: {fileID: 4115798185916314}
   id: 0
   inUse: 0
@@ -1364,7 +1365,7 @@ MonoBehaviour:
     roomIndex: {x: 0, y: 0}
     triggerScript: {fileID: 0}
   size: {x: 1, y: 1}
-  previousPosition: {x: 80.04558, y: -109.84126}
+  previousPosition: {x: 69.57181, y: -176.35709}
 --- !u!114 &114827333708316096
 MonoBehaviour:
   m_ObjectHideFlags: 1

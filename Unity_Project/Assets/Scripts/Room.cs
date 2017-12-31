@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Room : MonoBehaviour {
 	public LevelGenerator levelGenerator;
+	public RoomGenerator roomGenerator;
 	public Transform center;
 
 	public long id;
@@ -25,7 +26,6 @@ public class Room : MonoBehaviour {
 	}
 
 	public void OnEntry() {
-		Debug.Log ("yes");
 		levelGenerator.WhenPlayerEntersNewRoom (center);
 	}
 }
