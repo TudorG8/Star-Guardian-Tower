@@ -3,14 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
 
+/**
+ * Custom array that supports indexable pieces.
+ * It also holds the coordinates in revers order:
+ * 	X -> cols
+ *  Y -> rows
+ *  So doing a SetRoom(0, 2) will set the room at column(x) 0 and row(y) 2
+ *  Why do it like this? It just makes more sense in practice than explanation...
+ */
+
 [System.Serializable]
-public class RoomArray {
+public class CustomArray <T> where T : IndexableArrayPiece <T> {
 	[System.Serializable]
 	public class ListWrapper {
-		public List<RoomGeneratorRoomHelper> list;
+		public List<T> list;
 
 		public ListWrapper() {
-			list = new List<RoomGeneratorRoomHelper>();
+			list = new List<T>();
 		}
 	}
 
@@ -29,8 +38,9 @@ public class RoomArray {
 		return Rows == 1 && Cols == 1; 
 	}
 
-	public List<RoomGeneratorRoomHelper> GetValidRooms() {
-		List<RoomGeneratorRoomHelper> validRooms = new List<RoomGeneratorRoomHelper> ();
+	// Returns a list with all valid elements
+	public List<T> GetValidElements() {
+		List<T> validRooms = new List<T> ();
 		for (int i = 0; i < Rows; i++) {
 			for (int j = 0; j < Cols; j++) {
 				if (array [i].list [j] != null)
@@ -42,78 +52,72 @@ public class RoomArray {
 
 	public void AddRowToTop   () {
 		array.Add(new ListWrapper());
-		for (int i = 0; i < cols; i++) 
-			array [rows].list.Add(null);
+		for (int i = 0; i < cols; i++) {
+			array [rows].list.Add (default(T));
+		}
 		
 		rows++;
 	}
 	public void AddRowToBottom() {
 		IncreaseIndexes(Vector2.up);
 		array.Insert (0, new ListWrapper());
-		for (int i = 0; i < cols; i++) 
-			array [0].list.Add(null);
+		for (int i = 0; i < cols; i++) {
+			array [0].list [i] = default(T);
+		}
 		
 		rows++;
 	}
 	public void AddRowToLeft() {
 		IncreaseIndexes(Vector2.right);
 		for (int i = 0; i < rows; i++) 
-			array [i].list.Insert (0, null);
+			array [i].list.Insert (0, default(T));
 		
 		cols++;
 	}
 	public void AddRowToRight() {
 		for (int i = 0; i < rows; i++) 
-			array [i].list.Add(null);
+			array [i].list.Add(default(T));
 		
 		cols++;
 	}
 
-	/**
-	 * Increases the index of all the rooms by the vector given.
-	 */
+	// Increases the index of all the rooms by the vector given.
 	public void IncreaseIndexes(Vector2 increase) {
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++){
 				if (array [i].list [j] != null) {
-					array [i].list [j].index += increase;
+					array [i].list [j].IncreaseIndex    (increase);
+					array [i].list [j].IncreasePosition (UsefulMethods.vectorProduct (increase, new Vector2 (26.7f, 15f)));
 					array [i].list [j].SetName ();
-
-					Vector2 position = array [i].list [j].transform.position;
-					position += UsefulMethods.vectorProduct(increase, new Vector2 (26.7f, 15f));
-					array [i].list [j].transform.position = position;
 				}
 			}
 		}
 	}
 
-	public bool isValidPosition(Vector2 position) {
+	// Returns true if the given position would be a valid position
+	public bool IsValidPosition(Vector2 position) {
 		if (position.x < 0 || position.x == cols) return false;
 		if (position.y < 0 || position.y == rows) return false;
 		return true;
 	}
 
-	public bool isNotAValidPosition(Vector2 position) {
-		return !isValidPosition (position);
+	// Returns true if the given position would be an invalid position
+	public bool IsNotAValidPosition(Vector2 position) {
+		return !IsValidPosition (position);
 	}
 
-	public RoomGeneratorRoomHelper RoomAt(Vector2 position) {
-		if (!isValidPosition (position)) {
-			Debug.LogError ("Bad position");
-		}
+	public T RoomAt(Vector2 position) {
+		if (IsNotAValidPosition (position)) { Debug.LogError ("Bad position"); }
 		return array [(int)position.y].list [(int)position.x];
 	}
 
-	public void SetRoom(Vector2 position, RoomGeneratorRoomHelper newRoom) {
-		if (!isValidPosition (position)) {
-			Debug.LogError ("Bad position");
-		}
+	public void SetRoom(Vector2 position, T newRoom) {
+		if (IsNotAValidPosition (position)) { Debug.LogError ("Bad position"); }
 		array [(int)position.y].list [(int)position.x] = newRoom;
 	}
 
 	public void Reset() {  
 		array = new List<ListWrapper> ();
-		//array.Add (new ListWrapper());
 		cols = rows = 0;
 		// Delete all rooms
 		foreach (Transform room in attachedTo.transform) {
@@ -131,7 +135,7 @@ public class RoomArray {
 				if (array [i].list [j] == null)
 					message += "null ";
 				else
-					message += array [i].list [j].gameObject.name + " ";
+					message += array [i].list [j].GetGameObject().name + " ";
 			}
 			Debug.Log (message);
 		}

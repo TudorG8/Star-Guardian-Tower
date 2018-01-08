@@ -2,92 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Cache for the rooms that allows the level generator to select a random room on need.
+ * Rooms are not spawned in but rather already exist and are just moved to the right position.
+ * Also some editor stuff to make it easier.
+ */
+
 [ExecuteInEditMode]
-public class RoomCache : MonoBehaviour {
+public class RoomCache : Singleton<RoomCache> {
 	[SerializeField] List<Room> instantiatedRooms;
 
-	int GetRoomId(long id) {
-		for (int i = 0; i < instantiatedRooms.Count; i++) {
-			if (instantiatedRooms [i].id == id) {
-				return i;
-			}
-		}
-		return -1;  
-	}
+	void Awake() { InitiateSingleton (); }
 
-	public void AddNewRoom(Room room) {
-		long id = long.Parse (room.name.Substring (4));
-		int roomIndex = GetRoomId (id);
-
-		if (roomIndex == -1) {
-			instantiatedRooms.Add (room);
-		} 
-		else {
-			instantiatedRooms [roomIndex] = room;
-		}
-		room.transform.SetParent (this.transform, true);  
-	}
-
-	public void PrintCache() {
-		Debug.Log ("Super Cache with " + instantiatedRooms.Count + " rooms");
-		for (int i = 0; i < instantiatedRooms.Count; i++) {
-			Debug.Log (instantiatedRooms [i].name);
-		}
-	}
-	 
-	public void Update () {
-		if (instantiatedRooms == null) {
-			instantiatedRooms = new List<Room> ();
-			Debug.LogError ("Empty Cache");
-		}
-		for (int i = 0; i < instantiatedRooms.Count; i++) {
-			if (instantiatedRooms [i] == null) {
-				instantiatedRooms.RemoveAt (i);
-				break;
-			}
-		}
-	}
-
-	public void Reset() {
-		while (transform.childCount != 0) {
-			DestroyImmediate (transform.GetChild (0).gameObject);
-		}
-		instantiatedRooms = new List<Room> ();
-	}
-
-	public void RemoveRoom(Room room) {
-		if (room == null) {
-			Debug.LogError ("Cannot delete a null room.");
-			return;
-		}
-
-		long id = long.Parse (room.name.Substring (4));
-		int roomIndex = GetRoomId (id);
-
-		if (roomIndex == -1)
-			Debug.LogError ("Room does not exist in list.");
-		else {
-			instantiatedRooms.RemoveAt (roomIndex);
-			DestroyImmediate (room.gameObject);
-		}
-	}
-
-	public Room GetRandomRoom(PointDTO.Direction main, PointDTO.Direction secondary, int leftDistance, int rightDistance) {
+	/**
+	 * Get a random room from the cache that meets the right criteria:
+	 * 		Its entries main must be the opposite of the previous room exit.
+	 * 		Its entries secondary must be the same as the previous room exit.
+	 * 		The distance to either left or right must not go outside the limit.
+	 * Marks the chosen room as in use so it is not selected again.
+	 */
+	public Room GetRandomRoom(Direction main, Direction secondary, int leftDistance, int rightDistance) {
 		List<Room> rooms = new List<Room> ();
 		for (int i = 0; i < instantiatedRooms.Count; i++) {
 			Room room = instantiatedRooms [i];
-			if (room.inUse)
+			if (room.InUse)
 				continue;
 
-			if (room.entry.main == PointDTO.GetOpposite (main) && room.entry.secondary == secondary) {
-				Vector2 entryIndex = room.entry.roomIndex;
+			if (room.Entry.main == DirectionHelper.GetOpposite (main) && room.Entry.secondary == secondary) {
+				Vector2 entryIndex = room.Entry.roomIndex;
 				int leftSize  = (int)entryIndex.x + 1;
-				int rightSize = (int)(room.size.x - entryIndex.x);
+				int rightSize = (int)(room.Size.x - entryIndex.x);
 
-
-				if (room.exit.roomIndex.x == 0 && room.exit.main == PointDTO.Direction.Left)
+				// If its a room to the left and the exit is on the left, size is bigger by one
+				if (room.Exit.roomIndex.x == 0 && room.Exit.main == Direction.Left)
 					leftSize++;
-				else if (room.exit.roomIndex.x == room.size.x - 1 && room.exit.main == PointDTO.Direction.Right)
+				// If its a room to the right and the exit is on the right, size is bigger by one
+				else if (room.Exit.roomIndex.x == room.Size.x - 1 && room.Exit.main == Direction.Right)
 					rightSize++;
 
 				if (leftSize > leftDistance || rightSize > rightDistance)
@@ -98,7 +48,7 @@ public class RoomCache : MonoBehaviour {
 
 			rooms.Add (room);
 		}
-		Debug.Log (rooms.Count);
+
 		if (rooms.Count == 0) {
 			Debug.LogError ("No Available Rooms");
 			return null;
@@ -106,14 +56,105 @@ public class RoomCache : MonoBehaviour {
 		int random = Random.Range (0, rooms.Count);
 		Room chosenRoom = rooms [random];
 
-		chosenRoom.inUse = true;
+		chosenRoom.InUse = true;
 
 		return chosenRoom;
 	}
 
+	// Once a room is no longer needed, it can be returned to the cache, which resets its position.
 	public void ReturnRoomToCache(Room room) {
-		room.transform.localPosition = room.previousPosition;
-		room.entry.triggerScript.triggered = false;
-		room.inUse = false;
+		room.Reset ();
 	}
+
+	// Editor Stuff -------------------------------------------------------------------------------------------
+	#if UNITY_EDITOR
+	public void Update () {
+		// Check if the room list is null by any chance
+		if (instantiatedRooms == null) {
+			instantiatedRooms = new List<Room> ();
+			Debug.LogError ("Empty Cache");
+		}
+		// Check if a room was deleted in the editor
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			if (instantiatedRooms [i] == null) {
+				instantiatedRooms.RemoveAt (i);
+				break;
+			}
+		}
+		// Check if a room was added in the editor
+		foreach (Transform child in transform) {
+			Room room = child.GetComponent<Room> ();
+			AddNewRoom (room);
+		}
+	}
+
+	// Get the index of a room based on its id
+	int GetRoomIndex(long id) {
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			if (instantiatedRooms [i].Id == id) {
+				return i;
+			}
+		}
+		return -1;  
+	}
+		
+	/**
+	 * Adds a new room to the cache.
+	 * If it already is in the cache, it will replace it.
+	 */
+	public void AddNewRoom(Room room) {
+		int roomIndex = GetRoomIndex (room.Id);
+
+		if (roomIndex == -1) {
+			instantiatedRooms.Add (room);
+		} 
+		else {
+			instantiatedRooms [roomIndex] = room;
+		}
+		room.transform.SetParent (this.transform, true);  
+	}
+
+	/**
+	 * Removes a room from the cache.
+	 * Also destroys its associated gameobject.
+	 */
+	public void RemoveRoom(Room room) {
+		if (room == null) {
+			Debug.LogError ("Cannot delete a null room.");
+			return;
+		}
+			
+		int roomIndex = GetRoomIndex (room.Id);
+
+		if (roomIndex == -1)
+			Debug.LogError ("Room does not exist in list.");
+		else {
+			instantiatedRooms.RemoveAt (roomIndex);
+			DestroyImmediate (room.gameObject);
+		}
+	}
+
+	// Print the contents of the cache
+	public void PrintCache() {
+		Debug.Log ("Super Cache with " + instantiatedRooms.Count + " rooms");
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Debug.Log (instantiatedRooms [i].name);
+		}
+	}
+
+	// Reset the cache and delete all children
+	public void Reset() {
+		while (transform.childCount != 0) {
+			DestroyImmediate (transform.GetChild (0).gameObject);
+		}
+		instantiatedRooms = new List<Room> ();
+	}
+
+	public void DisableEditors() {
+	}
+
+	public void EnableEditors () {
+	}
+	#endif
 }
+// --------------------------------------------------------------------------------------------------------

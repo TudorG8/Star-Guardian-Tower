@@ -1,31 +1,49 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomPropertyDrawers;
+
+/**
+ * Holds runtime information related to rooms.
+ */
 
 public class Room : MonoBehaviour {
-	public LevelGenerator levelGenerator;
-	public RoomGenerator roomGenerator;
-	public Transform center;
+	// Imports
+	[SerializeField] RoomHelper roomGenerator ;
+	[SerializeField] Transform  center        ;
 
-	public long id;
-	public bool inUse;
-	public PointDTO entry;
-	public PointDTO exit ;
-	public Vector2 size;
+	// Realonly
+	[SerializeField][ReadOnly] long    id   ; // Unique ID in the cache
+	[SerializeField][ReadOnly] bool    inUse; // Whether the room can be used by the cache
+	[SerializeField][ReadOnly] Vector2 size ; // The number of rooms on both coordinates
+	[SerializeField][ReadOnly] Vector2 previousPosition; // The position in the cache, before it gets moved on the screen
 
-	public Vector2 previousPosition;
+	// Information
+	[SerializeField] PointDTO entry; 
+	[SerializeField] PointDTO exit ;
+	[SerializeField] SegmentArray rooms;
 
-	public void CopyValuesFrom(Room other) {
-		entry = other.entry.GetCopy();
-		exit  = other.exit.GetCopy();
-		size  = other.size;
-	}
+	// Properties
+	public RoomHelper RoomGeneratorScript  { get { return roomGenerator ; }}
+	public Transform  Center               { get { return center        ; }}
 
+	public long    Id    { get { return id   ; } set { id    = value; }}
+	public bool    InUse { get { return inUse; } set { inUse = value; }}
+	public Vector2 Size  { get { return size ; } set { size  = value; }}
+	public Vector2 PreviousPosition { get { return previousPosition; } set { previousPosition = value; }}
+
+	public PointDTO Entry { get { return entry; } }
+	public PointDTO Exit  { get { return exit ; } }
+	public SegmentArray Rooms { get { return rooms; } }
+
+	// Methods
 	public void Reset() {
+		transform.localPosition = previousPosition;
+		entry.triggerScript.triggered = false;
 		inUse = false;
 	}
 
 	public void OnEntry() {
-		levelGenerator.WhenPlayerEntersNewRoom (center);
+		LevelGenerator.Instance.WhenPlayerEntersNewRoom ();
 	}
 }

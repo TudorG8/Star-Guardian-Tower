@@ -1,89 +1,96 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomPropertyDrawers;
+
+/**
+ * Camera script to follow the player but be restricted by the rooms.
+ * To be efficient, we check each neighbour around the current segment.
+ * Once a segment becomes close than the current, that is the new point to follow.
+ * You can only move the camera towards a neighbour.
+ * 	Example: 
+ * 		A - (B)
+ *  	Player is in B and has A as a neighbour. That means he can move the camera left.
+ * 		
+ * 		A - (B)
+ *  		 |
+ *  		 C
+ * 		Player is in B and has A and C as a neighbour. That means he can move the camera left and down.
+ * 
+ * If the player tries to move besides the current point with no neighbours in that direction, the camera will stop.
+ */
 
 public class FollowPlayer : MonoBehaviour {
-	public RoomGenerator currentRoom;
-	public Transform objToFollow;
-	public Transform player;
-	public Vector3 offset;
-	public float smoothing = 0.2f;
+	// Imports
+	[SerializeField] Transform player; // The player
 
-	public Vector2 currentIndex;
+	// Settings
+	[SerializeField] Vector3 offset   ; // The camera offset
+	[SerializeField] float   smoothing; // How smooth following is
 
-	public bool canMoveLeft, canMoveRight, canMoveTop, canMoveBottom;
+	// Read Only
+	[SerializeField][ReadOnly] Room        currentRoom   ; // The room the player is in
+	[SerializeField][ReadOnly] RoomSegment currentSegment; // The segment the camera is following
+	[SerializeField][ReadOnly] Vector3     velocity      ; // Current velocity of the camera
+	[SerializeField][ReadOnly] bool canMoveLeft, canMoveRight, canMoveTop, canMoveBottom;
 
-	public Vector3 velocity;
+	// Set the new room to follow when a player enters it.
+	public void SetNewRoom(Room room) {
+		currentRoom = room;
+		currentSegment = currentRoom.Rooms.RoomAt (room.Entry.roomIndex);
+	}
 
-	void Start() {
-		
+	// Checks if the given segment is closer to the player as compared to the current point
+	void CheckIfSegmentCloserToPlayer (RoomSegment segment, float distanceToCurrentPoint) {
+		float distanceToNeighbour = Vector3.Distance (player.position, segment.Middle.position);
+		if (distanceToNeighbour < distanceToCurrentPoint) {
+			currentSegment = segment;
+		}
 	}
 
 	void LateUpdate () {
-		float distanceToCurrentPoint = Vector3.Distance (player.position, objToFollow.position);
-		RoomGeneratorRoomHelper currentRoomSegment = currentRoom.rooms.RoomAt (currentIndex);
-		//Debug.Log (currentRoomSegment);
-		Transform newObjectToFollow = objToFollow;
+		float distanceToCurrentPoint = Vector3.Distance (player.position, currentSegment.Middle.position);
+
+		// Check in what directions the camera can move
 		canMoveTop = canMoveBottom = canMoveLeft = canMoveRight = false;
-		if (currentRoomSegment.neighbours.top != null) {
+		RoomSegment top    = currentSegment.SegmentNeighbours.Top   ;
+		if (top != null) {
 			canMoveTop = true;
-			float distanceToNeighbour = Vector3.Distance (player.position, currentRoomSegment.neighbours.top.middle.position);
-			if (distanceToNeighbour < distanceToCurrentPoint) {
-				currentIndex = currentRoomSegment.neighbours.top.index;
-				newObjectToFollow = currentRoomSegment.neighbours.top.middle;
-			}
+			CheckIfSegmentCloserToPlayer (top   , distanceToCurrentPoint);
 		} 
-		if (currentRoomSegment.neighbours.bottom != null) {
+		RoomSegment bottom = currentSegment.SegmentNeighbours.Bottom;
+		if (bottom != null) {
 			canMoveBottom = true;
-			float distanceToNeighbour = Vector2.Distance (player.position, currentRoomSegment.neighbours.bottom.middle.position);
-			if (distanceToNeighbour < distanceToCurrentPoint) {
-				currentIndex = currentRoomSegment.neighbours.bottom.index;
-				newObjectToFollow = currentRoomSegment.neighbours.bottom.middle;
-			}
+			CheckIfSegmentCloserToPlayer (bottom, distanceToCurrentPoint);
 		}
-		if (currentRoomSegment.neighbours.left != null) {
+		RoomSegment left   = currentSegment.SegmentNeighbours.Left  ;
+		if (left != null) {
 			canMoveLeft = true;
-			float distanceToNeighbour = Vector2.Distance (player.position, currentRoomSegment.neighbours.left.middle.position);
-			if (distanceToNeighbour < distanceToCurrentPoint) {
-				currentIndex = currentRoomSegment.neighbours.left.index;
-				newObjectToFollow = currentRoomSegment.neighbours.left.middle;
-			}
+			CheckIfSegmentCloserToPlayer (left  , distanceToCurrentPoint);
 		}
-		if (currentRoomSegment.neighbours.right != null) {
+		RoomSegment right  = currentSegment.SegmentNeighbours.Right ;
+		if (right != null) {
 			canMoveRight = true;
-			float distanceToNeighbour = Vector2.Distance (player.position, currentRoomSegment.neighbours.right.middle.position);
-			if (distanceToNeighbour < distanceToCurrentPoint) {
-				currentIndex = currentRoomSegment.neighbours.right.index;
-				newObjectToFollow = currentRoomSegment.neighbours.right.middle;
-			}
+			CheckIfSegmentCloserToPlayer (right , distanceToCurrentPoint);
 		}
 
-		Vector3 targetPosition = objToFollow.position + offset;
-		targetPosition.x = player.position.x;
-		targetPosition.y = player.position.y;
-		if (player.position.x < objToFollow.position.x) {
-			if (!canMoveLeft) {
-				targetPosition.x = objToFollow.position.x;
-			}
+		// Restrain position based on the players position and current segment
+		Transform objectToFollow = currentSegment.Middle;
+		Vector3 targetPosition = player.position + offset;
+		if (!canMoveLeft   && player.position.x < objectToFollow.position.x) {
+			targetPosition.x = objectToFollow.position.x;
 		}
-		if (player.position.x > objToFollow.position.x) {
-			if (!canMoveRight) {
-				targetPosition.x = objToFollow.position.x;
-			}
+		if (!canMoveRight  && player.position.x > objectToFollow.position.x) {
+			targetPosition.x = objectToFollow.position.x;
 		}
-		if (player.position.y < objToFollow.position.y) {
-			if (!canMoveBottom) {
-				targetPosition.y = objToFollow.position.y;
-			}
+		if (!canMoveBottom && player.position.y < objectToFollow.position.y) {
+			targetPosition.y = objectToFollow.position.y;
 		}
-		if (player.position.y > objToFollow.position.y) {
-			if (!canMoveTop) {
-				targetPosition.y = objToFollow.position.y;
-			}
+		if (!canMoveTop    && player.position.y > objectToFollow.position.y) {
+			targetPosition.y = objectToFollow.position.y;
 		}
-			
-		objToFollow = newObjectToFollow;
 
+		// Move the camera
 		transform.position = Vector3.SmoothDamp (transform.position, targetPosition, ref velocity, smoothing);
 	}
 } 
