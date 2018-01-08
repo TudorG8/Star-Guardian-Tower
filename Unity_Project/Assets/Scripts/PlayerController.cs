@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour {
 	// Imports --------------------------------------------------------------
 	[SerializeField] PhysicsController2D physicsController;
 	[SerializeField] AttackTrigger       attackTrigger    ;
+	[SerializeField] Animator            animator         ;
 
     // Settings -------------------------------------------------------------
 	[SerializeField] float runSpeed       =  5.0f; // The character's running speed
@@ -82,6 +83,7 @@ public class PlayerController : MonoBehaviour {
 		float targetVelocity = Mathf.SmoothDamp (velocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
 		// We want to accelerate towards our target velocity smoothly rather than instantly.
 		velocity.x = targetVelocity;
+		animator.SetFloat("horrizontalSpeed", Mathf.Abs(velocity.x / runSpeed));
 	}
 
 	void ApplyGravity() {
@@ -120,6 +122,7 @@ public class PlayerController : MonoBehaviour {
 		}
 		// Character can jump when standing on the ground
 		if (Input.GetButtonDown("Jump_P1")) {
+			animator.SetBool ("grounded", false);
 			if (info.hangingOnEdge) {
 				GetComponent<Animator> ().SetTrigger ("jump");
 				inputDisabled = true;
@@ -185,6 +188,8 @@ public class PlayerController : MonoBehaviour {
 				transform.localScale = scale;
 			}
 
+
+
 			// Move character
 			bool previouslyGrounded = physicsController.raycastShooter.collisionInfo.below;
 
@@ -206,8 +211,17 @@ public class PlayerController : MonoBehaviour {
 			}
 
 			if (physicsController.raycastShooter.collisionInfo.below || physicsController.raycastShooter.collisionInfo.above) {
-				if(!physicsController.raycastShooter.collisionInfo.slidingDownSlope)
+				if (!physicsController.raycastShooter.collisionInfo.slidingDownSlope) {
 					velocity.y = 0;
+					animator.SetBool ("grounded", true);
+				}
+			}
+
+			if (velocity.y < 0) {
+				animator.SetFloat ("verticalSpeed", velocity.y / maxFallSpeed   );
+			} 
+			else {
+				animator.SetFloat ("verticalSpeed", velocity.y / maxJumpVelocity);
 			}
 		}
 	}
