@@ -31,22 +31,12 @@ public class RoomHelper : MonoBehaviour {
 	// Imports
 	[SerializeField] Room roomScript;
 
-	// Prefabs
-	[SerializeField] public GameObject roomPrefab;
-
 	// Information Fields
 	[SerializeField] PointExtraInfo entryPoint;
 	[SerializeField] PointExtraInfo exitPoint ;
 
 	// Settings
-	[SerializeField] bool    disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
-	[SerializeField] float   pointGap;
-	[SerializeField] Vector2 roomSize;
-	[SerializeField] Vector2 minimumPlatformSize;
-
-	// Properties
-	public Vector2 MinimumPlatformSize { get { return minimumPlatformSize;} }
-	public Vector2 RoomSize            { get { return roomSize           ;} }
+	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
 
 	// Methods ---------------------------------------------------------------------------------------------------
 	// Print the rooms
@@ -54,6 +44,7 @@ public class RoomHelper : MonoBehaviour {
 
 	// Reset the room array and spawn in a new room
 	public void Reset() {
+		Debug.Log ("restign");
 		roomScript.Rooms.Reset ();
 		CheckIfRoomHasAValidID ();
 		RoomSegment newRoomSegment = CreateRoomSegment (new Vector2(0, 0), Direction.None);
@@ -73,9 +64,9 @@ public class RoomHelper : MonoBehaviour {
 	 */
 	public RoomSegment CreateRoomSegment (Vector2 position, Direction side) {
 		Vector2 spawnPosition = position;
-		spawnPosition += UsefulMethods.vectorProduct(RoomSize, DirectionHelper.GetDirectionVector(side));
+		spawnPosition += UsefulMethods.vectorProduct(RoomCache.Instance.RoomSize, DirectionHelper.GetDirectionVector(side));
 
-		GameObject roomObj = Instantiate (roomPrefab, spawnPosition, Quaternion.identity) as GameObject;
+		GameObject roomObj = Instantiate (RoomCache.Instance.RoomPrefab, spawnPosition, Quaternion.identity) as GameObject;
 		roomObj.transform.SetParent (transform, false);
 		roomObj.transform.SetAsLastSibling ();
 
@@ -106,7 +97,7 @@ public class RoomHelper : MonoBehaviour {
 		if (desiredPosition.y < 0) { desiredPosition.y = 0; newPosition.y = 1; }
 
 		newRoom.Index = desiredPosition;
-		newRoom.IncreasePosition (UsefulMethods.vectorProduct (newPosition, RoomSize));
+		newRoom.IncreasePosition (UsefulMethods.vectorProduct (newPosition, RoomCache.Instance.RoomSize));
 		newRoom.SetName ();
 
 		rooms.SetRoom(desiredPosition, newRoom);
@@ -139,10 +130,10 @@ public class RoomHelper : MonoBehaviour {
 		rooms.SetRoom (position, null);
 
 		// Check corners first so that the nearby room check sets the right dimensions
-		CheckCorner (position, Direction.Top   , Direction.Right, MinimumPlatformSize.x);
-		CheckCorner (position, Direction.Top   , Direction.Left , MinimumPlatformSize.x);
-		CheckCorner (position, Direction.Bottom, Direction.Right, MinimumPlatformSize.x);
-		CheckCorner (position, Direction.Bottom, Direction.Left , MinimumPlatformSize.x);
+		CheckCorner (position, Direction.Top   , Direction.Right, RoomCache.Instance.MinimumPlatformSize.x);
+		CheckCorner (position, Direction.Top   , Direction.Left , RoomCache.Instance.MinimumPlatformSize.x);
+		CheckCorner (position, Direction.Bottom, Direction.Right, RoomCache.Instance.MinimumPlatformSize.x);
+		CheckCorner (position, Direction.Bottom, Direction.Left , RoomCache.Instance.MinimumPlatformSize.x);
 
 		CheckForNearbyRoomsForDelete (position, Direction.Top   );
 		CheckForNearbyRoomsForDelete (position, Direction.Bottom);
@@ -170,10 +161,10 @@ public class RoomHelper : MonoBehaviour {
 
 		if (neighbour != null) {
 			actual.pointRefs   .TurnOff   (side);
-			actual.platformRefs.SetXScale (side, MinimumPlatformSize.x);
+			actual.platformRefs.SetXScale (side, RoomCache.Instance.MinimumPlatformSize.x);
 
 			neighbour.pointRefs   .TurnOff   (DirectionHelper.GetOpposite(side));
-			neighbour.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), MinimumPlatformSize.x);
+			neighbour.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), RoomCache.Instance.MinimumPlatformSize.x);
 
 			actual   .SetNeighbour (side, neighbour.roomSegment);
 			neighbour.SetNeighbour (DirectionHelper.GetOpposite(side), actual.roomSegment);
@@ -194,7 +185,7 @@ public class RoomHelper : MonoBehaviour {
 		RoomSegmentHelper neighbour = rooms.RoomAt (desiredPosition).HelperScript;
 
 		if (neighbour != null) {
-			float size = (side == Direction.Top || side == Direction.Bottom) ? RoomSize.x / 2 : RoomSize.y / 2;
+			float size = (side == Direction.Top || side == Direction.Bottom) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
 			neighbour.pointRefs   .TurnOn    (DirectionHelper.GetOpposite(side));
 			neighbour.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), size);
@@ -280,9 +271,9 @@ public class RoomHelper : MonoBehaviour {
 	 */
 	void HandlePlatformSize(PointHelper newPoint, PointExtraInfo previousInfo, PointDTO roomPoint) {
 		RoomSegmentHelper.PlatformRefs platformRefs = newPoint.roomEditor.platformRefs;
-		float newSize = (roomPoint.main == Direction.Top || roomPoint.main == Direction.Bottom ) ? RoomSize.x / 2 : RoomSize.y / 2;
+		float newSize = (roomPoint.main == Direction.Top || roomPoint.main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
-		string mainString      = newPoint.name.Substring (0, newPoint.name.Length - 1);
+		string mainString      = newPoint.name.Substring (0, newPoint.name.Length - 2);
 		string secondaryString = newPoint.name.Substring (newPoint.name.Length - 1);
 
 		roomPoint.main      = DirectionHelper.GetByName (mainString);
@@ -302,8 +293,8 @@ public class RoomHelper : MonoBehaviour {
 			previousInfo.previousPlatform2.transform.localScale = new Vector2 (previousInfo.previousSize, previousInfo.previousPlatform2.transform.localScale.y);
 		}
 
-		platform1.transform.localScale = new Vector2 (MinimumPlatformSize.x , platform1.transform.localScale.y);
-		platform2.transform.localScale = new Vector2 (newSize * 2 - pointGap, platform2.transform.localScale.y);
+		platform1.transform.localScale = new Vector2 (RoomCache.Instance.MinimumPlatformSize.x , platform1.transform.localScale.y);
+		platform2.transform.localScale = new Vector2 (newSize * 2 - RoomCache.Instance.PointGap, platform2.transform.localScale.y);
 
 		previousInfo.previousSize      = newSize;
 		previousInfo.previousPoint     = newPoint.transform;

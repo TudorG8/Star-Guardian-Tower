@@ -110,9 +110,6 @@ public class RoomSegmentHelper : MonoBehaviour {
 	void AddRoom(Direction side) {
 		RoomSegment newRoom = this.roomGenerator.CreateRoomSegment (transform.localPosition, side);
 
-		this.SetNeighbour (side, newRoom);
-		newRoom.HelperScript.SetNeighbour (DirectionHelper.GetOpposite(side), this.roomSegment);
-
 		roomGenerator.AddRoomSegment (roomSegment.Index, side, newRoom);
 	}
 

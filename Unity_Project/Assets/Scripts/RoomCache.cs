@@ -10,7 +10,18 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class RoomCache : Singleton<RoomCache> {
+	[SerializeField] Vector2    roomSize           ;
+	[SerializeField] float      pointGap           ;
+	[SerializeField] Vector2    minimumPlatformSize;
+	[SerializeField] GameObject roomPrefab         ;
+
 	[SerializeField] List<Room> instantiatedRooms;
+
+	// Properties
+	public Vector2    RoomSize            { get { return roomSize           ; } }
+	public float      PointGap            { get { return pointGap           ; } }
+	public Vector2    MinimumPlatformSize { get { return minimumPlatformSize; } }
+	public GameObject RoomPrefab          { get { return roomPrefab         ; } }
 
 	void Awake() { InitiateSingleton (); }
 
@@ -69,6 +80,7 @@ public class RoomCache : Singleton<RoomCache> {
 	// Editor Stuff -------------------------------------------------------------------------------------------
 	#if UNITY_EDITOR
 	public void Update () {
+		if (Instance == null) InitiateSingleton (); 
 		// Check if the room list is null by any chance
 		if (instantiatedRooms == null) {
 			instantiatedRooms = new List<Room> ();

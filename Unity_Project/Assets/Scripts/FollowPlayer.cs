@@ -49,6 +49,8 @@ public class FollowPlayer : MonoBehaviour {
 	}
 
 	void LateUpdate () {
+		if (currentRoom == null) return;
+
 		float distanceToCurrentPoint = Vector3.Distance (player.position, currentSegment.Middle.position);
 
 		// Check in what directions the camera can move

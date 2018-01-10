@@ -41,6 +41,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		currentColumn = maxColumns - 1;
 		currentRoom   = startingRoom;
 
+		cameraScript.SetNewRoom (currentRoom);
 		nextRoom = GenerateRandomRoom(currentRoom);
 	}
     

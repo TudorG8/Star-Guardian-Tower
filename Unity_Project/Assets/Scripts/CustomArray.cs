@@ -13,19 +13,13 @@ using CustomPropertyDrawers;
  */
 
 [System.Serializable]
-public class CustomArray <T> where T : IndexableArrayPiece <T> {
-	[System.Serializable]
-	public class ListWrapper {
-		public List<T> list;
-
-		public ListWrapper() {
-			list = new List<T>();
-		}
-	}
-
+public class CustomArray <U, T> 
+	where U : IndexableArrayPiece<U>, new()
+	where T : CustomArrayList    <U>, new() 
+{
 	[SerializeField][ReadOnly] int rows, cols;
 	[SerializeField] Transform attachedTo;
-	[SerializeField] List<ListWrapper> array;
+	[SerializeField] List<T> array;
 
 	public int Rows { get { return rows; } }
 	public int Cols { get { return cols; } }
@@ -39,8 +33,8 @@ public class CustomArray <T> where T : IndexableArrayPiece <T> {
 	}
 
 	// Returns a list with all valid elements
-	public List<T> GetValidElements() {
-		List<T> validRooms = new List<T> ();
+	public List<U> GetValidElements() {
+		List<U> validRooms = new List<U> ();
 		for (int i = 0; i < Rows; i++) {
 			for (int j = 0; j < Cols; j++) {
 				if (array [i].list [j] != null)
@@ -51,18 +45,18 @@ public class CustomArray <T> where T : IndexableArrayPiece <T> {
 	}
 
 	public void AddRowToTop   () {
-		array.Add(new ListWrapper());
+		array.Add(new T());
 		for (int i = 0; i < cols; i++) {
-			array [rows].list.Add (default(T));
+			array [rows].list.Add (default(U));
 		}
-		
+
 		rows++;
 	}
 	public void AddRowToBottom() {
 		IncreaseIndexes(Vector2.up);
-		array.Insert (0, new ListWrapper());
+		array.Insert (0, new T());
 		for (int i = 0; i < cols; i++) {
-			array [0].list [i] = default(T);
+			array [0].list [i] = default(U);
 		}
 		
 		rows++;
@@ -70,13 +64,13 @@ public class CustomArray <T> where T : IndexableArrayPiece <T> {
 	public void AddRowToLeft() {
 		IncreaseIndexes(Vector2.right);
 		for (int i = 0; i < rows; i++) 
-			array [i].list.Insert (0, default(T));
+			array [i].list.Insert (0, default(U));
 		
 		cols++;
 	}
 	public void AddRowToRight() {
 		for (int i = 0; i < rows; i++) 
-			array [i].list.Add(default(T));
+			array [i].list.Add(default(U));
 		
 		cols++;
 	}
@@ -106,18 +100,18 @@ public class CustomArray <T> where T : IndexableArrayPiece <T> {
 		return !IsValidPosition (position);
 	}
 
-	public T RoomAt(Vector2 position) {
+	public U RoomAt(Vector2 position) {
 		if (IsNotAValidPosition (position)) { Debug.LogError ("Bad position"); }
 		return array [(int)position.y].list [(int)position.x];
 	}
 
-	public void SetRoom(Vector2 position, T newRoom) {
+	public void SetRoom(Vector2 position, U newRoom) {
 		if (IsNotAValidPosition (position)) { Debug.LogError ("Bad position"); }
 		array [(int)position.y].list [(int)position.x] = newRoom;
 	}
 
 	public void Reset() {  
-		array = new List<ListWrapper> ();
+		array = new List<T> (); 
 		cols = rows = 0;
 		// Delete all rooms
 		foreach (Transform room in attachedTo.transform) {

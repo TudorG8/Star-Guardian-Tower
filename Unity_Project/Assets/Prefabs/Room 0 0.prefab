@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 212862687192762982}
   - component: {fileID: 114128980970572374}
   m_Layer: 0
-  m_Name: Point Bottom 2
+  m_Name: Bottom 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: 212999322776845636}
   - component: {fileID: 114487696158581012}
   m_Layer: 0
-  m_Name: Point Top 1
+  m_Name: Top 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4359148353425954}
   - component: {fileID: 114795664685885996}
+  - component: {fileID: 114671367978973296}
   m_Layer: 0
   m_Name: Room 0 0
   m_TagString: Untagged
@@ -151,7 +152,7 @@ GameObject:
   - component: {fileID: 212205368881833306}
   - component: {fileID: 114512194727398532}
   m_Layer: 0
-  m_Name: Point Left 2
+  m_Name: Left 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -217,7 +218,7 @@ GameObject:
   - component: {fileID: 212935078302342050}
   - component: {fileID: 114699359700522832}
   m_Layer: 0
-  m_Name: Point Right 2
+  m_Name: Right 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -284,7 +285,7 @@ GameObject:
   - component: {fileID: 212963706539749288}
   - component: {fileID: 114362439262512998}
   m_Layer: 0
-  m_Name: Point Bottom 1
+  m_Name: Bottom 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -318,7 +319,7 @@ GameObject:
   - component: {fileID: 212960665185873476}
   - component: {fileID: 114431374949547974}
   m_Layer: 0
-  m_Name: Point Left 1
+  m_Name: Left 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -382,7 +383,7 @@ GameObject:
   - component: {fileID: 212371623729779536}
   - component: {fileID: 114349025972873154}
   m_Layer: 0
-  m_Name: Point Top 2
+  m_Name: Top 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -399,7 +400,7 @@ GameObject:
   - component: {fileID: 212480828053080384}
   - component: {fileID: 114984939664955404}
   m_Layer: 0
-  m_Name: Point Right 1
+  m_Name: Right 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -576,7 +577,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1274464097700026}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 49.32, y: -56.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4733770651743620}
@@ -951,7 +952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!114 &114349025972873154
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -963,7 +964,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!114 &114362439262512998
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -975,7 +976,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!114 &114431374949547974
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -987,7 +988,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!114 &114487696158581012
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -999,7 +1000,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!114 &114512194727398532
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1011,20 +1012,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
---- !u!114 &114699359700522832
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1592977424923118}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
---- !u!114 &114795664685885996
+  roomEditor: {fileID: 114671367978973296}
+--- !u!114 &114671367978973296
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -1032,20 +1021,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1274464097700026}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d5f080fff39e5646808abded5b8e26a, type: 3}
+  m_Script: {fileID: 11500000, guid: cc1203a95fee74be490ab919bae2d706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 0}
   roomGenerator: {fileID: 0}
+  roomSegment: {fileID: 114795664685885996}
   platformRefs:
-    top1: {fileID: 1912201954003244}
-    top2: {fileID: 1078636859785988}
-    bottom1: {fileID: 1432128769603428}
-    bottom2: {fileID: 1599918639102934}
-    left1: {fileID: 1860892557353400}
-    left2: {fileID: 1432969367937456}
-    right1: {fileID: 1060755383535884}
-    right2: {fileID: 1652631676474684}
+    top1: {fileID: 0}
+    top2: {fileID: 0}
+    bottom1: {fileID: 0}
+    bottom2: {fileID: 0}
+    left1: {fileID: 0}
+    left2: {fileID: 0}
+    right1: {fileID: 0}
+    right2: {fileID: 0}
     platforms:
     - {fileID: 1912201954003244}
     - {fileID: 1078636859785988}
@@ -1056,14 +1045,6 @@ MonoBehaviour:
     - {fileID: 1060755383535884}
     - {fileID: 1652631676474684}
   pointRefs:
-    top1: {fileID: 1248465463905934}
-    top2: {fileID: 1988060480371550}
-    bottom1: {fileID: 1786720858445818}
-    bottom2: {fileID: 1099638546184188}
-    left1: {fileID: 1886098904079044}
-    left2: {fileID: 1419649196214068}
-    right1: {fileID: 1989940334440072}
-    right2: {fileID: 1592977424923118}
     points:
     - {fileID: 114487696158581012}
     - {fileID: 114349025972873154}
@@ -1076,13 +1057,37 @@ MonoBehaviour:
   hazardParent: {fileID: 1130991299274556}
   innerPlatformParent: {fileID: 1485485863665848}
   backgroundParent: {fileID: 1008845977807256}
+--- !u!114 &114699359700522832
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1592977424923118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomEditor: {fileID: 114671367978973296}
+--- !u!114 &114795664685885996
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1274464097700026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8d7f7eb14eed4eca9d80875bbde183b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  helperScript: {fileID: 114671367978973296}
   middle: {fileID: 4063199413296742}
-  index: {x: 0, y: 0}
   neighbours:
     top: {fileID: 0}
     bottom: {fileID: 0}
     left: {fileID: 0}
     right: {fileID: 0}
+  index: {x: 0, y: 0}
 --- !u!114 &114984939664955404
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1094,7 +1099,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7406b7e0c9d550046bc3d1be5284756e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomEditor: {fileID: 114795664685885996}
+  roomEditor: {fileID: 114671367978973296}
 --- !u!212 &212159108687146194
 SpriteRenderer:
   m_ObjectHideFlags: 1

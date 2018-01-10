@@ -3,4 +3,4 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class SegmentArray : CustomArray<RoomSegment, SegmentArrayList> { }
+public class SegmentArrayList : CustomArrayList<RoomSegment> { }
