@@ -39,7 +39,7 @@ public class Room : MonoBehaviour {
 	// Methods
 	public void Reset() {
 		transform.localPosition = previousPosition;
-		entry.triggerScript.triggered = false;
+		entry.triggerScript.Triggered = false;
 		inUse = false;
 	}
 

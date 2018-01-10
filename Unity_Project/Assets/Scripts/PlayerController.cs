@@ -2,11 +2,13 @@
 using System.Collections;
 using CustomPropertyDrawers;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : Singleton<PlayerController> {
 	// Imports --------------------------------------------------------------
 	[SerializeField] PhysicsController2D physicsController;
 	[SerializeField] AttackTrigger       attackTrigger    ;
 	[SerializeField] Animator            animator         ;
+
+	[SerializeField] Transform           savePoint        ;
 
     // Settings -------------------------------------------------------------
 	[SerializeField] float runSpeed       =  5.0f; // The character's running speed
@@ -75,8 +77,23 @@ public class PlayerController : MonoBehaviour {
 		canJumpWhileSliding = false;
 	}
 
+	public void UpdateSavePoint(Transform newSavePoint) {
+		savePoint = newSavePoint;
+	}
 
+	void OnDamageTaken() {
+		StartCoroutine (DamageTakenRoutine ());
+	}
 
+	IEnumerator DamageTakenRoutine() {
+		inputDisabled = true ;
+		animator.SetTrigger ("defeat");
+		yield return new WaitForSeconds (0.5f);
+		transform.position = savePoint.transform.position;
+		animator.SetTrigger ("respawn");
+		inputDisabled = false;
+	}
+		
 	void UpdateMovementState() {
 		float smoothingAmount = physicsController.raycastShooter.collisionInfo.below ? accelerationGrounded : accelerationAirborne;
 

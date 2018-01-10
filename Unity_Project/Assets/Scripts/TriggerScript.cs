@@ -4,12 +4,25 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class TriggerScript : MonoBehaviour {
-	public bool triggered;
-	public UnityEvent eventToCall;
+	[SerializeField] bool  retriggable;
+	[SerializeField] bool  triggered  ;
+	[SerializeField] float delay      ;
+	[SerializeField] UnityEvent eventToCall;
+
+	public bool Triggered { get { return triggered; } set { triggered = value; } }
+
 	void OnTriggerEnter2D(Collider2D other) {
 		if (!triggered) {
 			eventToCall.Invoke ();
 			triggered = true;
+			if (retriggable) {
+				StartCoroutine (Wait (delay));
+			}
 		}
+	}
+
+	IEnumerator Wait(float delay) {
+		yield return new WaitForSeconds (delay);
+		triggered = false;
 	}
 }
