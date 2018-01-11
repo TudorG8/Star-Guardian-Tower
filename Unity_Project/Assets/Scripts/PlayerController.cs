@@ -182,6 +182,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	void UpdateAttackState() {
 		if (Input.GetKeyDown (KeyCode.LeftControl) && canAttack) {
+			animator.SetTrigger ("attack");
 			attackTrigger.Attack (new Vector2(Mathf.Sign(velocity.x), 0));
 			StartCoroutine (WaitForCooldown (
 				() => {canAttack = false;},

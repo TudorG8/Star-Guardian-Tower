@@ -8,6 +8,8 @@ public class AttackTrigger : MonoBehaviour {
 
 	public LayerMask collisionMask;
 
+	public float initialDelay;
+
 	public int framesActive = 1;
 	public int pushback = 1;
 
@@ -19,11 +21,13 @@ public class AttackTrigger : MonoBehaviour {
 		
 	public void Attack(Vector2 direction) {
 		this.direction = direction;
-		animator.SetTrigger ("attack");
+
 		StartCoroutine (AttackTime ());
 	}
 
 	IEnumerator AttackTime() {
+		yield return new WaitForSeconds (initialDelay);
+		animator.SetTrigger ("attack");
 		attachedCollider.enabled = true ;
 		for (int i = 0; i < framesActive; i++) {
 			yield return new WaitForEndOfFrame ();
