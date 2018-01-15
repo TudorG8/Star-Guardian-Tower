@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PhysicsController2D : ControllerBase {
-	public Transform      player;
-	public RaycastShooter raycastShooter;
+	[SerializeField] Transform      player;
+	[SerializeField] RaycastShooter raycastShooter;
 
 	public int maxAscendAngle  = 60;
 	public int maxDescentAngle = 60;
@@ -30,9 +30,8 @@ public class PhysicsController2D : ControllerBase {
 		ColliderCorners boxCorners    = raycastShooter.boxCorners   ;
 
 		if (rayInfo.hit) {
-			if (rayInfo.hit.distance == 0) {
-				return StatementInfo.Continue;
-			}
+			if (rayInfo.hit.distance == 0) { return StatementInfo.Continue; }
+
 			float slopeAngle = Vector2.Angle (rayInfo.hit.normal, Vector2.up);
 
 			// We check the bottommost ray to see if we are climbing a slope

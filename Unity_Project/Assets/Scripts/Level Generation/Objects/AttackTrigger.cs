@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AttackTrigger : MonoBehaviour {
-	public Animator animator;
-	public Collider2D attachedCollider;
+	[SerializeField] Animator animator;
+	[SerializeField] Collider2D attachedCollider;
 
-	public LayerMask collisionMask;
+	[SerializeField] float initialDelay;
 
-	public float initialDelay;
+	[SerializeField] int framesActive = 1;
 
-	public int framesActive = 1;
-	public int pushback = 1;
-
-	Vector2 direction;
+	public void SetUp(ShopItem item) {
+		// Set the mesh renderer
+		// Set the range of the slash
+	}
 
 	void Start() {
 		attachedCollider.enabled = false;
 	}
 		
-	public void Attack(Vector2 direction) {
-		this.direction = direction;
-
+	public void Attack() {
 		StartCoroutine (AttackTime ());
 	}
 
@@ -33,12 +31,5 @@ public class AttackTrigger : MonoBehaviour {
 			yield return new WaitForEndOfFrame ();
 		}
 		attachedCollider.enabled = false;
-	}
-
-	void OnTriggerEnter2D(Collider2D other) {
-		if (collisionMask == (collisionMask | (1 << other.gameObject.layer))) {
-			other.GetComponent<Rigidbody2D> ().AddForce (direction * pushback);
-			Destroy (other.gameObject, 0.5f);
-		}
 	}
 }

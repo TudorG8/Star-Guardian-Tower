@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class ControllerBase : MonoBehaviour {
+	[SerializeField] RaycastShooter raycastShooter;
 	/**
 	 * This method is supposed to move the player when there is no input present.
 	 */
@@ -15,4 +16,8 @@ public abstract class ControllerBase : MonoBehaviour {
 	 * Core method that must be implemented by any children.
 	 */
 	public abstract void Move(Vector2 velocity, Vector2 input);
+
+	public CollisionInfo GetCollisionInfo() {
+		return raycastShooter.GetCollisionInfo ();
+	}
 }

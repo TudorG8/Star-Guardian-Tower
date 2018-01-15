@@ -8,9 +8,6 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	[SerializeField] Text     scoreText    ;
 	[SerializeField] Animator scoreAnimator;
 
-	[SerializeField] int totalScore;
-	[SerializeField] int totalGold ;
-
 	[SerializeField] int fastThreshold;
 	[SerializeField] int slowSpeed    ;
 	[SerializeField] int fastSpeed    ;
@@ -20,12 +17,12 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	void Awake () { InitiateSingleton (); }
 
 	void Update() {
-		scoreText.text = totalScore.ToString ();
+		scoreText.text = SessionData.Instance.CurrentGold.ToString ();
 	}
 
 	public void GainScore(int amount) {
-		totalScore += amount;
-		int difference = totalScore - currentScore;
+		SessionData.Instance.CurrentScore += amount;
+		int difference = SessionData.Instance.CurrentScore - currentScore;
 
 		int instancesRequired = (difference >= fastThreshold) ? fastSpeed : slowSpeed;
 
@@ -37,11 +34,11 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	}
 
 	public void GainGold(int amount) {
-		totalGold += amount;
+		SessionData.Instance.CurrentGold += amount;
 	}
 
 	IEnumerator ScoreRoutine(float speed) {
-		while (currentScore < totalScore) {
+		while (currentScore < SessionData.Instance.CurrentScore) {
 			currentScore += 1;
 			yield return new WaitForSeconds (speed);
 		}

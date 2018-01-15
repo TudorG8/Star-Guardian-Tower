@@ -36,27 +36,39 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 	// Generate the first room after a small delay
 	void Start () { 
-		if (DataSaver.Instance.FinishedTutorial) {
-			StartCoroutine (StartUp ()); 
-		} 
-		else {
-			currentRoom = tutorialRoom;
-			cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
-			cameraScript.SetNewRoom (currentRoom);
-			PlayerController.Instance.transform.position = tutorialPlayerLocation.position;
-		}
+		if (DataSaver.Instance.FinishedTutorial) { StartCoroutine (NormalSetUp   ()); } 
+		else /*Not Finished Tutorial*/           { StartCoroutine (TutorialSetUp ()); }
 	}
 
-	private IEnumerator StartUp() {
+	IEnumerator TutorialSetUp () {
+		// Delay a little bit so everything gets loaded?
+		yield return new WaitForSeconds (0.25f);
+		currentRoom = tutorialRoom;
+
+		// Camera stuff
+		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
+		cameraScript.SetNewRoom (currentRoom);
+
+		// Player stuff
+		PlayerController.Instance.transform.position = tutorialPlayerLocation.position;
+	}
+
+	IEnumerator NormalSetUp() {
 		// Delay a little bit so everything gets loaded?
 		yield return new WaitForSeconds (0.25f);
 		currentHeight = 0;
 		currentColumn = maxColumns - 1;
 		currentRoom   = startingRoom;
+		nextRoom = GenerateRandomRoom(currentRoom);
 
+		// Camera stuff
 		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
 		cameraScript.SetNewRoom (currentRoom);
-		nextRoom = GenerateRandomRoom(currentRoom);
+
+		// Player stuff
+		SessionData.Instance.Reset ();
+		PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetRange ());
+		PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
 		PlayerController.Instance.transform.position = startingPlayerLocation.position;
 	}
     

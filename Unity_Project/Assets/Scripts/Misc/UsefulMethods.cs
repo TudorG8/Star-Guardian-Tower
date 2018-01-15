@@ -9,4 +9,5 @@ public class UsefulMethods : MonoBehaviour {
 	public static Vector2 ReverseCoordinates(Vector2 input) {
 		return new Vector2 (input.y, input.x);
 	}
+
 }
