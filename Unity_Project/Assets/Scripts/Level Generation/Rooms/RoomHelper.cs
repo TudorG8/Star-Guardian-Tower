@@ -271,7 +271,6 @@ public class RoomHelper : MonoBehaviour {
 	 */
 	void HandlePlatformSize(PointHelper newPoint, PointExtraInfo previousInfo, PointDTO roomPoint) {
 		RoomSegmentHelper.PlatformRefs platformRefs = newPoint.roomEditor.platformRefs;
-		float newSize = (roomPoint.main == Direction.Top || roomPoint.main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
 		string mainString      = newPoint.name.Substring (0, newPoint.name.Length - 2);
 		string secondaryString = newPoint.name.Substring (newPoint.name.Length - 1);
@@ -279,6 +278,8 @@ public class RoomHelper : MonoBehaviour {
 		roomPoint.main      = DirectionHelper.GetByName (mainString);
 		roomPoint.secondary = platformRefs.GetFromIndex(roomPoint.main, int.Parse(secondaryString));
 		roomPoint.roomIndex = newPoint.roomEditor.roomSegment.Index;
+
+		float newSize = (roomPoint.main == Direction.Top || roomPoint.main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
 		// Get which platforms to modify
 		int mainIndex, secondaryIndex;
@@ -322,42 +323,47 @@ public class RoomHelper : MonoBehaviour {
 		}
 
 		// Handle exit point
-		float minDistance = float.MaxValue;
-		PointHelper minPoint = null;
-		foreach (PointHelper point in validPoints) {
-			if (point.gameObject.activeSelf) {
-				float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
-				if (pointDistance < minDistance) {
-					minDistance = pointDistance;
-					minPoint = point;
+		if (exitPoint.point != null && exitPoint.point.gameObject.activeSelf) {
+			float minDistance = float.MaxValue;
+			PointHelper minPoint = null;
+			foreach (PointHelper point in validPoints) {
+				if (point.gameObject.activeSelf) {
+					float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
+					if (pointDistance < minDistance) {
+						minDistance = pointDistance;
+						minPoint = point;
+					}
 				}
 			}
-		}
-		if (minPoint != null) {
-			exitPoint.point.transform.position = minPoint.transform.position;
-			exitPoint.point.transform.rotation = minPoint.transform.rotation;
+			if (minPoint != null) {
+				exitPoint.point.transform.position = minPoint.transform.position;
+				exitPoint.point.transform.rotation = minPoint.transform.rotation;
 
-			HandlePlatformSize (minPoint, exitPoint, roomScript.Exit);
+				HandlePlatformSize (minPoint, exitPoint, roomScript.Exit);
+			}
+
+			validPoints.Remove (minPoint);
 		}
 
 		// Handle entry point
-		validPoints.Remove(minPoint);
-		minDistance = float.MaxValue;
-		minPoint = null;
-		foreach (PointHelper point in validPoints) {
-			if (point.gameObject.activeSelf) {
-				float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
-				if (pointDistance < minDistance) {
-					minDistance = pointDistance;
-					minPoint = point;
+		if (entryPoint.point != null && entryPoint.point.gameObject.activeSelf) {
+			float minDistance = float.MaxValue;
+			PointHelper minPoint = null;
+			foreach (PointHelper point in validPoints) {
+				if (point.gameObject.activeSelf) {
+					float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
+					if (pointDistance < minDistance) {
+						minDistance = pointDistance;
+						minPoint = point;
+					}
 				}
 			}
-		}
-		if (minPoint != null) {
-			entryPoint.point.transform.position = minPoint.transform.position;
-			entryPoint.point.transform.rotation = minPoint.transform.rotation;
+			if (minPoint != null) {
+				entryPoint.point.transform.position = minPoint.transform.position;
+				entryPoint.point.transform.rotation = minPoint.transform.rotation;
 
-			HandlePlatformSize (minPoint, entryPoint, roomScript.Entry);
+				HandlePlatformSize (minPoint, entryPoint, roomScript.Entry);
+			}
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------

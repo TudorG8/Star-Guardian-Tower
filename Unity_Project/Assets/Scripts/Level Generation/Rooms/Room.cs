@@ -44,6 +44,6 @@ public class Room : MonoBehaviour {
 	}
 
 	public void OnEntry() {
-		LevelGenerator.Instance.WhenPlayerEntersNewRoom ();
+		LevelGenerator.Instance.WhenPlayerEntersNewRoom (this);
 	}
 }

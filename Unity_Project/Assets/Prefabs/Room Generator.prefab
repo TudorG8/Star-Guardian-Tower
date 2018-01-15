@@ -1166,7 +1166,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  retriggable: 0
   triggered: 0
+  delay: 0
   eventToCall:
     m_PersistentCalls:
       m_Calls:
@@ -1207,7 +1209,7 @@ MonoBehaviour:
     previousPlatform1: {fileID: 1287164700505190}
     previousPlatform2: {fileID: 1238458936391246}
     previousSize: 13.35
-  disconnectPrefabInstance: 0
+  disconnectPrefabInstance: 1
 --- !u!114 &114184000748901716
 MonoBehaviour:
   m_ObjectHideFlags: 1

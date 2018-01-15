@@ -17,7 +17,7 @@ TagManager:
   - Obstacles
   - Enemies
   - Player
-  - 
+  - Attack
   - 
   - 
   - 
@@ -47,6 +47,9 @@ TagManager:
     locked: 0
   - name: Platforms
     uniqueID: 94011237
+    locked: 0
+  - name: Objects
+    uniqueID: 4141248847
     locked: 0
   - name: Player
     uniqueID: 156130815

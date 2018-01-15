@@ -40,6 +40,7 @@ public class PlayerController : Singleton<PlayerController> {
 	float smoothingX;
 	Coroutine jumpOffCoroutine;
 	public bool inputDisabled;
+	bool wallSliding;
 
 	// Unity Stuff ----------------------------------------------------------
 	/* Solve for gravity and jumpVelocity using jumpHeight and timeToJump
@@ -68,6 +69,10 @@ public class PlayerController : Singleton<PlayerController> {
 		before();
 		yield return new WaitForSeconds (time);
 		after ();
+	}
+
+	void Awake() {
+		InitiateSingleton ();
 	}
 
 	void Start() {
@@ -116,7 +121,7 @@ public class PlayerController : Singleton<PlayerController> {
 	void UpdateJumpState() {
 		CollisionInfo info = physicsController.raycastShooter.collisionInfo;
 		int  wallDirection = info.left ? -1 : 1;
-		bool wallSliding   = false;
+		wallSliding   = false;
 
 		if ((info.left || info.right) && !info.below) {
 			wallSliding = true;
@@ -165,6 +170,7 @@ public class PlayerController : Singleton<PlayerController> {
 					velocity.x = -wallDirection * wallJumpLeap.x;
 					velocity.y = wallJumpLeap.y;
 				}
+				wallSliding = false;
 			}
 			else if(canJump) {
 				velocity.y = maxJumpVelocity;
@@ -178,6 +184,7 @@ public class PlayerController : Singleton<PlayerController> {
 				velocity.y = minJumpVelocity;
 			}
 		}
+
 	}
 
 	void UpdateAttackState() {
@@ -206,6 +213,16 @@ public class PlayerController : Singleton<PlayerController> {
 				transform.localScale = scale;
 			}
 
+
+			if (wallSliding) {
+				animator.SetBool ("sliding", true);
+				Vector2 scale = transform.localScale;
+				scale.x *= -1;
+				transform.localScale = scale;
+			} 
+			else {
+				animator.SetBool ("sliding", false);
+			}
 
 
 			// Move character

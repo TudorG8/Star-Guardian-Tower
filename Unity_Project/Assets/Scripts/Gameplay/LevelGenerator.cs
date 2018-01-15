@@ -13,6 +13,9 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	// Imports
 	[SerializeField] FollowPlayer cameraScript;
 	[SerializeField] Room         startingRoom;
+	[SerializeField] Transform    startingPlayerLocation;
+	[SerializeField] Room         tutorialRoom;
+	[SerializeField] Transform    tutorialPlayerLocation;
 	[SerializeField] Transform    tower       ;
 
 	// Settings
@@ -32,7 +35,17 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	void Awake() { InitiateSingleton (); }
 
 	// Generate the first room after a small delay
-	void Start () { StartCoroutine (StartUp ()); }
+	void Start () { 
+		if (DataSaver.Instance.FinishedTutorial) {
+			StartCoroutine (StartUp ()); 
+		} 
+		else {
+			currentRoom = tutorialRoom;
+			cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
+			cameraScript.SetNewRoom (currentRoom);
+			PlayerController.Instance.transform.position = tutorialPlayerLocation.position;
+		}
+	}
 
 	private IEnumerator StartUp() {
 		// Delay a little bit so everything gets loaded?
@@ -41,20 +54,28 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		currentColumn = maxColumns - 1;
 		currentRoom   = startingRoom;
 
+		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
 		cameraScript.SetNewRoom (currentRoom);
 		nextRoom = GenerateRandomRoom(currentRoom);
+		PlayerController.Instance.transform.position = startingPlayerLocation.position;
 	}
     
 	// When the player enters a new room, delete the previous and generate a new one
-	public void WhenPlayerEntersNewRoom() {
-		// Return the room to the cache, but dont do it the first time (since its the starting room)
-		if (previousRoom != null) { RoomCache.Instance.ReturnRoomToCache (previousRoom); }
+	public void WhenPlayerEntersNewRoom(Room room) {
+		if (DataSaver.Instance.FinishedTutorial) {
+			// Return the room to the cache, but dont do it the first time (since its the starting room)
+			if (previousRoom != null) {
+				RoomCache.Instance.ReturnRoomToCache (previousRoom);
+			}
 
-		previousRoom = currentRoom;
-		currentRoom  = nextRoom   ;
-		nextRoom     = GenerateRandomRoom(currentRoom);
+			previousRoom = currentRoom;
+			currentRoom = nextRoom;
+			nextRoom = GenerateRandomRoom (currentRoom);
+		}
 
-		cameraScript.SetNewRoom (currentRoom);
+		Debug.Log ("yes");
+
+		cameraScript.SetNewRoom (room);
 	}
 		
 	// Generate a new room and move it to the right spot.
