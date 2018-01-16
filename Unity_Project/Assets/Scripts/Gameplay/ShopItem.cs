@@ -12,10 +12,10 @@ public class ShopItem : ScriptableObject {
 
 	public int Cost { get { return cost; } }
 
-	public bool HasAttribute(ItemAttribute attribute) {
+	public bool  HasAttribute(ItemAttribute attribute) {
 		return stats.ContainsKey (attribute);
 	}
-	public bool GetAttribute(ItemAttribute attribute) {
+	public float GetAttribute(ItemAttribute attribute) {
 		return stats [attribute];
 	}
 }

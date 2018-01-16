@@ -16,7 +16,7 @@ public class Stat {
 		get { return current; } 
 		set { 
 			current += value;
-			current = Mathf.Clamp (min, max);
+			current = Mathf.Clamp (current, min, max);
 		}
 	}
 	public float Min { get { return min; } set { min = value; } }

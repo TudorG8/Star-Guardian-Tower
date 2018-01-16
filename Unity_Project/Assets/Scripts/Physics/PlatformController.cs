@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class PlatformController : ControllerBase {
 	public Transform      platform      ;
-	public RaycastShooter raycastShooter;
+
+
 
 	List<PassangerMovement> passangerMovement;
 
@@ -28,13 +29,13 @@ public class PlatformController : ControllerBase {
 			if (!rayInfo.targetsHit.Contains (rayInfo.hit.transform) && rayInfo.hit.distance != 0) {
 				rayInfo.targetsHit.Add (rayInfo.hit.transform);
 				float pushX = (rayInfo.direction == 1) ? velocity.x : 0;
-				float pushY = velocity.y- (rayInfo.hit.distance - raycastShooter.boxCorners.Inset) * rayInfo.direction;
+				float pushY = velocity.y- (rayInfo.hit.distance - raycastShooter.GetColliderCorners.Inset) * rayInfo.direction;
 
 				passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, pushY), moveBeforePlatform:false));
 			}
 		}
 
-		return StatementInfo.Continue;
+		return StatementInfo.Continue; 
 	}
 
 	void MovePassangers(bool beforeMovePlatform) {
@@ -51,24 +52,24 @@ public class PlatformController : ControllerBase {
 
 		passangerMovement = new List<PassangerMovement> ();
 
-		Vector2 upwardsVector = new Vector2(0, raycastShooter.boxCorners.Inset * 2);
-		raycastShooter.ShootVerticalRays (ref upwardsVector, Color.blue, upwardsVector.y, false, true, (rayInfo) => {
+		Vector2 upwardsVector = new Vector2(0, raycastShooter.GetColliderCorners.Inset * 2);
+		raycastShooter.ShootVerticalRays (ref upwardsVector, Color.blue, upwardsVector.y, false, true, collisionMask, (rayInfo) => {
 			return MovePassangers(ref velocity, rayInfo);
 		});
 
 		if (velocity.y != 0) {
-			raycastShooter.ShootVerticalRays (ref velocity, Color.red, velocity.y, false, false, (rayInfo) => {
+			raycastShooter.ShootVerticalRays (ref velocity, Color.red, velocity.y, false, false, collisionMask, (rayInfo) => {
 				return VerticalMove(ref velocity, rayInfo);
 			});
 		}
 			
 		if (velocity.x != 0) {
-			raycastShooter.ShootHorrizontalRays(ref velocity, Color.red, velocity.x, false, (rayInfo) => {
+			raycastShooter.ShootHorrizontalRays(ref velocity, Color.red, velocity.x, false, false, collisionMask, (rayInfo) => {
 				if(rayInfo.hit) {
 					if (!rayInfo.targetsHit.Contains (rayInfo.hit.transform)) {
 						rayInfo.targetsHit.Add (rayInfo.hit.transform);
-						float pushX = velocity.x - (rayInfo.hit.distance - raycastShooter.boxCorners.Inset) * rayInfo.direction;
-						float pushY = - raycastShooter.boxCorners.Inset;
+						float pushX = velocity.x - (rayInfo.hit.distance - raycastShooter.GetColliderCorners.Inset) * rayInfo.direction;
+						float pushY = - raycastShooter.GetColliderCorners.Inset;
 
 						passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, 0), moveBeforePlatform:false));
 					}

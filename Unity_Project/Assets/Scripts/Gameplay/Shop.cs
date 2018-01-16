@@ -7,24 +7,33 @@ public class Shop : Singleton <Shop> {
 	[SerializeField] List<ShopItem> armours;
 
 	public float GetRange() {
-		ShopItem item = weapons [DataSaver.Instance.CurrentWeapon];
+		ShopItem item = weapons [DataSaver.Instance.CurrentWeapon.Value];
 		if (item.HasAttribute (ShopItem.ItemAttribute.Range)) {
 			return item.GetAttribute (ShopItem.ItemAttribute.Range);
 		} 
 		else {
 			Debug.LogError ("Weapon has no range attribute");
-			return null;
+			return 0;
 		}
 	}
 
+	public ShopItem GetWeapon() {
+		return weapons [DataSaver.Instance.CurrentWeapon.Value];
+	}
+
+	public ShopItem GetArmour() {
+		return armours [DataSaver.Instance.CurrentArmour.Value];
+	}
+
+
 	public int GetLives() {
-		ShopItem item = armours [DataSaver.Instance.CurrentArmour];
+		ShopItem item = armours [DataSaver.Instance.CurrentArmour.Value];
 		if (item.HasAttribute (ShopItem.ItemAttribute.Range)) {
-			return item.GetAttribute (ShopItem.ItemAttribute.Lives);
+			return (int)item.GetAttribute (ShopItem.ItemAttribute.Lives);
 		} 
 		else {
 			Debug.LogError ("Armour has no lives attribute");
-			return null;
+			return 0;
 		}
 	}
 
@@ -37,12 +46,12 @@ public class Shop : Singleton <Shop> {
 	}
 
 	public void BuyItem (SerializableInt index, List<ShopItem> itemList) {
-		if (index < itemList.Count - 1) {
-			ShopItem item = itemList [index];
+		if (index.Value < itemList.Count - 1) {
+			ShopItem item = itemList [index.Value];
 			bool purchased = PurchaseItem (item);
 			if (purchased) {
 				index.Value++;
-				if (index == itemList.Count - 1) {
+				if (index.Value == itemList.Count - 1) {
 					// ...
 				}
 			}

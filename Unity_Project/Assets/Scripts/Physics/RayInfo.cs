@@ -6,6 +6,7 @@ public class RayInfo {
 	public int   rayIndex ;
 	public float direction;
 	public float rayLength;
+	public int   rayHits  ;
 	public RaycastHit2D hit;
 	public HashSet<Transform> targetsHit;
 
@@ -15,5 +16,6 @@ public class RayInfo {
 		this.direction  = direction ;
 		this.rayLength  = rayLength ;
 		this.targetsHit = targetsHit;
+		this.rayHits = 0;
 	}
 }

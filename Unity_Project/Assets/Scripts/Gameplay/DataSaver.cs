@@ -9,8 +9,8 @@ public class DataSaver : Singleton<DataSaver> {
 	[SerializeField] float highestScore    ;
 	[SerializeField] bool  finishedTutorial;
 
-	public float TotalGold        { get { return totalGold       ; } }
-	public bool  HighestScore     { get { return highestScore    ; } }
+	public float TotalGold        { get { return totalGold       ; } set { totalGold    = value; } }
+	public float HighestScore     { get { return highestScore    ; } set { highestScore = value; } }
 	public bool  FinishedTutorial { get { return finishedTutorial; } }
 	public SerializableInt CurrentWeapon { get { return currentWeapon   ; } }
 	public SerializableInt CurrentArmour { get { return currentArmour   ; } }

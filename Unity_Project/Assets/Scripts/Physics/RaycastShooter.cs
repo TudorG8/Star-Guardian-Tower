@@ -8,7 +8,7 @@ public class RaycastShooter : MonoBehaviour {
 	[SerializeField] BoxCollider2D boxCollider  ;
 
 	// Settings
-	[SerializeField] LayerMask     collisionMask;
+
 
 	// If this is turned on, the spacing will be calculated based on the auto spacing fields below
 	[SerializeField] bool  autoDetermineSpacing ;
@@ -26,9 +26,10 @@ public class RaycastShooter : MonoBehaviour {
 	[SerializeField] CollisionInfo      collisionInfo  ;
 	[SerializeField] HashSet<Transform> targetsHit     ;
 
-	public CollisionInfo GetCollisionInfo {
-		get { return collisionInfo; } 
-	}
+	public CollisionInfo   GetCollisionInfo   { get { return collisionInfo  ; } }
+	public ColliderCorners GetColliderCorners { get { return colliderCorners; } }
+	public int HorizontalRayCount { get { return horizontalRayCount; } }
+	public int VerticalRayCount   { get { return verticalRayCount  ; } }
 
 	// Delegates
 	public delegate StatementInfo RayFunction(RayInfo rayInfo);
@@ -55,8 +56,8 @@ public class RaycastShooter : MonoBehaviour {
 		if (autoDetermineSpacing) {
 			horizontalSpacing  = autoHorizontalSpacing;
 			verticalSpacing    = autoVerticalSpacing  ;
-			horizontalRayCount = colliderCorners.Size.x / horizontalSpacing;
-			verticalRayCount   = colliderCorners.Size.y / verticalSpacing  ;
+			horizontalRayCount = (int) (colliderCorners.Size.x / horizontalSpacing);
+			verticalRayCount   = (int) (colliderCorners.Size.y / verticalSpacing  );
 
 			if (verticalRayCount < 2) {
 				verticalRayCount = 2;
@@ -83,7 +84,7 @@ public class RaycastShooter : MonoBehaviour {
 	 * @param applyYVelocity : whether to apply the y velocity before shooting the rays
 	 * @param newTargetSet   : should the targetsHit be reset before shooting the rays?
 	 */
-	public void ShootHorrizontalRays(ref Vector2 velocity, Color rayColor, float givenDirection, bool applyYVelocity, bool newTargetSet, RayFunction rayFunction) {
+	public void ShootHorrizontalRays(ref Vector2 velocity, Color rayColor, float givenDirection, bool applyYVelocity, bool newTargetSet, LayerMask collisionMask, RayFunction rayFunction) {
 		int direction = (int)Mathf.Sign(givenDirection);
 		Vector2 raycastOrigin = direction == 1 ? colliderCorners.BottomRight : colliderCorners.BottomLeft;
 
@@ -123,7 +124,7 @@ public class RaycastShooter : MonoBehaviour {
 	 * @param applyXVelocity : whether to apply the x velocity before shooting the rays
 	 * @param newTargetSet   : should the targetsHit be reset before shooting the rays?
 	 */
-	public void ShootVerticalRays(ref Vector2 velocity, Color rayColor, float givenDirection, bool applyXVelocity, bool newTargetSet, RayFunction rayFunction) {
+	public void ShootVerticalRays(ref Vector2 velocity, Color rayColor, float givenDirection, bool applyXVelocity, bool newTargetSet, LayerMask collisionMask, RayFunction rayFunction) {
 		int direction = (int)Mathf.Sign(givenDirection);
 		Vector2 raycastOrigin = direction == 1 ? colliderCorners.TopLeft : colliderCorners.BottomLeft;
 

@@ -66,9 +66,9 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		cameraScript.SetNewRoom (currentRoom);
 
 		// Player stuff
-		SessionData.Instance.Reset ();
-		PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetRange ());
-		PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
+		//SessionData.Instance.Reset ();
+		//PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetWeapon());
+		//PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
 		PlayerController.Instance.transform.position = startingPlayerLocation.position;
 	}
     

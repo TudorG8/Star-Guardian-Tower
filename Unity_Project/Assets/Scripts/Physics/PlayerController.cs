@@ -37,7 +37,7 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField][ReadOnly] float   minJumpVelocity; // Calculated based on jumpHeight and timeToJump
 	[SerializeField][ReadOnly] bool    canAttack      ; // Whether the player can attack
 	[SerializeField][ReadOnly] bool    canJump        ; // Whether the player can jump
-	[SerializeField][ReadOnly] bool wallSliding;
+	[SerializeField][ReadOnly] bool    wallSliding    ;
 	[SerializeField][ReadOnly] bool    canJumpWhileSliding;
 
 	// Private Stuff --------------------------------------------------------
@@ -80,8 +80,9 @@ public class PlayerController : Singleton<PlayerController> {
 	void Start() {
 		CalculatePhysics   ();
 		canAttack           = true ;
-		canJump             = true;
+		canJump             = true ;
 		canJumpWhileSliding = false;
+		inputEnabled        = true ;
 	}
 
 	public void UpdateSavePoint(Transform newSavePoint) {
@@ -119,23 +120,23 @@ public class PlayerController : Singleton<PlayerController> {
 			this.input = input;
 			HandleEverything ();
 
-			yield return WaitForEndOfFrame ();
+			yield return new WaitForEndOfFrame ();
 		}
 		inputEnabled = true;
 	}
 		
 	void HandleMovement () {
-		float smoothingAmount = physicsController.raycastShooter.collisionInfo.below ? accelerationGrounded : accelerationAirborne;
+		float smoothingAmount = physicsController.GetCollisionInfo.below ? accelerationGrounded : accelerationAirborne;
 
 		float targetVelocity = Mathf.SmoothDamp (velocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
 
 		velocity.x = targetVelocity;
 
-		direction = Mathf.Sign (velocity.x);
+		direction = (int)Mathf.Sign (velocity.x);
 	}
 
 	void HandleGravity() {
-		if (physicsController.raycastShooter.collisionInfo.below || physicsController.raycastShooter.collisionInfo.above)
+		if (physicsController.GetCollisionInfo.below || physicsController.GetCollisionInfo.above)
 			velocity.y = 0;
 		
 		// Apply gravity
@@ -146,11 +147,12 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleWallSliding() {
-		CollisionInfo info = physicsController.raycastShooter.collisionInfo;
+		CollisionInfo info = physicsController.GetCollisionInfo;
 		int wallDirection = info.left ? -1 : 1;
 		wallSliding = false;
 
-		if ((info.left || info.right) && !info.below) {
+
+		if ((info.left || info.right) && !info.below && physicsController.rayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
 			wallSliding = true;
 
 			if (velocity.y < -maxWallSlideSpeed) { velocity.y = -maxWallSlideSpeed; }
@@ -171,20 +173,41 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleJumping() {
-		CollisionInfo info = physicsController.raycastShooter.collisionInfo;
+		CollisionInfo info = physicsController.GetCollisionInfo;
 		int wallDirection = info.left ? -1 : 1;
 
 		if (Input.GetButtonDown("Jump_P1")) {
 			animator.SetBool ("grounded", false);
 			// Hanging on an edge
 			if (info.hangingOnEdge) {
-				animator.SetTrigger ("climbUpEdge");
-				inputEnabled = false;
-				StartCoroutine (WaitForCooldown (
-					() => { physicsController.checkForEdges = false; },
-					0.50f,
-					() => { physicsController.checkForEdges = true ; }
-				));
+				//if (input.x != wallDirection) {
+					velocity.x = -wallDirection * wallJumpLeap.x;
+					velocity.y = maxJumpVelocity;
+					StartCoroutine (WaitForCooldown (
+						() => {
+							physicsController.CheckForEdges = false;
+						},
+						0.50f,
+						() => {
+							physicsController.CheckForEdges = true;
+						}
+					));
+				//} 
+				/*
+				else {
+					animator.SetTrigger ("climbUpEdge");
+					inputEnabled = false;
+					StartCoroutine (WaitForCooldown (
+						() => {
+							physicsController.CheckForEdges = false;
+						},
+						0.50f,
+						() => {
+							physicsController.CheckForEdges = true;
+						}
+					));
+				}
+				*/
 			}
 			// Wall Sliding
 			else if (wallSliding) {
@@ -232,7 +255,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	void HandleFallingOffPlatforms(bool previouslyGrounded) {
 		// If we are previously grounded but now arent and are falling, it means we are jumping off a platform
-		if (previouslyGrounded && !physicsController.raycastShooter.collisionInfo.below && (int)Mathf.Sign (velocity.y) == -1) {
+		if (previouslyGrounded && !physicsController.GetCollisionInfo.below && (int)Mathf.Sign (velocity.y) == -1) {
 			jumpOffCoroutine = StartCoroutine (WaitForCooldown (
 				() => { canJump = true; },
 				timeToJumpAfterFalling,
@@ -242,7 +265,8 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleHittingGround() {
-		if (physicsController.raycastShooter.collisionInfo.below) {
+		if (physicsController.GetCollisionInfo.below) {
+			animator.SetBool ("grounded", true);
 			canJump = true;
 			if (jumpOffCoroutine != null)
 				StopCoroutine (jumpOffCoroutine);
@@ -271,7 +295,7 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleEverything() {
-		bool previouslyGrounded = physicsController.raycastShooter.collisionInfo.below;
+		bool previouslyGrounded = physicsController.GetCollisionInfo.below;
 
 		HandleMovement    ();
 		HandleGravity     ();
@@ -279,12 +303,18 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleJumping     ();
 		HandleAttacking   ();
 
-		UpdateXScale (transform.localScale.x * direction);
-
+		UpdateXScale (Mathf.Abs(transform.localScale.x) * direction);
+		if (physicsController.GetCollisionInfo.hangingOnEdge) {
+			velocity.y = 0;
+		}
 		physicsController.Move (velocity * Time.deltaTime, input);
 
 		HandleFallingOffPlatforms (previouslyGrounded);
 		HandleHittingGround ();
 		HandleAnimation     ();
+
+		if (!physicsController.GetCollisionInfo.below ) {
+			animator.SetBool ("grounded", false);
+		}
 	}
 }
