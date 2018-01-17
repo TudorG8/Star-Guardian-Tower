@@ -18,8 +18,8 @@ public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
 	public Neighbours        SegmentNeighbours { get { return neighbours  ; } }
 	public Vector2           Index             { get { return index       ; } set { index = value; }}
 
-	public void DeactivateHelperScript() {
-		
+	public void SetHelperScriptActiveAs(bool active) {
+		helperScript.SetActive (active);
 	}
 
 	public void IncreaseIndex    (Vector2 increase) {

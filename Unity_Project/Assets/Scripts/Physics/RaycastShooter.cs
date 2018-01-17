@@ -7,9 +7,6 @@ public class RaycastShooter : MonoBehaviour {
 	// Imports
 	[SerializeField] BoxCollider2D boxCollider  ;
 
-	// Settings
-
-
 	// If this is turned on, the spacing will be calculated based on the auto spacing fields below
 	[SerializeField] bool  autoDetermineSpacing ;
 	[SerializeField] float autoHorizontalSpacing;

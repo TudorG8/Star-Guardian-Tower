@@ -26,8 +26,9 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField] Vector2 wallJumpHop  = new Vector2( 8, 12); // The velocity applied when you jump towards the same wall
 
     // Read Only ------------------------------------------------------------
-	[SerializeField][ReadOnly] Stat    lives          ; // How many lives the player has left
+
 	[SerializeField][ReadOnly] bool    inputEnabled   ; // Whether the player input is enabled or not
+	[SerializeField][ReadOnly] bool    gravityEnabled ; // Whether gravity will act upon the player
 	[SerializeField][ReadOnly] int     direction      ; // The direction the player is facing (may not always be the velocity)
 	[SerializeField][ReadOnly] Vector2 velocity       ; // Current velocity of the player
 	[SerializeField][ReadOnly] Vector2 input          ; // Current input of the player
@@ -63,6 +64,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	public void EnableInput() {
 		inputEnabled = true;
+
 	}
 
 	public delegate void FunctionCall();
@@ -90,16 +92,17 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void OnDamageTaken() {
+		SessionData.Instance.Lives -= 1;
+		if (SessionData.Instance.Lives = SessionData.Instance.Lives.Min) {
+			// Game Over
+			// - Display game over screen
+			// - Fade out Player
+		}
 		StartCoroutine (DamageTakenRoutine ());
 	}
 		
 	public void UpdateAttackRange(ShopItem item) {
 		attackTrigger.SetUp (item);
-	}
-
-	public void UpdateLives(float lives) {
-		this.lives.Max   = lives;
-		this.lives.Value = lives;
 	}
 
 	IEnumerator DamageTakenRoutine() {
@@ -111,7 +114,11 @@ public class PlayerController : Singleton<PlayerController> {
 		inputEnabled = true ;
 	}
 
-	public IEnumerator SimulateMovement(float time, Vector2 input) {
+	public void EnterRoom (Room room, Direction direction) {
+		StartCoroutine (SimulateMovement (0.5f, DirectionHelper.GetDirectionVector (direction), room));
+	}
+
+	public IEnumerator SimulateMovement(float time, Vector2 input, Room room) {
 		inputEnabled = false;
 		float elapsedTime = 0.0f;
 		while (elapsedTime < time) {
@@ -122,6 +129,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 			yield return new WaitForEndOfFrame ();
 		}
+		room.CloseEntryGate ();
 		inputEnabled = true;
 	}
 		

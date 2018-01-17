@@ -4,23 +4,39 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ShopItemRefs : MonoBehaviour {
-	[SerializeField] Image  art   ;
-	[SerializeField] Text   name  ;
-	[SerializeField] Text   cost  ;
-	[SerializeField] Button button;
+	[System.Serializable]
+	public class ItemRefs {
+		[SerializeField] Text  name       ;
+		[SerializeField] Text  description;
+		[SerializeField] Image art        ;
 
-	public Image Art  { get { return art ; } }
-	public Text  Cost { get { return cost; } }
-
-	public void UpdateRefs (Sprite art, string name, string cost, bool final) {
-		this.art .sprite = art ;
-		this.name.text   = name;
-		if (final) {
-			this.button.transform       .gameObject.SetActive (false);
-			this.cost  .transform.parent.gameObject.SetActive (false);
-		} 
-		else {
-			this.cost.text = cost;
+		public void Update (ShopItem item) {
+			name       .text   = item.Name       ;
+			art        .sprite = item.Image      ;
+			description.text   = item.Description;
 		}
+	}
+	[SerializeField] ItemRefs current;
+	[SerializeField] ItemRefs next   ;
+
+	[SerializeField] Text   finished;
+	[SerializeField] Text   cost    ;
+	[SerializeField] Button button  ;
+
+	public void DisableBuying() {
+		this.finished.gameObject.SetActive (true );
+		this.cost    .gameObject.SetActive (false);
+		this.button  .gameObject.SetActive (false);
+	}
+
+	public void UpdateRefs (ShopItem current, ShopItem next) {
+		this.current.Update (current);
+		this.next   .Update (next   );
+
+		this.cost = next.Cost;
+	}
+
+	public void UpdateRefs (ShopItem current) {
+		this.current.Update (current);
 	}
 }

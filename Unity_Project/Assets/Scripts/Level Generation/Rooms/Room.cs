@@ -11,6 +11,7 @@ public class Room : MonoBehaviour {
 	// Imports
 	[SerializeField] RoomHelper roomGenerator ;
 	[SerializeField] Transform  center        ;
+	[SerializeField] Transform  objectParent  ;
 
 	// Realonly
 	[SerializeField][ReadOnly] long    id   ; // Unique ID in the cache
@@ -23,9 +24,15 @@ public class Room : MonoBehaviour {
 	[SerializeField] PointDTO exit ;
 	[SerializeField] SegmentArray rooms;
 
+	[SerializeField] HashSet<RoomObject> objects  ;
+	[SerializeField] HashSet<RoomObject> hazards  ;
+	[SerializeField] HashSet<RoomObject> treasure ;
+	[SerializeField] HashSet<RoomObject> platforms;
+
 	// Properties
 	public RoomHelper RoomGeneratorScript  { get { return roomGenerator ; }}
 	public Transform  Center               { get { return center        ; }}
+	public Transform  ObjectParent         { get { return objectParent  ; }}
 
 	public long    Id    { get { return id   ; } set { id    = value; }}
 	public bool    InUse { get { return inUse; } set { inUse = value; }}
@@ -36,6 +43,11 @@ public class Room : MonoBehaviour {
 	public PointDTO Exit  { get { return exit ; } }
 	public SegmentArray Rooms { get { return rooms; } }
 
+	public HashSet<RoomObject> Objects   { get { return objects  ; } }
+	public HashSet<RoomObject> Hazards   { get { return hazards  ; } }
+	public HashSet<RoomObject> Treasure  { get { return treasure ; } }
+	public HashSet<RoomObject> Platforms { get { return platforms; } }
+
 	// Methods
 	public void Reset() {
 		transform.localPosition = previousPosition;
@@ -45,5 +57,9 @@ public class Room : MonoBehaviour {
 
 	public void OnEntry() {
 		LevelGenerator.Instance.WhenPlayerEntersNewRoom (this);
+	}
+
+	public void CloseEntryGate () {
+		
 	}
 }

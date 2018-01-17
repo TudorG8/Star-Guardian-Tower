@@ -19,15 +19,17 @@ public class ShopItem : ScriptableObject {
 	public enum ItemAttribute {
 		Range, Lives
 	}
-	[SerializeField] string itemName ;
-	[SerializeField] int    cost ;
-	[SerializeField] float  range;
-	[SerializeField] Sprite image;
+
+	[SerializeField] string itemName   ;
+	[SerializeField] string description;
+	[SerializeField] int    cost       ;
+	[SerializeField] Sprite image      ;
 	[SerializeField] Dictionary<ItemAttribute, float> stats;
 
-	public string Name  { get { return itemName; } }
-	public int    Cost  { get { return cost    ; } }
-	public Sprite Image { get { return image   ; } } 
+	public string Name        { get { return itemName   ; } }
+	public string Description { get { return description; } }
+	public int    Cost        { get { return cost       ; } }
+	public Sprite Image       { get { return image      ; } } 
 
 	public bool  HasAttribute(ItemAttribute attribute) {
 		return stats.ContainsKey (attribute);

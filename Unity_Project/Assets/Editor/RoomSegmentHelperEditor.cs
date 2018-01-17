@@ -8,20 +8,22 @@ public class RoomSegmentHelperEditor : Editor {
 	public override void OnInspectorGUI () {
 		DrawDefaultInspector ();
 		RoomSegmentHelper script = (RoomSegmentHelper)target;
-		if (GUILayout.Button ("Add Top Room")) {
-			script.AddRoomToTheTop ();
-		}
-		if (GUILayout.Button ("Add Bottom Room")) {
-			script.AddRoomToTheBottom ();
-		}
-		if (GUILayout.Button ("Add Left Room")) {
-			script.AddRoomToTheLeft ();
-		}
-		if (GUILayout.Button ("Add Right Room")) {
-			script.AddRoomToTheRight ();
-		}
-		if (GUILayout.Button ("Delete Room")) {
-			script.DeleteRoom ();
+		if (script.roomGenerator.Editable) {
+			if (GUILayout.Button ("Add Top Room")) {
+				script.AddRoomToTheTop ();
+			}
+			if (GUILayout.Button ("Add Bottom Room")) {
+				script.AddRoomToTheBottom ();
+			}
+			if (GUILayout.Button ("Add Left Room")) {
+				script.AddRoomToTheLeft ();
+			}
+			if (GUILayout.Button ("Add Right Room")) {
+				script.AddRoomToTheRight ();
+			}
+			if (GUILayout.Button ("Delete Room")) {
+				script.DeleteRoom ();
+			}
 		}
 	}
 }

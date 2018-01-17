@@ -83,6 +83,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
     
 	// When the player enters a new room, delete the previous and generate a new one
 	public void WhenPlayerEntersNewRoom(Room room) {
+		PlayerController.Instance.EnterRoom (currentRoom.Exit.main);
 		if (DataSaver.Instance.FinishedTutorial) {
 			// Return the room to the cache, but dont do it the first time (since its the starting room)
 			if (previousRoom != null && returnRoomsToCache) {

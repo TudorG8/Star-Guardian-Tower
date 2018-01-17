@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoldPickup : MonoBehaviour {
+public class GoldPickup : RoomObject, IPickable {
 	[SerializeField] Animator  animator    ;
 
 	[SerializeField] MinMaxInt goldGained  ;

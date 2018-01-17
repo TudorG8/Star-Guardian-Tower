@@ -36,7 +36,11 @@ public class RoomHelper : MonoBehaviour {
 	[SerializeField] PointExtraInfo exitPoint ;
 
 	// Settings
+	[SerializeField] bool editable;
 	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
+
+
+	public bool Editable { get { return editable; } }
 
 	// Methods ---------------------------------------------------------------------------------------------------
 	// Print the rooms
@@ -44,11 +48,19 @@ public class RoomHelper : MonoBehaviour {
 
 	// Reset the room array and spawn in a new room
 	public void Reset() {
-		Debug.Log ("restign");
 		roomScript.Rooms.Reset ();
 		CheckIfRoomHasAValidID ();
 		RoomSegment newRoomSegment = CreateRoomSegment (new Vector2(0, 0), Direction.None);
 		AddRoomSegment (new Vector2(0, 0), Direction.None, newRoomSegment);
+	}
+
+	public void SetActive(bool active) {
+		List<RoomSegment> validRooms = roomScript.Rooms.GetValidElements ();
+		for (int i = 0; i < validRooms.Count; i++) {
+			RoomSegment segment = validRooms [i];
+			segment.SetHelperScriptActiveAs (active);
+		}
+		editable = false;
 	}
 
 	void Start() {
@@ -303,67 +315,89 @@ public class RoomHelper : MonoBehaviour {
 		previousInfo.previousPlatform2 = platform2;
 	}
 
+	void HandleObjectsChange(List<RoomObject> objects, Transform parent) {
+		// Check if a room was deleted in the editor
+		for (int i = 0; i < objects.Count; i++) {
+			RoomObject obj = objects [i];
+			if (obj == null) {
+				objects.Remove (obj);
+				break;
+			}
+		}
+		// Check if a room was added in the editor
+		foreach (Transform child in parent) {
+			RoomObject obj = child.GetComponent<RoomObject> ();
+			objects.Add (obj);
+		}
+	}
+
 	void Update () {
-		SegmentArray rooms = roomScript.Rooms;
+		if (editable) {
+			SegmentArray rooms = roomScript.Rooms;
 
-		CheckIfRoomHasAValidID ();
+			CheckIfRoomHasAValidID ();
 
-		if (rooms.IsNull ()) { Reset (); }
+			if (rooms.IsNull ()) {
+				Reset ();
+			}
 
-		roomScript.Size = new Vector2 (rooms.Cols, rooms.Rows);
+			roomScript.Size = new Vector2 (rooms.Cols, rooms.Rows);
 
-		if(!roomScript.InUse)
-			this.roomScript.PreviousPosition = transform.localPosition;
+			if (!roomScript.InUse)
+				this.roomScript.PreviousPosition = transform.localPosition;
 		
-		// Gather all points from all rooms
-		List<RoomSegment> validSegments = rooms.GetValidElements();
-		List<PointHelper> validPoints   = new List<PointHelper>();
-		for (int i = 0; i < validSegments.Count; i++) {
-			validPoints.AddRange (validSegments [i].HelperScript.pointRefs.points);
-		}
+			// Gather all points from all rooms
+			List<RoomSegment> validSegments = rooms.GetValidElements ();
+			List<PointHelper> validPoints = new List<PointHelper> ();
+			for (int i = 0; i < validSegments.Count; i++) {
+				validPoints.AddRange (validSegments [i].HelperScript.pointRefs.points);
+			}
 
-		// Handle exit point
-		if (exitPoint.point != null && exitPoint.point.gameObject.activeSelf) {
-			float minDistance = float.MaxValue;
-			PointHelper minPoint = null;
-			foreach (PointHelper point in validPoints) {
-				if (point.gameObject.activeSelf) {
-					float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
-					if (pointDistance < minDistance) {
-						minDistance = pointDistance;
-						minPoint = point;
+			// Handle exit point
+			if (exitPoint.point != null && exitPoint.point.gameObject.activeSelf) {
+				float minDistance = float.MaxValue;
+				PointHelper minPoint = null;
+				foreach (PointHelper point in validPoints) {
+					if (point.gameObject.activeSelf) {
+						float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
+						if (pointDistance < minDistance) {
+							minDistance = pointDistance;
+							minPoint = point;
+						}
 					}
 				}
+				if (minPoint != null) {
+					exitPoint.point.transform.position = minPoint.transform.position;
+					exitPoint.point.transform.rotation = minPoint.transform.rotation;
+
+					HandlePlatformSize (minPoint, exitPoint, roomScript.Exit);
+				}
+
+				validPoints.Remove (minPoint);
 			}
-			if (minPoint != null) {
-				exitPoint.point.transform.position = minPoint.transform.position;
-				exitPoint.point.transform.rotation = minPoint.transform.rotation;
 
-				HandlePlatformSize (minPoint, exitPoint, roomScript.Exit);
-			}
-
-			validPoints.Remove (minPoint);
-		}
-
-		// Handle entry point
-		if (entryPoint.point != null && entryPoint.point.gameObject.activeSelf) {
-			float minDistance = float.MaxValue;
-			PointHelper minPoint = null;
-			foreach (PointHelper point in validPoints) {
-				if (point.gameObject.activeSelf) {
-					float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
-					if (pointDistance < minDistance) {
-						minDistance = pointDistance;
-						minPoint = point;
+			// Handle entry point
+			if (entryPoint.point != null && entryPoint.point.gameObject.activeSelf) {
+				float minDistance = float.MaxValue;
+				PointHelper minPoint = null;
+				foreach (PointHelper point in validPoints) {
+					if (point.gameObject.activeSelf) {
+						float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
+						if (pointDistance < minDistance) {
+							minDistance = pointDistance;
+							minPoint = point;
+						}
 					}
 				}
-			}
-			if (minPoint != null) {
-				entryPoint.point.transform.position = minPoint.transform.position;
-				entryPoint.point.transform.rotation = minPoint.transform.rotation;
+				if (minPoint != null) {
+					entryPoint.point.transform.position = minPoint.transform.position;
+					entryPoint.point.transform.rotation = minPoint.transform.rotation;
 
-				HandlePlatformSize (minPoint, entryPoint, roomScript.Entry);
+					HandlePlatformSize (minPoint, entryPoint, roomScript.Entry);
+				}
 			}
+
+
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------

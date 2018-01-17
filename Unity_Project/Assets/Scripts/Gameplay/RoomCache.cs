@@ -162,10 +162,11 @@ public class RoomCache : Singleton<RoomCache> {
 		instantiatedRooms = new List<Room> ();
 	}
 
-	public void DisableEditors() {
-	}
-
-	public void EnableEditors () {
+	public void SetRoomsAs(bool active) {
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Room room = instantiatedRooms [i];
+			room.RoomGeneratorScript.SetActive (active);
+		}
 	}
 	#endif
 }

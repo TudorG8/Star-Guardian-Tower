@@ -78,6 +78,13 @@ public class RoomSegmentHelper : MonoBehaviour {
 	[SerializeField] public PlatformRefs  platformRefs       ; // References to the platforms
 	[SerializeField] public PointRefs     pointRefs          ; // References to the points
 
+	public void SetActive (bool active) {
+		for (int i = 0; i < pointRefs.points.Count; i++) {
+			PointHelper point = pointRefs.points [i];
+			point.gameObject.SetActive (active);
+		}
+	}
+
 	public void SetNeighbour(Direction side, RoomSegment roomHelper) {
 		Neighbours neighbours = roomSegment.SegmentNeighbours; 
 		if      (side == Direction.Top   ) neighbours.Top    = roomHelper;

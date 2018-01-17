@@ -10,28 +10,42 @@ public class Shop : Singleton <Shop> {
 	[SerializeField] ShopItemRefs weaponRefs;
 	[SerializeField] ShopItemRefs armourRefs;
 
-	[SerializeField] Text totalGold   ;
-	[SerializeField] Text highestScore;
+	[SerializeField] ValueChanger valueChanger;
+	[SerializeField] Text totalGold     ;
+	[SerializeField] Text goldDifference;
+	[SerializeField] Text highestScore  ;
 
 	void Start() {
 		LoadInitialData ();
 	}
 
 	void Update() {
-		totalGold   .text = DataSaver.Instance.TotalGold   .ToString();
-		highestScore.text = DataSaver.Instance.HighestScore.ToString();
+		highestScore  .text = DataSaver.Instance.HighestScore.ToString();
+		totalGold     .text = valueChanger.CurrentAmount.ToString ();
+		if (valueChanger.Difference != 0) {
+			char sign = valueChanger.Difference > 0 ? '+' : '-';
+			goldDifference.text = sign + valueChanger.Difference;
+		}
 	}
 
-	void LoadInitialData() {
-		int weaponToShow = DataSaver.Instance.CurrentWeapon.Value < weapons.Count - 1? DataSaver.Instance.CurrentWeapon.Value + 1 : weapons.Count - 1;
-		bool final = DataSaver.Instance.CurrentWeapon.Value == weapons.Count;
-		ShopItem weapon = weapons [weaponToShow];
-		weaponRefs.UpdateRefs (weapon.Image, weapon.Name, weapon.Cost.ToString (), final);
+	void LoadItem(SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
+		int currentIndex = index.Value < itemList.Count - 1? index.Value + 1 : itemList.Count - 1;
+		bool final = (index.Value == itemList.Count);
 
-		int armourToShow = DataSaver.Instance.CurrentArmour.Value < armours.Count - 1? DataSaver.Instance.CurrentArmour.Value + 1 : armours.Count - 1;
-		final = DataSaver.Instance.CurrentArmour.Value == armours.Count;
-		ShopItem armour = armours [armourToShow];
-		armourRefs.UpdateRefs (armour.Image, armour.Name, armour.Cost.ToString (), final);
+		if (!final) {
+			ShopItem currentItem = itemList [currentIndex    ];
+			ShopItem nextItem    = itemList [currentIndex + 1];
+			itemRefs.UpdateRefs (currentItem, nextItem);
+		} 
+		else {
+			ShopItem currentItem = itemList [currentIndex];
+			itemRefs.UpdateRefs (currentItem);
+			itemRefs.DisableBuying ();
+		}
+	}
+	void LoadInitialData() {
+		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
+		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
 	}
 		
 	public float GetRange() {
@@ -79,17 +93,14 @@ public class Shop : Singleton <Shop> {
 			bool purchased = PurchaseItem (item);
 			if (purchased) {
 				index.Value++;
-				bool final = false;
 				// Bought the last item
 				if (index.Value == itemList.Count - 1) {
-					Debug.Log ("Bought the last item");
-					final = true;
-					itemRefs.UpdateRefs (item.Image, item.Name, item.Cost.ToString (), final);
+					itemRefs.DisableBuying ();
+					itemRefs.UpdateRefs (item);
 				} 
 				else {
-					Debug.Log ("Bought an item");
 					ShopItem nextItem = itemList [index.Value + 1];
-					itemRefs.UpdateRefs (nextItem.Image, nextItem.Name, nextItem.Cost.ToString (), final);
+					itemRefs.UpdateRefs (item, nextItem);
 				}
 			}
 		}
@@ -97,7 +108,7 @@ public class Shop : Singleton <Shop> {
 
 	public bool PurchaseItem(ShopItem item) {
 		if (DataSaver.Instance.TotalGold >= item.Cost) {
-			DataSaver.Instance.TotalGold -= item.Cost;
+			valueChanger.GainAmount(DataSaver.Instance.TotalGold, -item.Cost);
 			return true;
 		}
 		return false;
