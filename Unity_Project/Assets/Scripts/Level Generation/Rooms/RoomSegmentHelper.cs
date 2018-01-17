@@ -10,11 +10,6 @@ using UnityEditor;
 public class RoomSegmentHelper : MonoBehaviour {
 	[System.Serializable]
 	public class PlatformRefs {
-		public GameObject top1   , top2   ;
-		public GameObject bottom1, bottom2;
-		public GameObject left1  , left2  ;
-		public GameObject right1 , right2 ;
-
 		public List<GameObject> platforms;
 
 		public void SetXScale(Direction side, float xScale) {
@@ -82,9 +77,6 @@ public class RoomSegmentHelper : MonoBehaviour {
 
 	[SerializeField] public PlatformRefs  platformRefs       ; // References to the platforms
 	[SerializeField] public PointRefs     pointRefs          ; // References to the points
-	[SerializeField] public GameObject    hazardParent       ;
-	[SerializeField] public GameObject    innerPlatformParent;
-	[SerializeField] public GameObject    backgroundParent   ;
 
 	public void SetNeighbour(Direction side, RoomSegment roomHelper) {
 		Neighbours neighbours = roomSegment.SegmentNeighbours; 

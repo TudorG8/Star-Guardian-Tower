@@ -17,7 +17,7 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	void Awake () { InitiateSingleton (); }
 
 	void Update() {
-		scoreText.text = SessionData.Instance.CurrentGold.ToString ();
+		//scoreText.text = SessionData.Instance.CurrentGold.ToString ();
 	}
 
 	public void GainScore(int amount) {

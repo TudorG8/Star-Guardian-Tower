@@ -20,6 +20,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 	// Settings
 	[SerializeField] int maxColumns;
+	[SerializeField] bool returnRoomsToCache;
 
 	// Readonly
 	[SerializeField][ReadOnly] int currentColumn;
@@ -36,13 +37,17 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 	// Generate the first room after a small delay
 	void Start () { 
-		if (DataSaver.Instance.FinishedTutorial) { StartCoroutine (NormalSetUp   ()); } 
+		if (DataSaver.Instance.FinishedTutorial) { StartCoroutine (NormalSetUp   (true)); } 
 		else /*Not Finished Tutorial*/           { StartCoroutine (TutorialSetUp ()); }
 	}
 
+
+	public void FinishTutorial() {
+		DataSaver.Instance.FinishedTutorial = true;
+		StartCoroutine (NormalSetUp (false));
+	}
+
 	IEnumerator TutorialSetUp () {
-		// Delay a little bit so everything gets loaded?
-		yield return new WaitForSeconds (0.25f);
 		currentRoom = tutorialRoom;
 
 		// Camera stuff
@@ -51,9 +56,11 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 		// Player stuff
 		PlayerController.Instance.transform.position = tutorialPlayerLocation.position;
+
+		yield return new WaitForEndOfFrame ();
 	}
 
-	IEnumerator NormalSetUp() {
+	IEnumerator NormalSetUp(bool movePlayer) {
 		// Delay a little bit so everything gets loaded?
 		yield return new WaitForSeconds (0.25f);
 		currentHeight = 0;
@@ -62,21 +69,23 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		nextRoom = GenerateRandomRoom(currentRoom);
 
 		// Camera stuff
-		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
 		cameraScript.SetNewRoom (currentRoom);
 
 		// Player stuff
-		//SessionData.Instance.Reset ();
-		//PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetWeapon());
-		//PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
-		PlayerController.Instance.transform.position = startingPlayerLocation.position;
+		if (movePlayer) {
+			//SessionData.Instance.Reset ();
+			//PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetWeapon());
+			//PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
+			cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
+			PlayerController.Instance.transform.position = startingPlayerLocation.position;
+		}
 	}
     
 	// When the player enters a new room, delete the previous and generate a new one
 	public void WhenPlayerEntersNewRoom(Room room) {
 		if (DataSaver.Instance.FinishedTutorial) {
 			// Return the room to the cache, but dont do it the first time (since its the starting room)
-			if (previousRoom != null) {
+			if (previousRoom != null && returnRoomsToCache) {
 				RoomCache.Instance.ReturnRoomToCache (previousRoom);
 			}
 
@@ -84,8 +93,6 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 			currentRoom = nextRoom;
 			nextRoom = GenerateRandomRoom (currentRoom);
 		}
-
-		Debug.Log ("yes");
 
 		cameraScript.SetNewRoom (room);
 	}

@@ -223,7 +223,6 @@ public class PhysicsController2D : ControllerBase {
 		raycastShooter.ShootHorrizontalRays (ref velocity, Color.red, velocity.x, false, true, collisionMask, (rayInfo) => {
 			return HorrizontalRayFunction(ref velocity, rayInfo);
 		});
-		Debug.Log (rayHits);
 
 		if (!raycastShooter.GetCollisionInfo.hangingOnEdge) {
 			// Handle vertical movement
