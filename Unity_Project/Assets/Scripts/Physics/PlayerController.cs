@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using CustomPropertyDrawers;
+using UnityChan;
 
 public class PlayerController : Singleton<PlayerController> {
 	// Imports --------------------------------------------------------------
 	[SerializeField] PhysicsController2D physicsController;
 	[SerializeField] AttackTrigger       attackTrigger    ;
 	[SerializeField] Animator            animator         ;
+	[SerializeField] PlayerRefs          playerRefs       ;
+	[SerializeField] SpringManager springManager;
 
 	[SerializeField] Transform           savePoint        ;
 
@@ -44,6 +47,9 @@ public class PlayerController : Singleton<PlayerController> {
 	// Private Stuff --------------------------------------------------------
 	float smoothingX;
 	Coroutine jumpOffCoroutine;
+
+	public PlayerRefs GetPlayerRefs { get { return playerRefs; } }
+	public Animator   GetAnimator   { get { return animator  ; } }
 
 	// Unity Stuff ----------------------------------------------------------
 	/* Solve for gravity and jumpVelocity using jumpHeight and timeToJump
@@ -92,8 +98,8 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void OnDamageTaken() {
-		SessionData.Instance.Lives -= 1;
-		if (SessionData.Instance.Lives = SessionData.Instance.Lives.Min) {
+		SessionData.Instance.Lives.Value -= 1;
+		if (SessionData.Instance.Lives.Value == SessionData.Instance.Lives.Min) {
 			// Game Over
 			// - Display game over screen
 			// - Fade out Player
@@ -115,7 +121,9 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	public void EnterRoom (Room room, Direction direction) {
-		StartCoroutine (SimulateMovement (0.5f, DirectionHelper.GetDirectionVector (direction), room));
+		if (direction != Direction.Top) {
+			StartCoroutine (SimulateMovement (0.3f, DirectionHelper.GetDirectionVector (direction), room));
+		}
 	}
 
 	public IEnumerator SimulateMovement(float time, Vector2 input, Room room) {
@@ -289,6 +297,13 @@ public class PlayerController : Singleton<PlayerController> {
 		else /*velocity.y >= 0*/ { animator.SetFloat ("verticalSpeed", velocity.y / maxJumpVelocity); }
 	}
 
+	void HandleHairDirection() {
+		for (int i = 0; i < springManager.springBones.Length; i++) {
+			SpringBone bone = springManager.springBones [i];
+			bone.springForce.x = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.x);
+		}
+	}
+
 	void UpdateXScale(float value) {
 		Vector2 scale = transform.localScale;
 		scale.x = value;
@@ -320,7 +335,7 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleFallingOffPlatforms (previouslyGrounded);
 		HandleHittingGround ();
 		HandleAnimation     ();
-
+		HandleHairDirection ();
 		if (!physicsController.GetCollisionInfo.below ) {
 			animator.SetBool ("grounded", false);
 		}

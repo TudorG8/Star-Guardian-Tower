@@ -17,14 +17,17 @@ public class Shop : Singleton <Shop> {
 
 	void Start() {
 		LoadInitialData ();
+		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}
 
 	void Update() {
-		highestScore  .text = DataSaver.Instance.HighestScore.ToString();
+		highestScore  .text = DataSaver.Instance.HighestScore.Value.ToString();
 		totalGold     .text = valueChanger.CurrentAmount.ToString ();
 		if (valueChanger.Difference != 0) {
-			char sign = valueChanger.Difference > 0 ? '+' : '-';
-			goldDifference.text = sign + valueChanger.Difference;
+			goldDifference.text = valueChanger.Difference.ToString ();
+		} 
+		else {
+			goldDifference.text = "";
 		}
 	}
 
@@ -33,8 +36,8 @@ public class Shop : Singleton <Shop> {
 		bool final = (index.Value == itemList.Count);
 
 		if (!final) {
-			ShopItem currentItem = itemList [currentIndex    ];
-			ShopItem nextItem    = itemList [currentIndex + 1];
+			ShopItem currentItem = itemList [currentIndex - 1];
+			ShopItem nextItem    = itemList [currentIndex];
 			itemRefs.UpdateRefs (currentItem, nextItem);
 		} 
 		else {
@@ -45,7 +48,9 @@ public class Shop : Singleton <Shop> {
 	}
 	void LoadInitialData() {
 		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
+		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
 		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
+		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
 	}
 		
 	public float GetRange() {
@@ -80,14 +85,22 @@ public class Shop : Singleton <Shop> {
 	}
 
 	public void BuyWeapon() {
-		BuyItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
+		bool purchased = BuyItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
+		if (purchased) {
+			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
+			PlayerController.Instance.GetAnimator.SetTrigger ("pickWeapon");
+		}
 	}
 
 	public void BuyArmour () {
-		BuyItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
+		bool purchased = BuyItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
+		if (purchased) {
+			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
+			PlayerController.Instance.GetAnimator.SetTrigger ("pickArmour");
+		}
 	}
 
-	public void BuyItem (SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
+	public bool BuyItem (SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
 		if (index.Value < itemList.Count - 1) {
 			ShopItem item = itemList [index.Value + 1];
 			bool purchased = PurchaseItem (item);
@@ -102,12 +115,14 @@ public class Shop : Singleton <Shop> {
 					ShopItem nextItem = itemList [index.Value + 1];
 					itemRefs.UpdateRefs (item, nextItem);
 				}
+				return true;
 			}
 		}
+		return false;
 	}
 
 	public bool PurchaseItem(ShopItem item) {
-		if (DataSaver.Instance.TotalGold >= item.Cost) {
+		if (DataSaver.Instance.TotalGold.Value >= item.Cost) {
 			valueChanger.GainAmount(DataSaver.Instance.TotalGold, -item.Cost);
 			return true;
 		}

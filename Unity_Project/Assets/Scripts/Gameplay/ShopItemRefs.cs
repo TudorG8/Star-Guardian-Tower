@@ -9,34 +9,39 @@ public class ShopItemRefs : MonoBehaviour {
 		[SerializeField] Text  name       ;
 		[SerializeField] Text  description;
 		[SerializeField] Image art        ;
+		[SerializeField] Transform parent;
 
 		public void Update (ShopItem item) {
-			name       .text   = item.Name       ;
-			art        .sprite = item.Image      ;
-			description.text   = item.Description;
+			name       .text   = item.Name        ;
+			art        .sprite = item.ShopImage   ;
+			description.text   = item.Description ;
 		}
+
+		public Transform Parent { get { return parent; } }
 	}
 	[SerializeField] ItemRefs current;
 	[SerializeField] ItemRefs next   ;
 
-	[SerializeField] Text   finished;
+	[SerializeField] Image  arrow   ;
 	[SerializeField] Text   cost    ;
 	[SerializeField] Button button  ;
 
 	public void DisableBuying() {
-		this.finished.gameObject.SetActive (true );
-		this.cost    .gameObject.SetActive (false);
-		this.button  .gameObject.SetActive (false);
+		this.arrow .gameObject.SetActive (false);
+		this.cost  .transform.parent.gameObject.SetActive (false);
+		this.button.gameObject.SetActive (false);
+
+		this.current.Parent.gameObject.SetActive (false);
 	}
 
 	public void UpdateRefs (ShopItem current, ShopItem next) {
 		this.current.Update (current);
 		this.next   .Update (next   );
 
-		this.cost = next.Cost;
+		this.cost.text = next.Cost.ToString();
 	}
 
 	public void UpdateRefs (ShopItem current) {
-		this.current.Update (current);
+		this.next.Update (current);
 	}
 }

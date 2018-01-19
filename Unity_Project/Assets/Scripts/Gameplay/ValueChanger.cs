@@ -13,22 +13,32 @@ public class ValueChanger : MonoBehaviour {
 	public int CurrentAmount { get { return currentAmount; } }
 	public int Difference    { get { return difference   ; } }
 
+	public void SetUp(SerializableInt totalAmount) {
+		this.currentAmount = totalAmount.Value;
+	}
+
 	public void GainAmount (SerializableInt totalAmount, int amount) {
 		totalAmount.Value += amount;
-		difference = SessionData.Instance.CurrentScore - currentAmount;
-
-		int instancesRequired = (difference >= fastThreshold) ? fastSpeed : slowSpeed;
+		difference = totalAmount.Value - currentAmount;
 
 		StopAllCoroutines ();
-		for (int i = 0; i < instancesRequired; i++) {
-			StartCoroutine(ScoreRoutine(0.1f));
-		}
+		StartCoroutine (IncreaseOverTime (2f, totalAmount));
 	}
-	IEnumerator ScoreRoutine(float speed, int amount) {
-		while (currentAmount < SessionData.Instance.CurrentScore) {
-			currentAmount += amount;
-			difference    -= amount;
-			yield return new WaitForSeconds (speed);
+	IEnumerator IncreaseOverTime(float time, SerializableInt target) {
+		int initialValue = currentAmount;
+		float currentTime = 0f;
+		while (currentTime < time) {
+			float progress = currentTime / time;
+			currentAmount = (int)Mathf.Lerp (initialValue, target.Value, progress);
+			difference    = target.Value - currentAmount;
+
+			currentTime += Time.deltaTime;
+
+			yield return null;
 		}
+			
+		currentAmount = target.Value;
+		difference    = 0;
+		Debug.Log (difference);
 	}
 }

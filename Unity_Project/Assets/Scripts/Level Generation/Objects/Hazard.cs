@@ -20,12 +20,12 @@ public class Hazard : RoomObject, IResetable, IDestroyable {
 		action ();
 	}
 
-	public override void Reset  () {
+	public void Reset  () {
 		animator  .SetTrigger ("reset");
 		gameObject.SetActive  (true   );
 	}
 
-	public override void Destroy() {
+	public void Destroy() {
 		gameObject.SetActive (false);
 	}
 }

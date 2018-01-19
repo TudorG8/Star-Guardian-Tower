@@ -18,6 +18,8 @@ namespace UnityChan
 	[RequireComponent(typeof(Bone2D))]
 	public class SpringBone : MonoBehaviour
 	{
+		public int direction = 1;
+
 		public float radius = 0.05f;
 
 		//各SpringBoneに設定されているstiffnessForceとdragForceを使用するか？
@@ -78,6 +80,8 @@ namespace UnityChan
 			springLength = Vector3.Distance (trs.position, m_Bone.endPosition);
 			currTipPos = m_Bone.endPosition;
 			prevTipPos = m_Bone.endPosition;
+
+			direction = (int)Mathf.Sign(springForce.x);
 		}
 
 		public void UpdateSpring ()

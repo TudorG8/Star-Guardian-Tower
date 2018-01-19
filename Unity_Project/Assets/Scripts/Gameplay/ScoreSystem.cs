@@ -18,7 +18,7 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 			currentScoreText.text = valueChanger.CurrentAmount.ToString();
 			if (valueChanger.Difference != 0) {
 				char sign = valueChanger.Difference > 0 ? '+' : '-';
-				differenceText  .text = sign + valueChanger.Difference;
+				differenceText  .text = sign + valueChanger.Difference.ToString();
 			}
 		}
 	}
@@ -29,6 +29,6 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	}
 
 	public void GainGold(int amount) {
-		SessionData.Instance.CurrentGold += amount;
+		SessionData.Instance.CurrentGold.Value += amount;
 	}
 }

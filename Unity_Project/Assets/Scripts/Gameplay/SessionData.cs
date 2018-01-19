@@ -8,21 +8,25 @@ public class SessionData : Singleton<SessionData> {
 	[SerializeField] SerializableInt currentGold ;
 	[SerializeField] SerializableInt currentScore;
 
-	public int GameStarted  { get { return currentScore; } set { gameStarted  = value; } }
+	public bool GameStarted  { get { return gameStarted; } set { gameStarted  = value; } }
 	public Stat Lives  { get { return lives; } set { lives  = value; } }
 	public SerializableInt CurrentGold  { get { return currentGold ; } set { currentGold  = value; } }
 	public SerializableInt CurrentScore { get { return currentScore; } set { currentScore = value; } }
 
+	void Awake() {
+		InitiateSingleton ();
+	}
+
 	public void Reset () {
 		gameStarted  = false;
-		currentGold  = 0;
-		currentScore = 0;
+		currentGold.Value  = 0;
+		currentScore.Value = 0;
 	}
 
 	public void SaveStats() {
-		DataSaver.Instance.TotalGold += currentGold;
-		if (currentScore > DataSaver.Instance.HighestScore)
-			DataSaver.Instance.HighestScore = currentScore;
+		DataSaver.Instance.TotalGold.Value += currentGold.Value;
+		if (currentScore.Value > DataSaver.Instance.HighestScore.Value)
+			DataSaver.Instance.HighestScore.Value = currentScore.Value;
 	}
 
 	public void UpdateLives(float lives) {
