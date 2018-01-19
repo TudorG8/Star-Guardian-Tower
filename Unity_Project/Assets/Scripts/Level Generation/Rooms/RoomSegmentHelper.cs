@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/**
+ * Editor Tool for Room Segments
+ */
 [ExecuteInEditMode]
 [SelectionBase]
 [System.Serializable]
@@ -52,18 +55,18 @@ public class RoomSegmentHelper : MonoBehaviour {
 	}
 
 	[System.Serializable]
-	public class PointRefs {
-		public List<PointHelper> points;
+	public class AllPointRefs {
+		public List<PointRefs> points;
 
 		public void TurnOff(Direction side) {
-			foreach (PointHelper point in points) {
+			foreach (PointRefs point in points) {
 				if(point.name.Contains(side.ToString())) {
 					point.gameObject.SetActive (false);
 				}
 			}
 		}
 		public void TurnOn (Direction side) {
-			foreach (PointHelper point in points) {
+			foreach (PointRefs point in points) {
 				if(point.name.Contains(side.ToString())) {
 					point.gameObject.SetActive (true);
 				}
@@ -76,11 +79,11 @@ public class RoomSegmentHelper : MonoBehaviour {
 	[SerializeField] public RoomSegment   roomSegment  ; // Attached script for the room segment
 
 	[SerializeField] public PlatformRefs  platformRefs       ; // References to the platforms
-	[SerializeField] public PointRefs     pointRefs          ; // References to the points
+	[SerializeField] public AllPointRefs  pointRefs          ; // References to the points
 
 	public void SetActive (bool active) {
 		for (int i = 0; i < pointRefs.points.Count; i++) {
-			PointHelper point = pointRefs.points [i];
+			PointRefs point = pointRefs.points [i];
 			point.gameObject.SetActive (active);
 		}
 	}

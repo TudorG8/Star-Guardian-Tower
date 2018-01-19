@@ -4,33 +4,51 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Shop : Singleton <Shop> {
+	// Scriptable Objects
 	[SerializeField] List<ShopItem> weapons;
 	[SerializeField] List<ShopItem> armours;
 
-	[SerializeField] ShopItemRefs weaponRefs;
-	[SerializeField] ShopItemRefs armourRefs;
-
-	[SerializeField] ValueChanger valueChanger;
-	[SerializeField] Text totalGold     ;
-	[SerializeField] Text goldDifference;
-	[SerializeField] Text highestScore  ;
+	// Imports
+	[SerializeField] ValueChanger valueChanger      ;
+	[SerializeField] ShopItemRefs weaponRefs        ;
+	[SerializeField] ShopItemRefs armourRefs        ;
+	[SerializeField] Text         goldText          ;
+	[SerializeField] Text         goldDifferenceText;
+	[SerializeField] Text         scoreText         ;
 
 	void Start() {
+		DataSaver.Instance.TotalGold.Value = 3000;
 		LoadInitialData ();
 		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}
 
 	void Update() {
-		highestScore  .text = DataSaver.Instance.HighestScore.Value.ToString();
-		totalGold     .text = valueChanger.CurrentAmount.ToString ();
-		if (valueChanger.Difference != 0) {
-			goldDifference.text = valueChanger.Difference.ToString ();
-		} 
-		else {
-			goldDifference.text = "";
-		}
+		scoreText.text = DataSaver.Instance.HighestScore.Value.ToString();
+		goldText .text = valueChanger.CurrentAmount.ToString ();
+		if   (valueChanger.Difference != 0)  { goldDifferenceText.text = valueChanger.Difference.ToString (); } 
+		else/*valueChanger.Difference == 0*/ { goldDifferenceText.text = ""; }
 	}
 
+	public ShopItem GetWeapon() { return weapons [DataSaver.Instance.CurrentWeapon.Value]; }
+	public ShopItem GetArmour() { return armours [DataSaver.Instance.CurrentArmour.Value]; }
+
+	// Loading
+	/**
+	 * To be used to load the current weapon and armour into the shop and player.
+	 */
+	void LoadInitialData() {
+		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
+		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
+		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
+		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
+	}
+
+	/**
+	 * Loads an item onto the shop.
+	 * @param index    : index of the item
+	 * @param itemList : list item belongs in
+	 * @param itemRefs : references to the UI elements
+	 */
 	void LoadItem(SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
 		int currentIndex = index.Value < itemList.Count - 1? index.Value + 1 : itemList.Count - 1;
 		bool final = (index.Value == itemList.Count);
@@ -46,44 +64,11 @@ public class Shop : Singleton <Shop> {
 			itemRefs.DisableBuying ();
 		}
 	}
-	void LoadInitialData() {
-		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
-		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
-		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
-		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
-	}
 		
-	public float GetRange() {
-		ShopItem item = weapons [DataSaver.Instance.CurrentWeapon.Value];
-		if (item.HasAttribute (ShopItem.ItemAttribute.Range)) {
-			return item.GetAttribute (ShopItem.ItemAttribute.Range);
-		} 
-		else {
-			Debug.LogError ("Weapon has no range attribute");
-			return 0;
-		}
-	}
-
-	public ShopItem GetWeapon() {
-		return weapons [DataSaver.Instance.CurrentWeapon.Value];
-	}
-
-	public ShopItem GetArmour() {
-		return armours [DataSaver.Instance.CurrentArmour.Value];
-	}
-
-
-	public int GetLives() {
-		ShopItem item = armours [DataSaver.Instance.CurrentArmour.Value];
-		if (item.HasAttribute (ShopItem.ItemAttribute.Range)) {
-			return (int)item.GetAttribute (ShopItem.ItemAttribute.Lives);
-		} 
-		else {
-			Debug.LogError ("Armour has no lives attribute");
-			return 0;
-		}
-	}
-
+	// Purchasing
+	/**
+	 * Purchase the next level of the weapons.
+	 */
 	public void BuyWeapon() {
 		bool purchased = BuyItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
 		if (purchased) {
@@ -92,6 +77,9 @@ public class Shop : Singleton <Shop> {
 		}
 	}
 
+	/**
+	 * Purchase the next level of the armours.
+	 */
 	public void BuyArmour () {
 		bool purchased = BuyItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
 		if (purchased) {
@@ -100,7 +88,12 @@ public class Shop : Singleton <Shop> {
 		}
 	}
 
-	public bool BuyItem (SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
+	/**
+	 * Generic version to buy an item.
+	 * First checks if the player has enough resources.
+	 * Then it will update the shop UI, depending on whether the player purchased the last item or not.
+	 */
+	bool BuyItem (SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
 		if (index.Value < itemList.Count - 1) {
 			ShopItem item = itemList [index.Value + 1];
 			bool purchased = PurchaseItem (item);
@@ -121,7 +114,10 @@ public class Shop : Singleton <Shop> {
 		return false;
 	}
 
-	public bool PurchaseItem(ShopItem item) {
+	/**
+	 * Used to check whether the player has enough resources to buy an item.
+	 */
+	bool PurchaseItem(ShopItem item) {
 		if (DataSaver.Instance.TotalGold.Value >= item.Cost) {
 			valueChanger.GainAmount(DataSaver.Instance.TotalGold, -item.Cost);
 			return true;

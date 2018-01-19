@@ -4,21 +4,34 @@ using UnityEngine;
 using Anima2D;
 using System.Linq;
 
+/**
+ * Quick class to hold references to the sprites currently equiped on the player.
+ * Besides just changing the mesh sprite, you can also add small static sprites on top of bones under their
+ * "Runtime Sprites". These will get deleted when a new item is equiped in that place.
+ */
+
 public class PlayerRefs : MonoBehaviour {
+	/**
+	 * Quick class for sprite references to name, parent and spriteMeshInstance.
+	 */
 	[System.Serializable]
 	public class SpriteRef {
 		[SerializeField] string             name         ;
 		[SerializeField] Transform          runtimeParent;
 		[SerializeField] SpriteMeshInstance mesh         ;
 
-		public string Name { get { return name; } }
-		public SpriteMeshInstance Mesh { get { return mesh; } }
-		public Transform RuntimeParent { get { return runtimeParent; } }
+		public string             Name          { get { return name         ; } }
+		public SpriteMeshInstance Mesh          { get { return mesh         ; } }
+		public Transform          RuntimeParent { get { return runtimeParent; } }
 	}
 
 	[SerializeField] List<SpriteRef> sprites;
 
-	public void UpdateRefs(Dictionary<string, ShopItem.ObjectItems> items) {
+	/**
+	 * Remove the old static sprites and then change the mesh to the new given one.
+	 * Will only update items given in the dictionary.
+	 */
+	public void UpdateRefs(Dictionary<string, ShopItem.EquipableSprite> items) {
 		for (int i = 0; i < sprites.Count; i++) {
 			SpriteRef spriteRef = sprites [i];
 			if (items.ContainsKey (spriteRef.Name)) {

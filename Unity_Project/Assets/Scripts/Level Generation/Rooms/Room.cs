@@ -9,9 +9,12 @@ using CustomPropertyDrawers;
 
 public class Room : MonoBehaviour {
 	// Imports
-	[SerializeField] RoomHelper roomGenerator ;
-	[SerializeField] Transform  center        ;
-	[SerializeField] Transform  objectParent  ;
+	[SerializeField] RoomHelper roomGenerator  ;
+	[SerializeField] Transform  center         ;
+	[SerializeField] Transform  objectParent   ;
+	[SerializeField] Transform  hazardParent   ;
+	[SerializeField] Transform  treasureParent ;
+	[SerializeField] Transform  platformsParent;
 
 	// Realonly
 	[SerializeField][ReadOnly] long    id   ; // Unique ID in the cache
@@ -30,9 +33,12 @@ public class Room : MonoBehaviour {
 	[SerializeField] HashSet<RoomObject> platforms;
 
 	// Properties
-	public RoomHelper RoomGeneratorScript  { get { return roomGenerator ; }}
-	public Transform  Center               { get { return center        ; }}
-	public Transform  ObjectParent         { get { return objectParent  ; }}
+	public RoomHelper RoomGeneratorScript  { get { return roomGenerator  ; }}
+	public Transform  Center               { get { return center         ; }}
+	public Transform  ObjectParent         { get { return objectParent   ; }}
+	public Transform  HazardParent         { get { return hazardParent   ; }}
+	public Transform  TreasureParent       { get { return treasureParent ; }}
+	public Transform  PlatformsParent      { get { return platformsParent; }}
 
 	public long    Id    { get { return id   ; } set { id    = value; }}
 	public bool    InUse { get { return inUse; } set { inUse = value; }}
@@ -51,7 +57,7 @@ public class Room : MonoBehaviour {
 	// Methods
 	public void Reset() {
 		transform.localPosition = previousPosition;
-		entry.triggerScript.Triggered = false;
+		entry.TriggerScript.Triggered = false;
 		inUse = false;
 	}
 

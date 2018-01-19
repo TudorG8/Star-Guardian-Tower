@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+/**
+ * Holds any custom property drawers made by me.
+ */
 namespace CustomPropertyDrawers {
+	/**
+	 * A readonly field can not be edited but can still be viewed in the inspector.
+	 */
 	public class ReadOnly : PropertyAttribute {}
 
 	[CustomPropertyDrawer(typeof(ReadOnly))]

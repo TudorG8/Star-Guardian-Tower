@@ -37,7 +37,7 @@ public class FollowPlayer : MonoBehaviour {
 	// Set the new room to follow when a player enters it.
 	public void SetNewRoom(Room room) {
 		currentRoom = room;
-		currentSegment = currentRoom.Rooms.RoomAt (room.Entry.roomIndex);
+		currentSegment = currentRoom.Rooms.RoomAt (room.Entry.RoomIndex);
 	}
 
 	// Checks if the given segment is closer to the player as compared to the current point

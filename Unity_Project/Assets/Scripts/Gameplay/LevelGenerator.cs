@@ -11,16 +11,16 @@ using CustomPropertyDrawers;
 
 public class LevelGenerator : Singleton<LevelGenerator> {
 	// Imports
-	[SerializeField] FollowPlayer cameraScript;
-	[SerializeField] Room         startingRoom;
+	[SerializeField] FollowPlayer cameraScript          ;
+	[SerializeField] Room         startingRoom          ;
 	[SerializeField] Transform    startingPlayerLocation;
-	[SerializeField] Room         tutorialRoom;
+	[SerializeField] Room         tutorialRoom          ;
 	[SerializeField] Transform    tutorialPlayerLocation;
-	[SerializeField] Transform    tower       ;
-
+	[SerializeField] Transform    tower                 ;
+	  
 	// Settings
-	[SerializeField] int maxColumns;
-	[SerializeField] bool returnRoomsToCache;
+	[SerializeField] int  maxColumns        ; // Nax columns the tower will have
+	[SerializeField] bool returnRoomsToCache; // Should rooms be returned to the cache after they have been used?
 
 	// Readonly
 	[SerializeField][ReadOnly] int currentColumn;
@@ -31,8 +31,6 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	[SerializeField] Room currentRoom ;
 	[SerializeField] Room nextRoom    ;
 
-	public Vector2 roomSize = new Vector2 (26.7f, 15f);
-
 	void Awake() { InitiateSingleton (); }
 
 	// Generate the first room after a small delay
@@ -41,17 +39,14 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		else /*Not Finished Tutorial*/           { StartCoroutine (TutorialSetUp ()); }
 	}
 
-
-	public void FinishTutorial() {
-		DataSaver.Instance.FinishedTutorial = true;
-		StartCoroutine (NormalSetUp (false));
-	}
-
+	/**
+	 * For the tutorial, we just move the player and set the camera to the right room.
+	 */
 	IEnumerator TutorialSetUp () {
 		currentRoom = tutorialRoom;
 
 		// Camera stuff
-		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
+		cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.RoomIndex).Middle.position;
 		cameraScript.SetNewRoom (currentRoom);
 
 		// Player stuff
@@ -60,6 +55,9 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		yield return new WaitForEndOfFrame ();
 	}
 
+	/**
+	 * For normal gameplay, we must generate the next room and be ready for when the player enters it.
+	 */
 	IEnumerator NormalSetUp(bool movePlayer) {
 		// Delay a little bit so everything gets loaded?
 		yield return new WaitForSeconds (0.25f);
@@ -73,17 +71,32 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 		// Player stuff
 		if (movePlayer) {
-			//SessionData.Instance.Reset ();
-			//PlayerController.Instance.UpdateAttackRange (Shop.Instance.GetWeapon());
-			//PlayerController.Instance.UpdateLives       (Shop.Instance.GetLives ());
-			cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.roomIndex).Middle.position;
+			cameraScript.transform.position = currentRoom.Rooms.RoomAt (currentRoom.Entry.RoomIndex).Middle.position;
 			PlayerController.Instance.transform.position = startingPlayerLocation.position;
 		}
+	}
+
+	// Whenever the player finished the tutorial
+	public void FinishTutorial() {
+		DataSaver.Instance.FinishedTutorial = true;
+		StartCoroutine (NormalSetUp (false));
+	}
+
+	// Whenever the player starts a game session
+	public void StartGame() {
+		SessionData.Instance.Reset      ();
+		ScoreSystem.Instance.ShowGameUI ();
+	}
+
+	// Whenever the player ends a game session
+	public void FinishGame() {
+		SessionData.Instance.SaveStats      ();
+		ScoreSystem.Instance.ShowGameoverUI ();
 	}
     
 	// When the player enters a new room, delete the previous and generate a new one
 	public void WhenPlayerEntersNewRoom(Room room) {
-		PlayerController.Instance.EnterRoom (room, currentRoom.Exit.main);
+		PlayerController.Instance.EnterRoom (room, currentRoom.Exit.Main);
 		if (DataSaver.Instance.FinishedTutorial) {
 			// Return the room to the cache, but dont do it the first time (since its the starting room)
 			if (previousRoom != null && returnRoomsToCache) {
@@ -93,6 +106,8 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 			previousRoom = currentRoom;
 			currentRoom = nextRoom;
 			nextRoom = GenerateRandomRoom (currentRoom);
+
+			tower.localScale = UsefulMethods.vectorProduct (RoomCache.Instance.RoomSize, new Vector2 (maxColumns, currentHeight));
 		}
 
 		cameraScript.SetNewRoom (room);
@@ -100,21 +115,21 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		
 	// Generate a new room and move it to the right spot.
 	Room GenerateRandomRoom(Room currentRoom) {
-		Vector2 newRoomDirection = DirectionHelper.GetDirectionVector (currentRoom.Exit.main);
+		Vector2 newRoomDirection = DirectionHelper.GetDirectionVector (currentRoom.Exit.Main);
 		int leftDistance  = currentColumn + 1 + (int)newRoomDirection.x;
 		int rightDistance = maxColumns - currentColumn - (int)newRoomDirection.x;
 
-		Room room = RoomCache.Instance.GetRandomRoom (currentRoom.Exit.main, currentRoom.Exit.secondary, leftDistance, rightDistance);
+		Room room = RoomCache.Instance.GetRandomRoom (currentRoom.Exit.Main, currentRoom.Exit.Secondary, leftDistance, rightDistance);
 
 		// Uhhh, don't question this but it works
-		int offset = (int)room.Entry.roomIndex.x;
-		Vector2 currentIndex = new Vector2 (currentColumn, currentHeight) + DirectionHelper.GetDirectionVector (currentRoom.Exit.main);
+		int offset = (int)room.Entry.RoomIndex.x;
+		Vector2 currentIndex = new Vector2 (currentColumn, currentHeight) + DirectionHelper.GetDirectionVector (currentRoom.Exit.Main);
 		currentIndex.x -= offset;
-		room.transform.position = UsefulMethods.vectorProduct (currentIndex, roomSize);
+		room.transform.position = UsefulMethods.vectorProduct (currentIndex, RoomCache.Instance.RoomSize);
 		currentIndex.x += offset;
 
 		// This too
-		Vector2 newIndexOffset = currentIndex + room.Exit.roomIndex - room.Entry.roomIndex;
+		Vector2 newIndexOffset = currentIndex + room.Exit.RoomIndex - room.Entry.RoomIndex;
 		currentHeight = (int)newIndexOffset.y;
 		currentColumn = (int)newIndexOffset.x;
 

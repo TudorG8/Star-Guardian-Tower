@@ -39,16 +39,16 @@ public class RoomCache : Singleton<RoomCache> {
 			if (room.InUse)
 				continue;
 
-			if (room.Entry.main == DirectionHelper.GetOpposite (main) && room.Entry.secondary == secondary) {
-				Vector2 entryIndex = room.Entry.roomIndex;
+			if (room.Entry.Main == DirectionHelper.GetOpposite (main) && room.Entry.Secondary == secondary) {
+				Vector2 entryIndex = room.Entry.RoomIndex;
 				int leftSize  = (int)entryIndex.x + 1;
 				int rightSize = (int)(room.Size.x - entryIndex.x);
 
 				// If its a room to the left and the exit is on the left, size is bigger by one
-				if (room.Exit.roomIndex.x == 0 && room.Exit.main == Direction.Left)
+				if (room.Exit.RoomIndex.x == 0 && room.Exit.Main == Direction.Left)
 					leftSize++;
 				// If its a room to the right and the exit is on the right, size is bigger by one
-				else if (room.Exit.roomIndex.x == room.Size.x - 1 && room.Exit.main == Direction.Right)
+				else if (room.Exit.RoomIndex.x == room.Size.x - 1 && room.Exit.Main == Direction.Right)
 					rightSize++;
 
 				if (leftSize > leftDistance || rightSize > rightDistance)

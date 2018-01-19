@@ -2,21 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * This class holds everything that will actually be saved between play sessions.
+ */
+
 public class DataSaver : Singleton<DataSaver> {
-	[SerializeField] SerializableInt currentWeapon;
-	[SerializeField] SerializableInt currentArmour;
-	[SerializeField] SerializableInt totalGold    ;
-	[SerializeField] SerializableInt highestScore ;
-	[SerializeField] bool finishedTutorial;
+	[SerializeField] SerializableInt currentWeapon   ;
+	[SerializeField] SerializableInt currentArmour   ;
+	[SerializeField] SerializableInt totalGold       ;
+	[SerializeField] SerializableInt highestScore    ;
+	[SerializeField] bool            finishedTutorial;
 
-	public SerializableInt CurrentWeapon { get { return currentWeapon   ; } }
-	public SerializableInt CurrentArmour { get { return currentArmour   ; } }
-	public SerializableInt TotalGold     { get { return totalGold       ; } set { totalGold        = value; } }
-	public SerializableInt HighestScore  { get { return highestScore    ; } set { highestScore     = value; } }
-	public bool FinishedTutorial { get { return finishedTutorial; } set { finishedTutorial = value; } }
+	public SerializableInt CurrentWeapon    { get { return currentWeapon   ; } }
+	public SerializableInt CurrentArmour    { get { return currentArmour   ; } }
+	public SerializableInt TotalGold        { get { return totalGold       ; } }
+	public SerializableInt HighestScore     { get { return highestScore    ; } }
+	public bool            FinishedTutorial { get { return finishedTutorial; } set { finishedTutorial = value; } }
 
-	void Awake() {
-		InitiateSingleton (); 
-		totalGold.Value = 3000;
+	void Awake() { InitiateSingleton (); }
+
+	public void Save () {
 	}
 }

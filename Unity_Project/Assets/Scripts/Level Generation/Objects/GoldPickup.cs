@@ -1,7 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ObjectInterfaces;
 
+/**
+ * A Gold Pickup is an object that gives gold when picked up.
+ */
 public class GoldPickup : RoomObject, IPickable {
 	[SerializeField] Animator  animator    ;
 

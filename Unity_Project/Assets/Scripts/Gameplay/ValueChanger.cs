@@ -1,29 +1,48 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CustomPropertyDrawers;
+
+/**
+ * Used to slowly change the value of an Serializable Integer.
+ * The actual value will instantly be set, but the current value 
+ * and difference will slowly move to that amount over a given period.
+ */
 
 public class ValueChanger : MonoBehaviour {
-	[SerializeField] int fastThreshold;
-	[SerializeField] int slowSpeed    ;
-	[SerializeField] int fastSpeed    ;
+	// Settings
+	[SerializeField] float timeTaken;
 
-	[SerializeField] int currentAmount;
-	[SerializeField] int difference   ;
+	// Read Only
+	[SerializeField][ReadOnly] int currentAmount;
+	[SerializeField][ReadOnly] int difference   ;
 
+	// Properties
 	public int CurrentAmount { get { return currentAmount; } }
 	public int Difference    { get { return difference   ; } }
 
+	// Methods
+	/**
+	 * Should be called to set up the value changer so it knows what value to use.
+	 */
 	public void SetUp(SerializableInt totalAmount) {
 		this.currentAmount = totalAmount.Value;
 	}
 
+	/**
+	 * Should be called to gain or remove an amount from a given serializable int.
+	 */
 	public void GainAmount (SerializableInt totalAmount, int amount) {
 		totalAmount.Value += amount;
 		difference = totalAmount.Value - currentAmount;
 
 		StopAllCoroutines ();
-		StartCoroutine (IncreaseOverTime (2f, totalAmount));
+		StartCoroutine (IncreaseOverTime (timeTaken, totalAmount));
 	}
+
+	/**
+	 * Routine for the GainAmount method.
+	 */
 	IEnumerator IncreaseOverTime(float time, SerializableInt target) {
 		int initialValue = currentAmount;
 		float currentTime = 0f;
@@ -39,6 +58,5 @@ public class ValueChanger : MonoBehaviour {
 			
 		currentAmount = target.Value;
 		difference    = 0;
-		Debug.Log (difference);
 	}
 }

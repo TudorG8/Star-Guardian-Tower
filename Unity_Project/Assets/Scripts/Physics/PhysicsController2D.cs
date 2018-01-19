@@ -234,6 +234,7 @@ public class PhysicsController2D : ControllerBase {
 				CheckForAngleChange (ref velocity);
 			}
 		}
+		Debug.Log (velocity.x);
 		player.Translate (velocity);
 	}
 }

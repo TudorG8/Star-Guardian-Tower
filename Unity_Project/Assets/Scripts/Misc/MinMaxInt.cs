@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Holds a minimum and maximum value and allows getting a random value
+ * from between them.
+ */
 [System.Serializable]
 public class MinMaxInt {
 	[SerializeField] int min;

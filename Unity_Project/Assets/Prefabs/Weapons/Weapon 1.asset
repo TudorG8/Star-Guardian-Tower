@@ -15,7 +15,7 @@ MonoBehaviour:
   description: 
   cost: 100
   shopImage: {fileID: 21300002, guid: 72cf33596fe371f47be00b53c475b964, type: 3}
-  items:
+  sprites:
   - itemName: Weapon
     meshToUse: {fileID: 11400000, guid: cfe7e64485b9dec4cb5f99fdc0daa931, type: 2}
     additionalItems: []

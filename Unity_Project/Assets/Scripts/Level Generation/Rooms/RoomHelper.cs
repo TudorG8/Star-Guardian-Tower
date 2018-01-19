@@ -21,11 +21,17 @@ public class RoomHelper : MonoBehaviour {
 	 */
 	[System.Serializable]
 	public class PointExtraInfo {
-		public Transform  point;
-		public Transform  previousPoint;
-		public GameObject previousPlatform1;
-		public GameObject previousPlatform2;
-		public float      previousSize;
+		[SerializeField] Transform  point            ;
+		[SerializeField] Transform  previousPoint    ;
+		[SerializeField] GameObject previousPlatform1;
+		[SerializeField] GameObject previousPlatform2;
+		[SerializeField] float      previousSize     ;
+
+		public Transform  Point             { get { return point            ; } set { point             = value; }}
+		public Transform  PreviousPoint     { get { return previousPoint    ; } set { previousPoint     = value; }}
+		public GameObject PreviousPlatform1 { get { return previousPlatform1; } set { previousPlatform1 = value; }}
+		public GameObject PreviousPlatform2 { get { return previousPlatform2; } set { previousPlatform2 = value; }}
+		public float      PreviousSize      { get { return previousSize     ; } set { previousSize      = value; }}
 	}
 	// Variables -------------------------------------------------------------------------------------------------
 	// Imports
@@ -36,9 +42,8 @@ public class RoomHelper : MonoBehaviour {
 	[SerializeField] PointExtraInfo exitPoint ;
 
 	// Settings
-	[SerializeField] bool editable;
+	[SerializeField] bool editable                ; // Update scripts won't run if this is set to false
 	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
-
 
 	public bool Editable { get { return editable; } }
 
@@ -281,44 +286,47 @@ public class RoomHelper : MonoBehaviour {
 	 * Change the roomScript accordingly (main, secondary and index) and make sure the platforms have the right size.
 	 * Update the previous point info for the next update cycle.
 	 */
-	void HandlePlatformSize(PointHelper newPoint, PointExtraInfo previousInfo, PointDTO roomPoint) {
+	void HandlePlatformSize(PointRefs newPoint, PointExtraInfo previousInfo, PointDTO roomPoint) {
 		RoomSegmentHelper.PlatformRefs platformRefs = newPoint.roomEditor.platformRefs;
 
 		string mainString      = newPoint.name.Substring (0, newPoint.name.Length - 2);
 		string secondaryString = newPoint.name.Substring (newPoint.name.Length - 1);
 
-		roomPoint.main      = DirectionHelper.GetByName (mainString);
-		roomPoint.secondary = platformRefs.GetFromIndex(roomPoint.main, int.Parse(secondaryString));
-		roomPoint.roomIndex = newPoint.roomEditor.roomSegment.Index;
+		roomPoint.Main      = DirectionHelper.GetByName (mainString);
+		roomPoint.Secondary = platformRefs.GetFromIndex(roomPoint.Main, int.Parse(secondaryString));
+		roomPoint.RoomIndex = newPoint.roomEditor.roomSegment.Index;
 
-		float newSize = (roomPoint.main == Direction.Top || roomPoint.main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
+		float newSize = (roomPoint.Main == Direction.Top || roomPoint.Main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
 		// Get which platforms to modify
 		int mainIndex, secondaryIndex;
 		if   (secondaryString == "1") { mainIndex = 1; secondaryIndex = 2; } 
 		else/*secondaryString == "2"*/{ mainIndex = 2; secondaryIndex = 1; }
-		GameObject platform1 = platformRefs.Get (roomPoint.main, mainIndex     );
-		GameObject platform2 = platformRefs.Get (roomPoint.main, secondaryIndex);
+		GameObject platform1 = platformRefs.Get (roomPoint.Main, mainIndex     );
+		GameObject platform2 = platformRefs.Get (roomPoint.Main, secondaryIndex);
 
 		// If there is a previous point and its active
-		if (previousInfo.previousPoint != null && previousInfo.previousPoint.gameObject.activeSelf) {
-			previousInfo.previousPlatform1.transform.localScale = new Vector2 (previousInfo.previousSize, previousInfo.previousPlatform1.transform.localScale.y);
-			previousInfo.previousPlatform2.transform.localScale = new Vector2 (previousInfo.previousSize, previousInfo.previousPlatform2.transform.localScale.y);
+		if (previousInfo.PreviousPoint != null && previousInfo.PreviousPoint.gameObject.activeSelf) {
+			previousInfo.PreviousPlatform1.transform.localScale = new Vector2 (previousInfo.PreviousSize, previousInfo.PreviousPlatform1.transform.localScale.y);
+			previousInfo.PreviousPlatform2.transform.localScale = new Vector2 (previousInfo.PreviousSize, previousInfo.PreviousPlatform2.transform.localScale.y);
 		}
 
 		platform1.transform.localScale = new Vector2 (RoomCache.Instance.MinimumPlatformSize.x , platform1.transform.localScale.y);
 		platform2.transform.localScale = new Vector2 (newSize * 2 - RoomCache.Instance.PointGap, platform2.transform.localScale.y);
 
-		previousInfo.previousSize      = newSize;
-		previousInfo.previousPoint     = newPoint.transform;
-		previousInfo.previousPlatform1 = platform1;
-		previousInfo.previousPlatform2 = platform2;
+		previousInfo.PreviousSize      = newSize;
+		previousInfo.PreviousPoint     = newPoint.transform;
+		previousInfo.PreviousPlatform1 = platform1;
+		previousInfo.PreviousPlatform2 = platform2;
 	}
-
-	void HandleObjectsChange(List<RoomObject> objects, Transform parent) {
+	/**
+	 * Check if we deleted at objects or if we added any new ones.
+	 * These are held in the room object. 
+	 * This is inneficient, but is only ran during edit mode.
+	 */
+	void HandleObjectsChange(HashSet<RoomObject> objects, Transform parent) {
 		// Check if a room was deleted in the editor
-		for (int i = 0; i < objects.Count; i++) {
-			RoomObject obj = objects [i];
+		foreach(RoomObject obj in objects) {
 			if (obj == null) {
 				objects.Remove (obj);
 				break;
@@ -348,18 +356,18 @@ public class RoomHelper : MonoBehaviour {
 		
 			// Gather all points from all rooms
 			List<RoomSegment> validSegments = rooms.GetValidElements ();
-			List<PointHelper> validPoints = new List<PointHelper> ();
+			List<PointRefs> validPoints = new List<PointRefs> ();
 			for (int i = 0; i < validSegments.Count; i++) {
 				validPoints.AddRange (validSegments [i].HelperScript.pointRefs.points);
 			}
 
 			// Handle exit point
-			if (exitPoint.point != null && exitPoint.point.gameObject.activeSelf) {
+			if (exitPoint.Point != null && exitPoint.Point.gameObject.activeSelf) {
 				float minDistance = float.MaxValue;
-				PointHelper minPoint = null;
-				foreach (PointHelper point in validPoints) {
+				PointRefs minPoint = null;
+				foreach (PointRefs point in validPoints) {
 					if (point.gameObject.activeSelf) {
-						float pointDistance = Vector2.Distance (exitPoint.point.transform.position, point.transform.position);
+						float pointDistance = Vector2.Distance (exitPoint.Point.transform.position, point.transform.position);
 						if (pointDistance < minDistance) {
 							minDistance = pointDistance;
 							minPoint = point;
@@ -367,8 +375,8 @@ public class RoomHelper : MonoBehaviour {
 					}
 				}
 				if (minPoint != null) {
-					exitPoint.point.transform.position = minPoint.transform.position;
-					exitPoint.point.transform.rotation = minPoint.transform.rotation;
+					exitPoint.Point.transform.position = minPoint.transform.position;
+					exitPoint.Point.transform.rotation = minPoint.transform.rotation;
 
 					HandlePlatformSize (minPoint, exitPoint, roomScript.Exit);
 				}
@@ -377,12 +385,12 @@ public class RoomHelper : MonoBehaviour {
 			}
 
 			// Handle entry point
-			if (entryPoint.point != null && entryPoint.point.gameObject.activeSelf) {
+			if (entryPoint.Point != null && entryPoint.Point.gameObject.activeSelf) {
 				float minDistance = float.MaxValue;
-				PointHelper minPoint = null;
-				foreach (PointHelper point in validPoints) {
+				PointRefs minPoint = null;
+				foreach (PointRefs point in validPoints) {
 					if (point.gameObject.activeSelf) {
-						float pointDistance = Vector2.Distance (entryPoint.point.transform.position, point.transform.position);
+						float pointDistance = Vector2.Distance (entryPoint.Point.transform.position, point.transform.position);
 						if (pointDistance < minDistance) {
 							minDistance = pointDistance;
 							minPoint = point;
@@ -390,14 +398,17 @@ public class RoomHelper : MonoBehaviour {
 					}
 				}
 				if (minPoint != null) {
-					entryPoint.point.transform.position = minPoint.transform.position;
-					entryPoint.point.transform.rotation = minPoint.transform.rotation;
+					entryPoint.Point.transform.position = minPoint.transform.position;
+					entryPoint.Point.transform.rotation = minPoint.transform.rotation;
 
 					HandlePlatformSize (minPoint, entryPoint, roomScript.Entry);
 				}
 			}
 
-
+			HandleObjectsChange (roomScript.Objects  , roomScript.ObjectParent   );
+			HandleObjectsChange (roomScript.Hazards  , roomScript.HazardParent   );
+			HandleObjectsChange (roomScript.Treasure , roomScript.TreasureParent );
+			HandleObjectsChange (roomScript.Platforms, roomScript.PlatformsParent);
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------

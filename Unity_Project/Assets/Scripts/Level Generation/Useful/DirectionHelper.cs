@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Useful methods for the Direction enumeration
+ */
+
 public class DirectionHelper {
 	public static Direction GetOpposite(Direction direction) {
 		if  (direction == Direction.None  ) return Direction.None  ;
@@ -29,5 +33,4 @@ public class DirectionHelper {
 		Debug.LogError ("Wrong Input: \'" + name + "\'");
 		return Direction.None;
 	}
-
 }

@@ -8,8 +8,8 @@ using UnityEngine;
  */
 
 public interface IndexableArrayPiece<T> {
-	void IncreaseIndex    (Vector2 increase); // Increase the index field of the element
-	void IncreasePosition (Vector2 increase); // Increase the world position of the element
-	GameObject GetGameObject ();              // Get the elements gameobject
-	void SetName ();                          // Set the name of the elements gameobject
+	void       IncreaseIndex    (Vector2 increase); // Increase the index field of the element
+	void       IncreasePosition (Vector2 increase); // Increase the world position of the element
+	GameObject GetGameObject ();                    // Get the elements gameobject
+	void       SetName ();                          // Set the name of the elements gameobject
 }

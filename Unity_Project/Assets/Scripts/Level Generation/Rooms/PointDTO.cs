@@ -4,20 +4,15 @@ using UnityEngine;
 
 [System.Serializable]
 public class PointDTO {
-	public Direction main     ;
-	public Direction secondary;
-	public Vector2   roomIndex;
-	public TriggerScript triggerScript;
+	[SerializeField] Direction     main         ;
+	[SerializeField] Direction     secondary    ;
+	[SerializeField] Vector2       roomIndex    ;
+	[SerializeField] TriggerScript triggerScript;
 
-	public PointDTO GetCopy() {
-		PointDTO newPoint = new PointDTO ();
-
-		newPoint.main      = this.main;
-		newPoint.secondary = this.secondary;
-		newPoint.roomIndex = this.roomIndex;
-
-		return newPoint;
-	}
+	public Direction     Main          { get { return main         ; } set { main      = value; }}
+	public Direction     Secondary     { get { return secondary    ; } set { secondary = value; }}
+	public Vector2       RoomIndex     { get { return roomIndex    ; } set { roomIndex = value; }}
+	public TriggerScript TriggerScript { get { return triggerScript; } }
 
 	public override string ToString () {
 		return main + " " + secondary + " " + roomIndex;

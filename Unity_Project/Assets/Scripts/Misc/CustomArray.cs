@@ -10,6 +10,14 @@ using CustomPropertyDrawers;
  *  Y -> rows
  *  So doing a SetRoom(0, 2) will set the room at column(x) 0 and row(y) 2
  *  Why do it like this? It just makes more sense in practice than explanation...
+ * 
+ * Generic Explanation:
+ * 	In order to implement this, you need to create a non generic class that extends it and specifies its parameters.
+ *  U is a single element 
+ *  T is row/list of U
+ *  Example:
+ * 		SegmentArray : CustomArray<RoomSegment, SegmentArrayList> { }
+ * 		This will now properly serialize, even though it is a generic class
  */
 
 [System.Serializable]

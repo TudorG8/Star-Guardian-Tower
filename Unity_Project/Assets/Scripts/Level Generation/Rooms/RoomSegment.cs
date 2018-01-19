@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
 
+/**
+ * Contains runtime information about a room segment.
+ */
 public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
 	// Imports
 	[SerializeField] RoomSegmentHelper helperScript;
@@ -28,7 +31,7 @@ public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
 
 	public void IncreasePosition (Vector2 increase) {
 		Vector2 position = transform.position;
-		position += UsefulMethods.vectorProduct(increase, new Vector2 (26.7f, 15f));
+		position += UsefulMethods.vectorProduct(increase, RoomCache.Instance.RoomSize);
 		transform.position = position;
 	}
 

@@ -300,14 +300,17 @@ public class PlayerController : Singleton<PlayerController> {
 	void HandleHairDirection() {
 		for (int i = 0; i < springManager.springBones.Length; i++) {
 			SpringBone bone = springManager.springBones [i];
-			bone.springForce.x = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.x);
+			//bone.springForce.x = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.x);
+			//bone.springForce.y = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.y);
 		}
 	}
 
 	void UpdateXScale(float value) {
-		Vector2 scale = transform.localScale;
-		scale.x = value;
-		transform.localScale = scale;
+		//Vector2 scale = transform.localScale;
+		//scale.x = value;
+		//transform.localScale = scale;
+
+
 	}
 
 	void Update() {
@@ -327,10 +330,19 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleAttacking   ();
 
 		UpdateXScale (Mathf.Abs(transform.localScale.x) * direction);
+
+
 		if (physicsController.GetCollisionInfo.hangingOnEdge) {
 			velocity.y = 0;
 		}
+		Debug.Log (velocity.x);
+		int rotation = 0;
+		transform.localRotation = Quaternion.Euler (new Vector3 (0, rotation, 0));
+
 		physicsController.Move (velocity * Time.deltaTime, input);
+
+		rotation = direction == 1 ? 0 : 180;
+		transform.localRotation = Quaternion.Euler (new Vector3 (0, rotation, 0));
 
 		HandleFallingOffPlatforms (previouslyGrounded);
 		HandleHittingGround ();
