@@ -14,8 +14,8 @@ MonoBehaviour:
   itemName: Normal Clothes
   description: 
   cost: 0
-  shopImage: {fileID: 21300026, guid: 87efaf20c96bd46b2a6e7bf4d4d3fd57, type: 3}
-  items:
+  shopImage: {fileID: 21300004, guid: 5d466964b2888354e9e92725d2773394, type: 3}
+  sprites:
   - itemName: Chest
     meshToUse: {fileID: 11400000, guid: ee2a9e2c485b1214cad78a09f5645df7, type: 2}
     additionalItems: []
@@ -43,3 +43,6 @@ MonoBehaviour:
   - itemName: Left Foot
     meshToUse: {fileID: 11400000, guid: f3eebc53edecff549860bd4b47593130, type: 2}
     additionalItems: []
+  attributes:
+  - attributeName: Hit Points
+    value: 2

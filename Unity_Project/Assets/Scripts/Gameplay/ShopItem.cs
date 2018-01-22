@@ -32,11 +32,16 @@ public class ShopItem : ScriptableObject {
 		public string          ItemName        { get { return itemName       ; } }
 		public SpriteMesh      MeshToUse       { get { return meshToUse      ; } }
 		public List<Transform> AdditionalItems { get { return additionalItems; } }
+
+		public EquipableSprite(string name) {
+			this.itemName = name;
+		}
 	}
 
 	/**
 	 * Quick class to hold an name-value attribute pair.
 	 */
+	[System.Serializable]
 	public class Attribute {
 		[SerializeField] string attributeName;
 		[SerializeField] float  value        ;
@@ -58,6 +63,7 @@ public class ShopItem : ScriptableObject {
 	public string     Description { get { return description; } }
 	public int        Cost        { get { return cost       ; } }
 	public Sprite     ShopImage   { get { return shopImage  ; } } 
+	public List<EquipableSprite> Sprites { get { return sprites; } set { sprites = value; }}
 
 	/**
 	 * Returns the index of a sprite if it is contained in the sprite list.

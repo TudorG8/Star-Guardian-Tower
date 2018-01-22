@@ -2,4 +2,5 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class RoomObject : MonoBehaviour { }
+[System.Serializable]
+public class RoomObject : MonoBehaviour { }

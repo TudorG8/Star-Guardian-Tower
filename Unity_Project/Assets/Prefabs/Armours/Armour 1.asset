@@ -11,11 +11,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55fb3b4fb432047118f0fd1d3ef3d5f9, type: 3}
   m_Name: Armour 1
   m_EditorClassIdentifier: 
-  itemName: Shoulder Pads
+  itemName: Squire Suit
   description: 
   cost: 400
-  shopImage: {fileID: 21300028, guid: dd105a39e474c4706aba36b8be4febd9, type: 3}
-  items:
+  shopImage: {fileID: 21300000, guid: 62dc8ae421bdf6e46a34ebc3d8f92127, type: 3}
+  sprites:
   - itemName: Chest
     meshToUse: {fileID: 11400000, guid: 1a3ecf683fb3c18418ecc28a23f6d212, type: 2}
     additionalItems:
@@ -23,6 +23,27 @@ MonoBehaviour:
   - itemName: Right Arm
     meshToUse: {fileID: 11400000, guid: 90082770f0b61fe409fc6bdc214cd2e3, type: 2}
     additionalItems: []
+  - itemName: Right Hand
+    meshToUse: {fileID: 11400000, guid: 32a46de219744dc4099b4c056d81c225, type: 2}
+    additionalItems: []
   - itemName: Left Arm
     meshToUse: {fileID: 11400000, guid: 731c1250c7c2f1544a3fa59f9fdd86b8, type: 2}
     additionalItems: []
+  - itemName: Left Hand
+    meshToUse: {fileID: 11400000, guid: 4d72a55f92faae04c9b86b4b26aea323, type: 2}
+    additionalItems: []
+  - itemName: Right Leg
+    meshToUse: {fileID: 11400000, guid: d38cdd6f7d69660468cbdfd3d76125f0, type: 2}
+    additionalItems: []
+  - itemName: Right Foot
+    meshToUse: {fileID: 11400000, guid: 82c0748fcc3b0c9428dbb258590a2488, type: 2}
+    additionalItems: []
+  - itemName: Left Leg
+    meshToUse: {fileID: 11400000, guid: 9e87f888f116c2044a80a2a87259e08a, type: 2}
+    additionalItems: []
+  - itemName: Left Foot
+    meshToUse: {fileID: 11400000, guid: 602b3fd77ef1fb8478c8b984f2412648, type: 2}
+    additionalItems: []
+  attributes:
+  - attributeName: Hit Points
+    value: 3

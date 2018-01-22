@@ -14,7 +14,7 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 
 	void OnTriggerEnter2D(Collider2D other) {
 		if (collisionMask == (collisionMask | (1 << other.gameObject.layer))) {
-			animator.SetTrigger ("destroy");
+			//animator.SetTrigger ("destroy");
 			StartCoroutine (WaitForSeconds (0.2f, () => { Destroy(); }));
 		}
 	}

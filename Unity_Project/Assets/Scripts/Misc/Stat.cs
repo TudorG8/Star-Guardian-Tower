@@ -7,6 +7,7 @@ using UnityEngine;
  * Should be used for stats. Can be extended to add modifiers (probably not anytime soon).
  */
 
+[System.Serializable]
 public class Stat {
 	[SerializeField] float current;
 	[SerializeField] float min    ;
@@ -15,7 +16,7 @@ public class Stat {
 	public float Value { 
 		get { return current; } 
 		set { 
-			current += value;
+			current = value;
 			current = Mathf.Clamp (current, min, max);
 		}
 	}

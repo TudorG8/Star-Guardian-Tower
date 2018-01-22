@@ -10,13 +10,12 @@ using CustomPropertyDrawers;
 public class Room : MonoBehaviour {
 	// Imports
 	[SerializeField] RoomHelper roomGenerator  ;
-	[SerializeField] Transform  center         ;
 	[SerializeField] Transform  objectParent   ;
 	[SerializeField] Transform  hazardParent   ;
 	[SerializeField] Transform  treasureParent ;
 	[SerializeField] Transform  platformsParent;
 
-	// Realonly
+	// Readonly
 	[SerializeField][ReadOnly] long    id   ; // Unique ID in the cache
 	[SerializeField][ReadOnly] bool    inUse; // Whether the room can be used by the cache
 	[SerializeField][ReadOnly] Vector2 size ; // The number of rooms on both coordinates
@@ -27,14 +26,13 @@ public class Room : MonoBehaviour {
 	[SerializeField] PointDTO exit ;
 	[SerializeField] SegmentArray rooms;
 
-	[SerializeField] HashSet<RoomObject> objects  ;
-	[SerializeField] HashSet<RoomObject> hazards  ;
-	[SerializeField] HashSet<RoomObject> treasure ;
-	[SerializeField] HashSet<RoomObject> platforms;
+	[SerializeField] List<RoomObject> objects  ;
+	[SerializeField] List<RoomObject> hazards  ;
+	[SerializeField] List<RoomObject> treasure ;
+	[SerializeField] List<RoomObject> platforms;
 
 	// Properties
 	public RoomHelper RoomGeneratorScript  { get { return roomGenerator  ; }}
-	public Transform  Center               { get { return center         ; }}
 	public Transform  ObjectParent         { get { return objectParent   ; }}
 	public Transform  HazardParent         { get { return hazardParent   ; }}
 	public Transform  TreasureParent       { get { return treasureParent ; }}
@@ -49,20 +47,32 @@ public class Room : MonoBehaviour {
 	public PointDTO Exit  { get { return exit ; } }
 	public SegmentArray Rooms { get { return rooms; } }
 
-	public HashSet<RoomObject> Objects   { get { return objects  ; } }
-	public HashSet<RoomObject> Hazards   { get { return hazards  ; } }
-	public HashSet<RoomObject> Treasure  { get { return treasure ; } }
-	public HashSet<RoomObject> Platforms { get { return platforms; } }
+	public List<RoomObject> Objects   { get { return objects  ; } }
+	public List<RoomObject> Hazards   { get { return hazards  ; } }
+	public List<RoomObject> Treasure  { get { return treasure ; } }
+	public List<RoomObject> Platforms { get { return platforms; } }
 
 	// Methods
 	public void Reset() {
 		transform.localPosition = previousPosition;
 		entry.TriggerScript.Triggered = false;
 		inUse = false;
+		entry.Door.SetTrigger ("open");
+
+		for (int i = 0; i < treasure.Count; i++) {
+			if (treasure [i] is IResetable) {
+				IResetable resetableTreasure = (IResetable)treasure [i];
+				resetableTreasure.Reset ();
+			}
+		}
 	}
 
 	public void OnEntry() {
 		LevelGenerator.Instance.WhenPlayerEntersNewRoom (this);
+	}
+
+	public void OnExit () {
+		LevelGenerator.Instance.WhenPlayerFinishesARoom (this);
 	}
 
 	public void CloseEntryGate () {

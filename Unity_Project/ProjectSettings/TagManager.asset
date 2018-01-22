@@ -18,7 +18,7 @@ TagManager:
   - Enemies
   - Player
   - Attack
-  - 
+  - Hazards
   - 
   - 
   - 
@@ -51,11 +51,17 @@ TagManager:
   - name: Objects
     uniqueID: 4141248847
     locked: 0
+  - name: Particles Behind Player
+    uniqueID: 1224178333
+    locked: 0
   - name: Player
     uniqueID: 156130815
     locked: 0
   - name: Platforms Front
     uniqueID: 1085899633
+    locked: 0
+  - name: Particles
+    uniqueID: 2214953665
     locked: 0
   - name: Editor UI
     uniqueID: 4160948639

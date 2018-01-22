@@ -9,41 +9,89 @@ using CustomPropertyDrawers;
  */
 
 public class ScoreSystem : Singleton<ScoreSystem> {
+	[SerializeField] Animator     parent    ;
+	[SerializeField] Animator     gameOverUI;
+
 	[SerializeField] Text         currentScoreText    ;
 	[SerializeField] Animator     currentScoreAnimator;
+	[SerializeField] ValueChanger scoreChanger        ;
 
 	[SerializeField] Text         currentGoldText     ;
 	[SerializeField] Text         goldDifferenceText  ;
-	[SerializeField] ValueChanger valueChanger        ;
+	[SerializeField] ValueChanger goldChanger         ;
 
-	void Awake () { InitiateSingleton (); }
+	[SerializeField] Transform    hitPointsParent     ;
+	[SerializeField] GameObject   hitPointsBar        ;
+	[SerializeField] List<Image>  hitPointsInstances  ;
 
+	[SerializeField] Color normalHP ;
+	[SerializeField] Color damagedHP;
+
+	void Awake () { 
+		InitiateSingleton (); 
+		Reset ();
+		parent.gameObject.SetActive (false);
+	}
+
+	void Reset () {
+		currentScoreText  .text = "0";
+		currentGoldText   .text = "0";
+		goldDifferenceText.text =  "";
+	}
+		
 	void Update() {
 		if (SessionData.Instance.GameStarted) {
-			currentScoreText.text = valueChanger.CurrentAmount.ToString();
-			if   (valueChanger.Difference != 0)  { goldDifferenceText.text = valueChanger.Difference.ToString (); } 
-			else/*valueChanger.Difference == 0*/ { goldDifferenceText.text = ""; }
+			currentScoreText.text = scoreChanger.CurrentAmount.ToString();
+			currentGoldText .text = goldChanger .CurrentAmount.ToString();
+			if   (goldChanger.Difference != 0)  { goldDifferenceText.text = goldChanger.GetDifferenceSign() + goldChanger.Difference.ToString (); } 
+			else/*goldChanger.Difference == 0*/ { goldDifferenceText.text = ""; }
 		}
+	}
+
+	public void LoadHP() {
+		foreach (Transform child in hitPointsParent) {
+			Destroy (child.gameObject);
+		}
+		hitPointsInstances.Clear ();
+		for (int i = 0; i < SessionData.Instance.Lives.Value; i++) {
+			GameObject obj = Instantiate (hitPointsBar, new Vector2(), Quaternion.identity) as GameObject;
+			obj.transform.SetParent (hitPointsParent, false);
+			obj.transform.SetAsLastSibling ();
+			hitPointsInstances.Add(obj.GetComponent<Image>());
+		}
+	}
+
+	public void TakeDamage() {
+		hitPointsInstances [(int)SessionData.Instance.Lives.Value].color = damagedHP;
 	}
 
 	/**
 	 * Should be called by events to gain a specific amount of score during a runtime session.
 	 */
 	public void GainScore(int amount) {
-		valueChanger.GainAmount (SessionData.Instance.CurrentScore, amount);
-		currentScoreAnimator.SetTrigger ("scoreGained");
+		scoreChanger.GainAmount (SessionData.Instance.CurrentScore, amount);
+		//currentScoreAnimator.SetTrigger ("scoreGained");
 	}
 
 	/**
 	 * Should be called by events to gain a specific amount of gold during a runtime session.
 	 */
 	public void GainGold (int amount) {
-		valueChanger.GainAmount (SessionData.Instance.CurrentGold , amount);
+		goldChanger.GainAmount (SessionData.Instance.CurrentGold , amount);
 	}
 
 	public void ShowGameUI() {
+		LoadHP ();
+		parent.gameObject.SetActive (true);
 	}
 
 	public void ShowGameoverUI () {
+		gameOverUI.gameObject.SetActive (true);
+	}
+	public void HideGameoverUI () {
+		gameOverUI.gameObject.SetActive (false);
+	}
+	public void HideGameUI() {
+		parent.gameObject.SetActive (false);
 	}
 }

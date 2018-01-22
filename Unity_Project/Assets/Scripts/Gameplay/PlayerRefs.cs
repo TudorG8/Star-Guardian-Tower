@@ -24,7 +24,27 @@ public class PlayerRefs : MonoBehaviour {
 		public SpriteMeshInstance Mesh          { get { return mesh         ; } }
 		public Transform          RuntimeParent { get { return runtimeParent; } }
 	}
+	[System.Serializable]
+	public class FaceEmotion {
+		[SerializeField] SpriteMesh rightEye;
+		[SerializeField] SpriteMesh leftEye ;
+		[SerializeField] SpriteMesh mouth   ;
 
+		public SpriteMesh RightEye { get { return rightEye; } }
+		public SpriteMesh LeftEye  { get { return leftEye ; } }
+		public SpriteMesh Mouth    { get { return mouth   ; } }
+	}
+
+	public enum FaceEmotionType {
+		Normal, Sad
+	}
+
+	[SerializeField] SpriteMeshInstance rightEye;
+	[SerializeField] SpriteMeshInstance leftEye ;
+	[SerializeField] SpriteMeshInstance mouth   ;
+
+	[SerializeField] FaceEmotion normal;
+	[SerializeField] FaceEmotion sad   ;
 	[SerializeField] List<SpriteRef> sprites;
 
 	/**
@@ -49,4 +69,23 @@ public class PlayerRefs : MonoBehaviour {
 			}
 		}
 	}
+
+	public void LoadEmotion(FaceEmotionType emotion) {
+		switch (emotion) {
+			case FaceEmotionType.Normal: {
+				UpdateEmotion (normal);
+				break;
+			}
+			case FaceEmotionType.Sad: {
+				UpdateEmotion (sad);
+				break;
+			}
+		}
+	}
+	void UpdateEmotion(FaceEmotion emotion) {
+		rightEye.spriteMesh = emotion.RightEye;
+		leftEye .spriteMesh = emotion.LeftEye ;
+		mouth   .spriteMesh = emotion.Mouth   ;
+	}
+
 }

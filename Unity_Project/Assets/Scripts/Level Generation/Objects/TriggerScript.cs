@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 public class TriggerScript : MonoBehaviour {
+	[SerializeField] LayerMask collisionMask;
 	[SerializeField] bool  retriggable;
 	[SerializeField] bool  triggered  ;
 	[SerializeField] float delay      ;
@@ -12,11 +13,13 @@ public class TriggerScript : MonoBehaviour {
 	public bool Triggered { get { return triggered; } set { triggered = value; } }
 
 	void OnTriggerEnter2D(Collider2D other) {
-		if (!triggered) {
-			eventToCall.Invoke ();
-			triggered = true;
-			if (retriggable) {
-				StartCoroutine (Wait (delay));
+		if (collisionMask == (collisionMask | (1 << other.gameObject.layer))) {
+			if (!triggered) {
+				eventToCall.Invoke ();
+				triggered = true;
+				if (retriggable) {
+					StartCoroutine (Wait (delay));
+				}
 			}
 		}
 	}

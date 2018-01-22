@@ -40,6 +40,13 @@ public class ValueChanger : MonoBehaviour {
 		StartCoroutine (IncreaseOverTime (timeTaken, totalAmount));
 	}
 
+	public string GetDifferenceSign() {
+		if      (difference >  0) { return "+"; } 
+		else if (difference <  0) { return "-"; } 
+		else   /*difference == 0*/{ return  ""; }
+	}
+
+
 	/**
 	 * Routine for the GainAmount method.
 	 */

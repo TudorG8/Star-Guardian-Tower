@@ -26,5 +26,10 @@ public class RoomHelperEditor : Editor {
 			if (GUILayout.Button ("Print"       )) { script.PrintRooms     (); }
 			if (GUILayout.Button ("Add To Cache")) { script.AddRoomToCache (); }
 		}
+		else {
+			GUI.enabled = false;
+			DrawDefaultInspector ();
+			GUI.enabled = true;
+		}	
 	}
 }

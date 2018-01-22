@@ -11,6 +11,7 @@ public class SessionData : Singleton<SessionData> {
 	[SerializeField] SerializableInt currentGold ;
 	[SerializeField] SerializableInt currentScore;
 
+
 	public bool            GameStarted  { get { return gameStarted ; } set { gameStarted  = value; } }
 	public Stat            Lives        { get { return lives       ; } set { lives        = value; } }
 	public SerializableInt CurrentGold  { get { return currentGold ; } set { currentGold  = value; } }
@@ -24,9 +25,18 @@ public class SessionData : Singleton<SessionData> {
 	 */
 	public void Reset () {
 		gameStarted = false;
-		lives.Value = lives.Max;
+		//lives.Value = lives.Max;
 		currentGold .Value = 0;
 		currentScore.Value = 0;
+	}
+
+	public void StartGame() {
+		gameStarted = true;
+		lives.Value = lives.Max;
+	}
+
+	public void TakeDamage() {
+		lives.Value = lives.Value - 1;
 	}
 
 	/**
@@ -36,6 +46,11 @@ public class SessionData : Singleton<SessionData> {
 		DataSaver.Instance.TotalGold.Value += currentGold.Value;
 		if (currentScore.Value > DataSaver.Instance.HighestScore.Value)
 			DataSaver.Instance.HighestScore.Value = currentScore.Value;
+
+		currentGold .Value = 0;
+		currentScore.Value = 0;
+
+		Shop.Instance.SaveStats ();
 	}
 
 	/**

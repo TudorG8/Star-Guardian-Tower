@@ -65,7 +65,9 @@ public class RoomHelper : MonoBehaviour {
 			RoomSegment segment = validRooms [i];
 			segment.SetHelperScriptActiveAs (active);
 		}
-		editable = false;
+		roomScript.Entry.Sprite.gameObject.SetActive (active);
+		roomScript.Exit .Sprite.gameObject.SetActive (active);
+		editable = active;
 	}
 
 	void Start() {
@@ -324,7 +326,7 @@ public class RoomHelper : MonoBehaviour {
 	 * These are held in the room object. 
 	 * This is inneficient, but is only ran during edit mode.
 	 */
-	void HandleObjectsChange(HashSet<RoomObject> objects, Transform parent) {
+	void HandleObjectsChange(List<RoomObject> objects, Transform parent) {
 		// Check if a room was deleted in the editor
 		foreach(RoomObject obj in objects) {
 			if (obj == null) {
@@ -335,7 +337,9 @@ public class RoomHelper : MonoBehaviour {
 		// Check if a room was added in the editor
 		foreach (Transform child in parent) {
 			RoomObject obj = child.GetComponent<RoomObject> ();
-			objects.Add (obj);
+			if (obj != null && !objects.Contains (obj)) {
+				objects.Add (obj);
+			}
 		}
 	}
 

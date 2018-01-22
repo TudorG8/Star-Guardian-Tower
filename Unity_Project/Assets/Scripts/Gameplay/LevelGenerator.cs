@@ -35,7 +35,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 	// Generate the first room after a small delay
 	void Start () { 
-		if (DataSaver.Instance.FinishedTutorial) { StartCoroutine (NormalSetUp   (true)); } 
+		if (DataSaver.Instance.FinishedTutorial) { StartCoroutine (NormalSetUp   (true, 0.25f)); } 
 		else /*Not Finished Tutorial*/           { StartCoroutine (TutorialSetUp ()); }
 	}
 
@@ -58,9 +58,12 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	/**
 	 * For normal gameplay, we must generate the next room and be ready for when the player enters it.
 	 */
-	IEnumerator NormalSetUp(bool movePlayer) {
+	IEnumerator NormalSetUp(bool movePlayer, float initialDelay) {
+		// Close the tutorial door
+		currentRoom.Entry.Door.SetTrigger("close");
+
 		// Delay a little bit so everything gets loaded?
-		yield return new WaitForSeconds (0.25f);
+		yield return new WaitForSeconds (initialDelay);
 		currentHeight = 0;
 		currentColumn = maxColumns - 1;
 		currentRoom   = startingRoom;
@@ -79,19 +82,35 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	// Whenever the player finished the tutorial
 	public void FinishTutorial() {
 		DataSaver.Instance.FinishedTutorial = true;
-		StartCoroutine (NormalSetUp (false));
+		StartCoroutine (NormalSetUp (false, 0f));
 	}
 
 	// Whenever the player starts a game session
 	public void StartGame() {
-		SessionData.Instance.Reset      ();
+		SessionData.Instance.StartGame  ();
 		ScoreSystem.Instance.ShowGameUI ();
+		ScoreSystem.Instance.LoadHP ();
 	}
 
 	// Whenever the player ends a game session
 	public void FinishGame() {
 		SessionData.Instance.SaveStats      ();
-		ScoreSystem.Instance.ShowGameoverUI ();
+		PlayerController.Instance.gameObject.SetActive (true);
+		PlayerController.Instance.Reset ();
+		ScoreSystem.Instance.HideGameoverUI ();
+		ScoreSystem.Instance.HideGameUI     ();
+		if (previousRoom != null && previousRoom != startingRoom) {
+			RoomCache.Instance.ReturnRoomToCache (previousRoom);
+		}
+		if (currentRoom != null && currentRoom != startingRoom) {
+			RoomCache.Instance.ReturnRoomToCache (currentRoom);
+		}
+		if (nextRoom != null && nextRoom != startingRoom) {
+			RoomCache.Instance.ReturnRoomToCache (nextRoom);
+		}
+		cameraScript.transform.position = currentRoom.Rooms.RoomAt (startingRoom.Entry.RoomIndex).Middle.position;
+		startingRoom.Entry.Door.SetTrigger ("close");
+		StartCoroutine (NormalSetUp   (true, 0f));
 	}
     
 	// When the player enters a new room, delete the previous and generate a new one
@@ -111,6 +130,10 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		}
 
 		cameraScript.SetNewRoom (room);
+	}
+
+	public void WhenPlayerFinishesARoom(Room room) {
+		ScoreSystem.Instance.GainScore (1000);
 	}
 		
 	// Generate a new room and move it to the right spot.

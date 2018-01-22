@@ -16,11 +16,20 @@ public class Shop : Singleton <Shop> {
 	[SerializeField] Text         goldDifferenceText;
 	[SerializeField] Text         scoreText         ;
 
+	public void SaveStats() {
+		valueChanger.SetUp (DataSaver.Instance.TotalGold);
+	}
+
+	void Awake() {
+		InitiateSingleton ();
+	}
+
 	void Start() {
 		DataSaver.Instance.TotalGold.Value = 3000;
 		LoadInitialData ();
 		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}
+
 
 	void Update() {
 		scoreText.text = DataSaver.Instance.HighestScore.Value.ToString();
@@ -39,8 +48,15 @@ public class Shop : Singleton <Shop> {
 	void LoadInitialData() {
 		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
 		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
+
 		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
 		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
+		int index = GetArmour ().HasAttribute ("Hit Points");
+		if (index == -1) {
+			Debug.LogError ("Armour does not have hit points");
+			return;
+		}
+		SessionData.Instance.Lives.Max = (int) GetArmour ().GetAttribute (index).Value;
 	}
 
 	/**
@@ -51,7 +67,7 @@ public class Shop : Singleton <Shop> {
 	 */
 	void LoadItem(SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
 		int currentIndex = index.Value < itemList.Count - 1? index.Value + 1 : itemList.Count - 1;
-		bool final = (index.Value == itemList.Count);
+		bool final = (index.Value == itemList.Count - 1);
 
 		if (!final) {
 			ShopItem currentItem = itemList [currentIndex - 1];
@@ -85,6 +101,12 @@ public class Shop : Singleton <Shop> {
 		if (purchased) {
 			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
 			PlayerController.Instance.GetAnimator.SetTrigger ("pickArmour");
+			int index = GetArmour ().HasAttribute ("Hit Points");
+			if (index == -1) {
+				Debug.LogError ("Armour does not have hit points");
+				return;
+			}
+			SessionData.Instance.Lives.Max = (int) GetArmour ().GetAttribute (index).Value;
 		}
 	}
 

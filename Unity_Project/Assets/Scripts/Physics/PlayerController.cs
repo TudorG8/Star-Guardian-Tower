@@ -10,6 +10,9 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField] Animator            animator         ;
 	[SerializeField] PlayerRefs          playerRefs       ;
 	[SerializeField] SpringManager springManager;
+	[SerializeField] ParticleSystem dashParticles  ;
+	[SerializeField] ParticleSystem damageParticles;
+	[SerializeField] ParticleSystem deathParticles;
 
 	[SerializeField] Transform           savePoint        ;
 
@@ -32,6 +35,7 @@ public class PlayerController : Singleton<PlayerController> {
 
 	[SerializeField][ReadOnly] bool    inputEnabled   ; // Whether the player input is enabled or not
 	[SerializeField][ReadOnly] bool    gravityEnabled ; // Whether gravity will act upon the player
+	[SerializeField][ReadOnly] bool    handleWallSliding;
 	[SerializeField][ReadOnly] int     direction      ; // The direction the player is facing (may not always be the velocity)
 	[SerializeField][ReadOnly] Vector2 velocity       ; // Current velocity of the player
 	[SerializeField][ReadOnly] Vector2 input          ; // Current input of the player
@@ -43,10 +47,12 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField][ReadOnly] bool    canJump        ; // Whether the player can jump
 	[SerializeField][ReadOnly] bool    wallSliding    ;
 	[SerializeField][ReadOnly] bool    canJumpWhileSliding;
+	[SerializeField][ReadOnly] bool    dashing;
 
 	// Private Stuff --------------------------------------------------------
 	float smoothingX;
 	Coroutine jumpOffCoroutine;
+	Coroutine simulateRoutine;
 
 	public PlayerRefs GetPlayerRefs { get { return playerRefs; } }
 	public Animator   GetAnimator   { get { return animator  ; } }
@@ -87,24 +93,48 @@ public class PlayerController : Singleton<PlayerController> {
 
 	void Start() {
 		CalculatePhysics   ();
+		Reset ();
+	}
+
+	public void Reset() {
 		canAttack           = true ;
 		canJump             = true ;
 		canJumpWhileSliding = false;
 		inputEnabled        = true ;
+		gravityEnabled      = true;
+		dashing             = false;
+		handleWallSliding = true;
 	}
 
 	public void UpdateSavePoint(Transform newSavePoint) {
 		savePoint = newSavePoint;
 	}
 
-	void OnDamageTaken() {
-		SessionData.Instance.Lives.Value -= 1;
+	public void OnDamageTaken() {
+		SessionData.Instance.TakeDamage ();
+		ScoreSystem.Instance.TakeDamage ();
+		damageParticles.Play ();
 		if (SessionData.Instance.Lives.Value == SessionData.Instance.Lives.Min) {
-			// Game Over
-			// - Display game over screen
-			// - Fade out Player
+			ScoreSystem.Instance.ShowGameoverUI ();
+			inputEnabled = false;
+			gravityEnabled = false;
+			velocity = new Vector2 ();
+			if(simulateRoutine != null) 
+				StopCoroutine (simulateRoutine);
+			dashing = false;
+			StartCoroutine (GameOverRoutine ());
+			deathParticles.Play ();
+			deathParticles.GetComponent<Animator> ().SetTrigger ("death");
+		} 
+		else {
+			StartCoroutine (DamageTakenRoutine ());
 		}
-		StartCoroutine (DamageTakenRoutine ());
+	}
+
+
+	IEnumerator GameOverRoutine() {
+		yield return new WaitForSeconds (0.5f);
+		this.transform.position = new Vector2 (-200f, -200f);
 	}
 		
 	public void UpdateAttackRange(ShopItem item) {
@@ -112,12 +142,20 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	IEnumerator DamageTakenRoutine() {
-		inputEnabled = false;
-		animator.SetTrigger ("defeat");
+		inputEnabled   = false;
+		gravityEnabled = false;
+		velocity = new Vector2 ();
+		if(simulateRoutine != null)
+			StopCoroutine (simulateRoutine);
+		dashing = false;
+		handleWallSliding = true;
+		animator.SetTrigger ("damageTaken");
+		animator.SetBool ("respawn", true);
 		yield return new WaitForSeconds (0.5f);
 		transform.position = savePoint.transform.position;
-		animator.SetTrigger ("respawn");
+		animator.SetBool ("respawn", false);
 		inputEnabled = true ;
+		gravityEnabled = true;
 	}
 
 	public void EnterRoom (Room room, Direction direction) {
@@ -125,21 +163,7 @@ public class PlayerController : Singleton<PlayerController> {
 			StartCoroutine (SimulateMovement (0.3f, DirectionHelper.GetDirectionVector (direction), room));
 		}
 	}
-
-	public IEnumerator SimulateMovement(float time, Vector2 input, Room room) {
-		inputEnabled = false;
-		float elapsedTime = 0.0f;
-		while (elapsedTime < time) {
-			elapsedTime += Time.deltaTime;
-
-			this.input = input;
-			HandleEverything ();
-
-			yield return new WaitForEndOfFrame ();
-		}
-		room.CloseEntryGate ();
-		inputEnabled = true;
-	}
+		
 		
 	void HandleMovement () {
 		float smoothingAmount = physicsController.GetCollisionInfo.below ? accelerationGrounded : accelerationAirborne;
@@ -154,37 +178,47 @@ public class PlayerController : Singleton<PlayerController> {
 	void HandleGravity() {
 		if (physicsController.GetCollisionInfo.below || physicsController.GetCollisionInfo.above)
 			velocity.y = 0;
-		
-		// Apply gravity
-		velocity.y -= gravity * Time.deltaTime;
 
-		// Make sure we don't fall or jump any faster than maxFallSpeed.
-		velocity.y = Mathf.Clamp(velocity.y, -maxFallSpeed, maxFallSpeed);
+		if (gravityEnabled) {
+			// Apply gravity
+			velocity.y -= gravity * Time.deltaTime;
+
+			// Make sure we don't fall or jump any faster than maxFallSpeed.
+			velocity.y = Mathf.Clamp (velocity.y, -maxFallSpeed, maxFallSpeed);
+		}
 	}
 
 	void HandleWallSliding() {
-		CollisionInfo info = physicsController.GetCollisionInfo;
-		int wallDirection = info.left ? -1 : 1;
-		wallSliding = false;
+		if (handleWallSliding) {
+			CollisionInfo info = physicsController.GetCollisionInfo;
+			int wallDirection = info.left ? -1 : 1;
+			wallSliding = false;
 
 
-		if ((info.left || info.right) && !info.below && physicsController.rayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
-			wallSliding = true;
+			if ((info.left || info.right) && !info.below && physicsController.rayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
+				wallSliding = true;
+				dashParticles.Stop ();
 
-			if (velocity.y < -maxWallSlideSpeed) { velocity.y = -maxWallSlideSpeed; }
+				if (velocity.y < -maxWallSlideSpeed) {
+					velocity.y = -maxWallSlideSpeed;
+				}
 
-			if (!canJumpWhileSliding) {
-				StartCoroutine (WaitForCooldown (
-					() => { canJumpWhileSliding = true ; },
-					wallStickTime,
-					() => { canJumpWhileSliding = false; }
-				));
-			} 
-			else {
-				smoothingX = 0;
+				if (!canJumpWhileSliding) {
+					StartCoroutine (WaitForCooldown (
+						() => {
+							canJumpWhileSliding = true;
+						},
+						wallStickTime,
+						() => {
+							canJumpWhileSliding = false;
+						}
+					));
+				} else {
+					smoothingX = 0;
+				}
+				// Player is facing away
+				direction = wallDirection * -1;
 			}
-			// Player is facing away
-			direction = wallDirection * -1;
 		}
 	}
 
@@ -269,6 +303,8 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 	}
 
+
+
 	void HandleFallingOffPlatforms(bool previouslyGrounded) {
 		// If we are previously grounded but now arent and are falling, it means we are jumping off a platform
 		if (previouslyGrounded && !physicsController.GetCollisionInfo.below && (int)Mathf.Sign (velocity.y) == -1) {
@@ -313,11 +349,60 @@ public class PlayerController : Singleton<PlayerController> {
 
 	}
 
+	void HandleDashing () {
+		CollisionInfo info = physicsController.GetCollisionInfo;
+		if (!dashing && Input.GetKeyDown (KeyCode.LeftShift)) {
+			gravityEnabled = false;
+			inputEnabled   = false;
+			dashing        = true;
+			handleWallSliding = false;
+			velocity = new Vector2 ();
+			dashParticles.Play ();
+			simulateRoutine = StartCoroutine (SimulateMovement (0.125f, new Vector2(direction * 5, 0), () => { 
+				OnDashEnd();
+			}));
+		}
+	}
+	void OnDashEnd() {
+		gravityEnabled = true;
+		inputEnabled   = true;
+		dashing = false;
+		handleWallSliding = true;
+	}
+
 	void Update() {
 		if (inputEnabled) { 
 			input = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
 			HandleEverything();
 		} 
+	}
+
+	public IEnumerator SimulateMovement(float time, Vector2 input, FunctionCall onEnd) {
+		float elapsedTime = 0.0f;
+		while (elapsedTime < time) {
+			elapsedTime += Time.deltaTime;
+
+			this.input = input;
+			HandleEverything ();
+
+			yield return new WaitForEndOfFrame ();
+		}
+		onEnd ();
+	}
+	
+	public IEnumerator SimulateMovement(float time, Vector2 input, Room room) {
+		inputEnabled = false;
+		float elapsedTime = 0.0f;
+		while (elapsedTime < time) {
+			elapsedTime += Time.deltaTime;
+
+			this.input = input;
+			HandleEverything ();
+
+			yield return new WaitForEndOfFrame ();
+		}
+		room.CloseEntryGate ();
+		inputEnabled = true;
 	}
 
 	void HandleEverything() {
@@ -328,6 +413,7 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleWallSliding ();
 		HandleJumping     ();
 		HandleAttacking   ();
+		HandleDashing     ();
 
 		UpdateXScale (Mathf.Abs(transform.localScale.x) * direction);
 
@@ -335,10 +421,8 @@ public class PlayerController : Singleton<PlayerController> {
 		if (physicsController.GetCollisionInfo.hangingOnEdge) {
 			velocity.y = 0;
 		}
-		Debug.Log (velocity.x);
 		int rotation = 0;
 		transform.localRotation = Quaternion.Euler (new Vector3 (0, rotation, 0));
-
 		physicsController.Move (velocity * Time.deltaTime, input);
 
 		rotation = direction == 1 ? 0 : 180;

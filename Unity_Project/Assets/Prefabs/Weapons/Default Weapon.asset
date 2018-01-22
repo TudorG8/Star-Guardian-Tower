@@ -19,3 +19,6 @@ MonoBehaviour:
   - itemName: Weapon
     meshToUse: {fileID: 11400000, guid: ebae9ac07a4bcad4aa2e6744c4b66d46, type: 2}
     additionalItems: []
+  attributes:
+  - attributeName: Range
+    value: 2
