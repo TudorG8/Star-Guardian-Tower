@@ -166,11 +166,23 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	public void EnterRoom (Room room, Direction direction) {
-		if (direction != Direction.Top) {
-			StartCoroutine (SimulateMovement (0.3f, DirectionHelper.GetDirectionVector (direction), room));
+		Vector2 dir = DirectionHelper.GetDirectionVector (DirectionHelper.GetOpposite(room.Entry.Main));
+		inputEnabled = false;
+
+		if (room.Entry.Main == Direction.Bottom) {
+			dir.x = Input.GetAxisRaw ("Horizontal");
+			StartCoroutine (SimulateMovement (0.2f, dir, () => {
+				room.CloseEntryGate ();
+				inputEnabled = true; 
+			}, true, 12f));
+		} 
+		else {
+			StartCoroutine (SimulateMovement (0.35f, dir, () => {
+				room.CloseEntryGate ();
+				inputEnabled = true; 
+			}, false, 0f));
 		}
-	}
-		
+	}		
 		
 	void HandleMovement () {
 		float smoothingAmount = physicsController.GetCollisionInfo.below ? accelerationGrounded : accelerationAirborne;
@@ -359,7 +371,7 @@ public class PlayerController : Singleton<PlayerController> {
 			dashParticles.Play ();
 			simulateRoutine = StartCoroutine (SimulateMovement (0.125f, new Vector2(direction * 5, 0), () => { 
 				OnDashEnd();
-			}));
+			}, false, 0f));
 		}
 	}
 	void OnDashEnd() {
@@ -372,39 +384,24 @@ public class PlayerController : Singleton<PlayerController> {
 	void Update() {
 		if (inputEnabled) { 
 			input = new Vector2 (Input.GetAxisRaw ("Horizontal"), Input.GetAxisRaw ("Vertical"));
-			HandleEverything();
+			HandleEverything(false, 0f);
 		} 
 	}
 
-	public IEnumerator SimulateMovement(float time, Vector2 input, FunctionCall onEnd) {
+	public IEnumerator SimulateMovement(float time, Vector2 input, FunctionCall onEnd, bool overrideYVelocity, float YVelocity) {
 		float elapsedTime = 0.0f;
 		while (elapsedTime < time) {
 			elapsedTime += Time.deltaTime;
 
 			this.input = input;
-			HandleEverything ();
+			HandleEverything (overrideYVelocity, YVelocity);
 
 			yield return new WaitForEndOfFrame ();
 		}
 		onEnd ();
 	}
-	
-	public IEnumerator SimulateMovement(float time, Vector2 input, Room room) {
-		inputEnabled = false;
-		float elapsedTime = 0.0f;
-		while (elapsedTime < time) {
-			elapsedTime += Time.deltaTime;
 
-			this.input = input;
-			HandleEverything ();
-
-			yield return new WaitForEndOfFrame ();
-		}
-		room.CloseEntryGate ();
-		inputEnabled = true;
-	}
-
-	void HandleEverything() {
+	void HandleEverything(bool overrideYVelocity, float YVelocity) {
 		bool previouslyGrounded = physicsController.GetCollisionInfo.below;
 
 		HandleMovement    ();
@@ -422,6 +419,10 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 		int rotation = 0;
 		transform.localRotation = Quaternion.Euler (new Vector3 (0, rotation, 0));
+
+		if (overrideYVelocity) {
+			velocity.y = YVelocity;
+		}
 		physicsController.Move (velocity * Time.deltaTime, input);
 
 		rotation = direction == 1 ? 0 : 180;
