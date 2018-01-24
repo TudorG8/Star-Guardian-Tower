@@ -9,15 +9,14 @@ public class PhysicsController2D : ControllerBase {
 	[SerializeField] int   maxSlopeAngle  = 60;
 	[SerializeField] float edgeGrabAmount = 0.1f;
 
-	[SerializeField][ReadOnly] bool checkForEdges;
-	[SerializeField][ReadOnly] bool canJump = true;
 	[SerializeField][ReadOnly] bool fallingThroughPlatform = false;
 
-	public bool CheckForEdges { get { return checkForEdges; } set { checkForEdges = value; } }
+	PlayerController.StateInfo stateInfo;
 
-	public Vector2 previousVelocity;
+	[SerializeField] Vector2 previousVelocity;
+	[SerializeField] int rayHits;
 
-	public int rayHits;
+	public int RayHits { get { return rayHits; } }
 
 	public delegate void FunctionCall();
 
@@ -25,10 +24,6 @@ public class PhysicsController2D : ControllerBase {
 		before();
 		yield return new WaitForSeconds (time);
 		after ();
-	}
-
-	void Start() {
-		checkForEdges = true;
 	}
 
 	StatementInfo HorrizontalRayFunction (ref Vector2 velocity, RayInfo rayInfo) {
@@ -62,14 +57,14 @@ public class PhysicsController2D : ControllerBase {
 			} 
 
 			// Check for edges
-			if (checkForEdges && rayInfo.rayIndex == raycastShooter.HorizontalRayCount - 1) {
+			if (stateInfo != null && stateInfo.HoldingOnEdge.GetState == PlayerController.State.CanDoAction && rayInfo.rayIndex == raycastShooter.HorizontalRayCount - 1) {
 				Collider2D target = rayInfo.hit.transform.GetComponent<Collider2D> ();
 				// We actually hit a target
 				if (target != null && target.name.Contains("Grabbable")) {
 					Vector2 point = rayInfo.hit.point;
 					float distance = Mathf.Abs (target.bounds.max.y - point.y);
 					if (distance < edgeGrabAmount) {
-						collisionInfo.hangingOnEdge = true;
+						stateInfo.HoldingOnEdge.GetState = PlayerController.State.DoingAction;
 						velocity = new Vector2 (0, distance - 0.01f);
 						return StatementInfo.Break;
 					}
@@ -203,8 +198,10 @@ public class PhysicsController2D : ControllerBase {
 			}
 		}
 	}
-	public override void Move(Vector2 velocity, Vector2 input) {
+
+	public override void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo) {
 		raycastShooter.Reset ();
+		this.stateInfo = stateInfo;
 		previousVelocity = velocity;
 
 		// Check if we are descending a slope

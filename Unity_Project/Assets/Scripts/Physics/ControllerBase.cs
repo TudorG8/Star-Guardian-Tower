@@ -8,15 +8,15 @@ public abstract class ControllerBase : MonoBehaviour {
 	/**
 	 * This method is supposed to move the player when there is no input present.
 	 */
-	public virtual void Move(Vector2 velocity) {
-		Move (velocity, new Vector2 ());
+	public virtual void Move(Vector2 velocity, PlayerController.StateInfo stateInfo) {
+		Move (velocity, new Vector2 (), stateInfo);
 	}
 
 	/**
 	 * This method is supposed to move the player. 
 	 * Core method that must be implemented by any children.
 	 */
-	public abstract void Move(Vector2 velocity, Vector2 input);
+	public abstract void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo);
 
 	public CollisionInfo GetCollisionInfo {
 		get {

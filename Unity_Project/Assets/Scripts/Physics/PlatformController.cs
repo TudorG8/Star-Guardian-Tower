@@ -42,12 +42,12 @@ public class PlatformController : ControllerBase {
 		foreach (PassangerMovement passsanger in passangerMovement) {
 			if (passsanger.moveBeforePlatform == beforeMovePlatform) {
 				ControllerBase targetController = passsanger.transform.GetComponent<ControllerBase> ();
-				targetController.Move (passsanger.velocity);
+				targetController.Move (passsanger.velocity, null);
 			}
 		}
 	}
 
-	public override void Move(Vector2 velocity, Vector2 input) {
+	public override void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo) {
 		raycastShooter.Reset ();
 
 		passangerMovement = new List<PassangerMovement> ();
@@ -69,7 +69,7 @@ public class PlatformController : ControllerBase {
 					if (!rayInfo.targetsHit.Contains (rayInfo.hit.transform)) {
 						rayInfo.targetsHit.Add (rayInfo.hit.transform);
 						float pushX = velocity.x - (rayInfo.hit.distance - raycastShooter.GetColliderCorners.Inset) * rayInfo.direction;
-						float pushY = - raycastShooter.GetColliderCorners.Inset;
+						//float pushY = - raycastShooter.GetColliderCorners.Inset;
 
 						passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, 0), moveBeforePlatform:false));
 					}

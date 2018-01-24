@@ -58,6 +58,6 @@ public class MovingPlatform : MonoBehaviour {
 	void Update () {
 		Vector2 velocity = MovePlatform ();
 
-		platformController.Move (velocity);
+		platformController.Move (velocity, null);
 	}
 }
