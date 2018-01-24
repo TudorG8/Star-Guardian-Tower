@@ -55,14 +55,21 @@ public class Room : MonoBehaviour {
 	// Methods
 	public void Reset() {
 		transform.localPosition = previousPosition;
-		entry.TriggerScript.Triggered = false;
+		entry.TriggerScript.Reset ();
 		inUse = false;
 		entry.Door.SetTrigger ("open");
 
-		for (int i = 0; i < treasure.Count; i++) {
-			if (treasure [i] is IResetable) {
-				IResetable resetableTreasure = (IResetable)treasure [i];
-				resetableTreasure.Reset ();
+		ResetList (objects  );
+		ResetList (hazards  );
+		ResetList (treasure );
+		ResetList (platforms);
+	}
+
+	public void ResetList(List<RoomObject> list) {
+		for (int i = 0; i < list.Count; i++) {
+			if (list [i] is IResetable) {
+				IResetable resetableObj = (IResetable)list [i];
+				resetableObj.Reset ();
 			}
 		}
 	}

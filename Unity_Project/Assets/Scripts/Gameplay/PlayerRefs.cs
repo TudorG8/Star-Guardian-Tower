@@ -45,6 +45,7 @@ public class PlayerRefs : MonoBehaviour {
 
 	[SerializeField] FaceEmotion normal;
 	[SerializeField] FaceEmotion sad   ;
+	[SerializeField] Transform weapon;
 	[SerializeField] List<SpriteRef> sprites;
 
 	/**
@@ -68,6 +69,17 @@ public class PlayerRefs : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void LoadWeapon(ShopItem item) {
+		Vector2 scale = weapon.localScale;
+		int index = item.HasAttribute ("Range");
+		if (index == -1) {
+			Debug.LogError ("Weapon missing range attribute");
+			return;
+		}
+		scale.x = item.GetAttribute (index).Value;
+		weapon.localScale = scale;
 	}
 
 	public void LoadEmotion(FaceEmotionType emotion) {

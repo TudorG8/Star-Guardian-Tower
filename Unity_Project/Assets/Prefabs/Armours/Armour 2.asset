@@ -14,7 +14,7 @@ MonoBehaviour:
   itemName: Soldier Suit
   description: 
   cost: 800
-  shopImage: {fileID: 21300006, guid: e9b49c59eac36f34988cd4a0bf0d88c5, type: 3}
+  shopImage: {fileID: 21300004, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
   sprites:
   - itemName: Chest
     meshToUse: {fileID: 11400000, guid: 3246d3956f7541a4087781af4361f9b3, type: 2}

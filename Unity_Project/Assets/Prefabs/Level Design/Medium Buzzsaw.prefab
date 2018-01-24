@@ -21,7 +21,9 @@ GameObject:
   - component: {fileID: 4833919494357024}
   - component: {fileID: 212763391493309338}
   - component: {fileID: 114985013179037992}
-  m_Layer: 0
+  - component: {fileID: 114273191401278916}
+  - component: {fileID: 58394961014968670}
+  m_Layer: 12
   m_Name: Medium Buzzsaw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35,12 +37,38 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1780586503869336}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 19.35, y: 0.39, z: 0}
+  m_LocalPosition: {x: 13.13, y: 4.25, z: 0}
   m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &58394961014968670
+CircleCollider2D:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1780586503869336}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.03223729, y: -0.005372882}
+  serializedVersion: 2
+  m_Radius: 0.88
+--- !u!114 &114273191401278916
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1780586503869336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaaf6cc9208f146099fa73e8109b4045, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114985013179037992
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -87,8 +115,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -153718449
-  m_SortingLayer: 3
+  m_SortingLayerID: 1296195473
+  m_SortingLayer: 7
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: d8756c08d298ed24b8be578df00b2b8c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

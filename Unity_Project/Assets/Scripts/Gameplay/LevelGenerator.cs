@@ -99,6 +99,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		PlayerController.Instance.Reset ();
 		ScoreSystem.Instance.HideGameoverUI ();
 		ScoreSystem.Instance.HideGameUI     ();
+		ShopKeeper.Instance.LoadDeathQuote ();
 		if (previousRoom != null && previousRoom != startingRoom) {
 			RoomCache.Instance.ReturnRoomToCache (previousRoom);
 		}

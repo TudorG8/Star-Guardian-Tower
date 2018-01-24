@@ -14,7 +14,7 @@ MonoBehaviour:
   itemName: Normal Clothes
   description: 
   cost: 0
-  shopImage: {fileID: 21300004, guid: 5d466964b2888354e9e92725d2773394, type: 3}
+  shopImage: {fileID: 21300000, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
   sprites:
   - itemName: Chest
     meshToUse: {fileID: 11400000, guid: ee2a9e2c485b1214cad78a09f5645df7, type: 2}

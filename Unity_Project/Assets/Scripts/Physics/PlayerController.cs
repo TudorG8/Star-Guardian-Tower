@@ -48,6 +48,7 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField][ReadOnly] bool    wallSliding    ;
 	[SerializeField][ReadOnly] bool    canJumpWhileSliding;
 	[SerializeField][ReadOnly] bool    dashing;
+	[SerializeField][ReadOnly] bool    canTakeDamage;
 
 	// Private Stuff --------------------------------------------------------
 	float smoothingX;
@@ -104,6 +105,7 @@ public class PlayerController : Singleton<PlayerController> {
 		gravityEnabled      = true;
 		dashing             = false;
 		handleWallSliding = true;
+		canTakeDamage = true;
 	}
 
 	public void UpdateSavePoint(Transform newSavePoint) {
@@ -111,23 +113,27 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	public void OnDamageTaken() {
-		SessionData.Instance.TakeDamage ();
-		ScoreSystem.Instance.TakeDamage ();
-		damageParticles.Play ();
-		if (SessionData.Instance.Lives.Value == SessionData.Instance.Lives.Min) {
-			ScoreSystem.Instance.ShowGameoverUI ();
-			inputEnabled = false;
-			gravityEnabled = false;
-			velocity = new Vector2 ();
-			if(simulateRoutine != null) 
-				StopCoroutine (simulateRoutine);
-			dashing = false;
-			StartCoroutine (GameOverRoutine ());
-			deathParticles.Play ();
-			deathParticles.GetComponent<Animator> ().SetTrigger ("death");
-		} 
-		else {
-			StartCoroutine (DamageTakenRoutine ());
+		if (canTakeDamage) {
+			canTakeDamage = false;
+			if (DataSaver.Instance.FinishedTutorial) {
+				SessionData.Instance.TakeDamage ();
+				ScoreSystem.Instance.TakeDamage ();
+			}
+			damageParticles.Play ();
+			if (DataSaver.Instance.FinishedTutorial && SessionData.Instance.Lives.Value == SessionData.Instance.Lives.Min) {
+				ScoreSystem.Instance.ShowGameoverUI ();
+				inputEnabled = false;
+				gravityEnabled = false;
+				velocity = new Vector2 ();
+				if (simulateRoutine != null)
+					StopCoroutine (simulateRoutine);
+				dashing = false;
+				StartCoroutine (GameOverRoutine ());
+				deathParticles.Play ();
+				deathParticles.GetComponent<Animator> ().SetTrigger ("death");
+			} else {
+				StartCoroutine (DamageTakenRoutine ());
+			}
 		}
 	}
 
@@ -156,6 +162,7 @@ public class PlayerController : Singleton<PlayerController> {
 		animator.SetBool ("respawn", false);
 		inputEnabled = true ;
 		gravityEnabled = true;
+		canTakeDamage = true;
 	}
 
 	public void EnterRoom (Room room, Direction direction) {
@@ -292,7 +299,7 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleAttacking () {
-		if (Input.GetKeyDown (KeyCode.LeftControl) && canAttack) {
+		if ( Input.GetMouseButtonDown(1) && canAttack) {
 			animator.SetTrigger ("attack");
 			attackTrigger.Attack ();
 			StartCoroutine (WaitForCooldown (
@@ -331,14 +338,6 @@ public class PlayerController : Singleton<PlayerController> {
 		animator.SetFloat("horrizontalSpeed", Mathf.Abs(velocity.x / runSpeed));
 		if    (velocity.y <  0)  { animator.SetFloat ("verticalSpeed", velocity.y / maxFallSpeed   ); } 
 		else /*velocity.y >= 0*/ { animator.SetFloat ("verticalSpeed", velocity.y / maxJumpVelocity); }
-	}
-
-	void HandleHairDirection() {
-		for (int i = 0; i < springManager.springBones.Length; i++) {
-			SpringBone bone = springManager.springBones [i];
-			//bone.springForce.x = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.x);
-			//bone.springForce.y = -1 * direction * bone.direction * Mathf.Abs (bone.springForce.y);
-		}
 	}
 
 	void UpdateXScale(float value) {
@@ -431,7 +430,6 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleFallingOffPlatforms (previouslyGrounded);
 		HandleHittingGround ();
 		HandleAnimation     ();
-		HandleHairDirection ();
 		if (!physicsController.GetCollisionInfo.below ) {
 			animator.SetBool ("grounded", false);
 		}

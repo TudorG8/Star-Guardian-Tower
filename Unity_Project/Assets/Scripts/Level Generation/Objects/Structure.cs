@@ -10,11 +10,11 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 	delegate void Action();
 
 	[SerializeField] Animator  animator;
+	[SerializeField] Collider2D coll;
 	[SerializeField] LayerMask collisionMask;
 
 	void OnTriggerEnter2D(Collider2D other) {
-		if (collisionMask == (collisionMask | (1 << other.gameObject.layer))) {
-			//animator.SetTrigger ("destroy");
+		if (UsefulMethods.IsRightLayer(collisionMask, other.gameObject.layer)) {
 			StartCoroutine (WaitForSeconds (0.2f, () => { Destroy(); }));
 		}
 	}
@@ -26,10 +26,11 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 
 	public void Reset  () {
 		animator  .SetTrigger ("reset");
-		gameObject.SetActive  (true   );
+		coll.enabled = true;
 	}
 
 	public void Destroy() {
-		gameObject.SetActive (false);
+		coll.enabled = false;
+		animator.SetTrigger ("fade");
 	}
 }

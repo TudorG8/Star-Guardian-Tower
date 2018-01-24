@@ -19,8 +19,8 @@ TagManager:
   - Player
   - Attack
   - Hazards
-  - 
-  - 
+  - Objects
+  - Backgrounds
   - 
   - 
   - 
@@ -45,24 +45,30 @@ TagManager:
   - name: Background
     uniqueID: 144872203
     locked: 0
-  - name: Platforms
-    uniqueID: 94011237
-    locked: 0
-  - name: Objects
+  - name: Objects Behind
     uniqueID: 4141248847
     locked: 0
-  - name: Particles Behind Player
-    uniqueID: 1224178333
+  - name: Platforms Behind
+    uniqueID: 2245593541
     locked: 0
-  - name: Player
-    uniqueID: 156130815
+  - name: Particles Behind
+    uniqueID: 1224178333
     locked: 0
   - name: Platforms Front
     uniqueID: 1085899633
     locked: 0
-  - name: Particles
+  - name: Objects Front
+    uniqueID: 1296195473
+    locked: 0
+  - name: Particles Front
     uniqueID: 2214953665
+    locked: 0
+  - name: Shop Items
+    uniqueID: 112494489
     locked: 0
   - name: Editor UI
     uniqueID: 4160948639
+    locked: 0
+  - name: Player
+    uniqueID: 156130815
     locked: 0

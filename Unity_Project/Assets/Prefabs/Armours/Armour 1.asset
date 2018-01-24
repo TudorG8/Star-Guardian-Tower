@@ -14,7 +14,7 @@ MonoBehaviour:
   itemName: Squire Suit
   description: 
   cost: 400
-  shopImage: {fileID: 21300000, guid: 62dc8ae421bdf6e46a34ebc3d8f92127, type: 3}
+  shopImage: {fileID: 21300002, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
   sprites:
   - itemName: Chest
     meshToUse: {fileID: 11400000, guid: 1a3ecf683fb3c18418ecc28a23f6d212, type: 2}

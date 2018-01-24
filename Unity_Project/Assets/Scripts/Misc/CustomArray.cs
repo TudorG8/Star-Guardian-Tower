@@ -64,7 +64,7 @@ public class CustomArray <U, T>
 		IncreaseIndexes(Vector2.up);
 		array.Insert (0, new T());
 		for (int i = 0; i < cols; i++) {
-			array [0].list [i] = default(U);
+			array [0].list.Add(default(U));
 		}
 		
 		rows++;
@@ -89,7 +89,7 @@ public class CustomArray <U, T>
 			for (int j = 0; j < cols; j++){
 				if (array [i].list [j] != null) {
 					array [i].list [j].IncreaseIndex    (increase);
-					array [i].list [j].IncreasePosition (UsefulMethods.vectorProduct (increase, new Vector2 (26.7f, 15f)));
+					array [i].list [j].IncreasePosition (increase);
 					array [i].list [j].SetName ();
 				}
 			}

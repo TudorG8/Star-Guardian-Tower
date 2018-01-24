@@ -33,7 +33,7 @@ public class FollowPlayer : MonoBehaviour {
 	[SerializeField][ReadOnly] RoomSegment currentSegment; // The segment the camera is following
 	[SerializeField][ReadOnly] Vector3     velocity      ; // Current velocity of the camera
 	[SerializeField][ReadOnly] bool canMoveLeft, canMoveRight, canMoveTop, canMoveBottom;
-
+	[SerializeField][ReadOnly] bool checkVerticalChange, checkHorizontalChange;
 	// Set the new room to follow when a player enters it.
 	public void SetNewRoom(Room room) {
 		currentRoom = room;
@@ -41,57 +41,70 @@ public class FollowPlayer : MonoBehaviour {
 	}
 
 	// Checks if the given segment is closer to the player as compared to the current point
-	void CheckIfSegmentCloserToPlayer (RoomSegment segment, float distanceToCurrentPoint) {
+	bool CheckIfSegmentCloserToPlayer (RoomSegment segment, float distanceToCurrentPoint) {
 		float distanceToNeighbour = Vector3.Distance (player.position, segment.Middle.position);
 		if (distanceToNeighbour < distanceToCurrentPoint) {
 			currentSegment = segment;
+			return true;
 		}
+		return false;
 	}
 
 	void LateUpdate () {
 		if (currentRoom == null) return;
-
 		float distanceToCurrentPoint = Vector3.Distance (player.position, currentSegment.Middle.position);
 
 		// Check in what directions the camera can move
 		canMoveTop = canMoveBottom = canMoveLeft = canMoveRight = false;
+		checkHorizontalChange = checkVerticalChange = true;
 		RoomSegment top    = currentSegment.SegmentNeighbours.Top   ;
 		if (top != null) {
 			canMoveTop = true;
-			CheckIfSegmentCloserToPlayer (top   , distanceToCurrentPoint);
+			if (CheckIfSegmentCloserToPlayer (top, distanceToCurrentPoint)) {
+				checkVerticalChange = false;
+			}
 		} 
 		RoomSegment bottom = currentSegment.SegmentNeighbours.Bottom;
 		if (bottom != null) {
 			canMoveBottom = true;
-			CheckIfSegmentCloserToPlayer (bottom, distanceToCurrentPoint);
+			if (CheckIfSegmentCloserToPlayer (bottom, distanceToCurrentPoint)) {
+				checkVerticalChange = false;
+			}
 		}
 		RoomSegment left   = currentSegment.SegmentNeighbours.Left  ;
 		if (left != null) {
 			canMoveLeft = true;
-			CheckIfSegmentCloserToPlayer (left  , distanceToCurrentPoint);
+			if (CheckIfSegmentCloserToPlayer (left, distanceToCurrentPoint)) {
+				checkHorizontalChange = false;
+			}
 		}
 		RoomSegment right  = currentSegment.SegmentNeighbours.Right ;
 		if (right != null) {
 			canMoveRight = true;
-			CheckIfSegmentCloserToPlayer (right , distanceToCurrentPoint);
+			if (CheckIfSegmentCloserToPlayer (right, distanceToCurrentPoint)) {
+				checkHorizontalChange = false;
+			}
 		}
 
 		// Restrain position based on the players position and current segment
 		Transform objectToFollow = currentSegment.Middle;
 		Vector3 targetPosition = player.position + offset;
-		if (!canMoveLeft   && player.position.x < objectToFollow.position.x) {
-			targetPosition.x = objectToFollow.position.x;
+		if (checkHorizontalChange) {
+			if (!canMoveLeft && player.position.x < objectToFollow.position.x) {
+				targetPosition.x = objectToFollow.position.x;
+			}
+			if (!canMoveRight && player.position.x > objectToFollow.position.x) {
+				targetPosition.x = objectToFollow.position.x;
+			}
 		}
-		if (!canMoveRight  && player.position.x > objectToFollow.position.x) {
-			targetPosition.x = objectToFollow.position.x;
+		if (checkVerticalChange) {
+			if (!canMoveBottom && player.position.y < objectToFollow.position.y) {
+				targetPosition.y = objectToFollow.position.y;
+			}
+			if (!canMoveTop && player.position.y > objectToFollow.position.y) {
+				targetPosition.y = objectToFollow.position.y;
+			}
 		}
-		if (!canMoveBottom && player.position.y < objectToFollow.position.y) {
-			targetPosition.y = objectToFollow.position.y;
-		}
-		if (!canMoveTop    && player.position.y > objectToFollow.position.y) {
-			targetPosition.y = objectToFollow.position.y;
-		}
-
 		// Move the camera
 		transform.position = Vector3.SmoothDamp (transform.position, targetPosition, ref velocity, smoothing);
 	}

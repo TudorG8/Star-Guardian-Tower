@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224723179383404164}
   - component: {fileID: 222175923705590176}
   - component: {fileID: 114697133225087712}
+  - component: {fileID: 223405638028476492}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -62,7 +63,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4911582431203416
 Transform:
   m_ObjectHideFlags: 1
@@ -167,8 +168,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 1024
   retriggable: 0
-  triggered: 0
+  initialDelay: 0
+  continuous: 0
   delay: 0
   eventToCall:
     m_PersistentCalls:
@@ -186,6 +191,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  triggered: 0
 --- !u!114 &114894130788191274
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -208,6 +214,26 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1107628685640758}
+--- !u!223 &223405638028476492
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1107628685640758}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 112494489
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!223 &223632217622991464
 Canvas:
   m_ObjectHideFlags: 1

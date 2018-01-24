@@ -14,4 +14,7 @@ public class UsefulMethods : MonoBehaviour {
 		return new Vector2 (input.y, input.x);
 	}
 
+	public static bool IsRightLayer(LayerMask collisionMask, int layer) {
+		return collisionMask == (collisionMask | (1 << layer));
+	}
 }

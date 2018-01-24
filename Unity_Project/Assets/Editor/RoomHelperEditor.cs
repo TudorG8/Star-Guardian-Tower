@@ -19,6 +19,17 @@ public class RoomHelperEditor : Editor {
 			}
 		}
 
+		if (!script.InUse) {
+			if (GUILayout.Button ("Deactivate Room")) {
+				script.InUse = true;
+			}
+		} 
+		else {
+			if (GUILayout.Button ("Activate Room")) {
+				script.InUse = false;
+			}
+		}
+
 		if (script.Editable) {
 			DrawDefaultInspector ();
 

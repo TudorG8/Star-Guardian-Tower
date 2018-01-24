@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 using ObjectInterfaces;
 
-public class Hazard {
+public class Hazard : RoomObject {
 }

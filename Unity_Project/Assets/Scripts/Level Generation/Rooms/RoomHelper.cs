@@ -46,6 +46,7 @@ public class RoomHelper : MonoBehaviour {
 	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
 
 	public bool Editable { get { return editable; } }
+	public bool InUse { get { return roomScript.InUse; } set { roomScript.InUse = value; } }
 
 	// Methods ---------------------------------------------------------------------------------------------------
 	// Print the rooms
@@ -116,7 +117,7 @@ public class RoomHelper : MonoBehaviour {
 		if (desiredPosition.y < 0) { desiredPosition.y = 0; newPosition.y = 1; }
 
 		newRoom.Index = desiredPosition;
-		newRoom.IncreasePosition (UsefulMethods.vectorProduct (newPosition, RoomCache.Instance.RoomSize));
+		newRoom.IncreasePosition (newPosition);
 		newRoom.SetName ();
 
 		rooms.SetRoom(desiredPosition, newRoom);
@@ -173,20 +174,23 @@ public class RoomHelper : MonoBehaviour {
 
 		Vector2 desiredPosition = index + DirectionHelper.GetDirectionVector (side);
 
+		Debug.Log (index);
+		Debug.Log (desiredPosition);
+		Debug.Log (rooms.IsNotAValidPosition (desiredPosition));
 		if (rooms.IsNotAValidPosition (desiredPosition)) return;
 
-		RoomSegmentHelper neighbour = rooms.RoomAt(desiredPosition).HelperScript;
-		RoomSegmentHelper actual    = rooms.RoomAt(index          ).HelperScript;
+		RoomSegment neighbour = rooms.RoomAt(desiredPosition);
+		RoomSegment actual    = rooms.RoomAt(index          );
 
 		if (neighbour != null) {
-			actual.pointRefs   .TurnOff   (side);
-			actual.platformRefs.SetXScale (side, RoomCache.Instance.MinimumPlatformSize.x);
+			actual.HelperScript.pointRefs   .TurnOff   (side);
+			actual.HelperScript.platformRefs.SetXScale (side, RoomCache.Instance.MinimumPlatformSize.x);
 
-			neighbour.pointRefs   .TurnOff   (DirectionHelper.GetOpposite(side));
-			neighbour.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), RoomCache.Instance.MinimumPlatformSize.x);
+			neighbour.HelperScript.pointRefs   .TurnOff   (DirectionHelper.GetOpposite(side));
+			neighbour.HelperScript.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), RoomCache.Instance.MinimumPlatformSize.x);
 
-			actual   .SetNeighbour (side, neighbour.roomSegment);
-			neighbour.SetNeighbour (DirectionHelper.GetOpposite(side), actual.roomSegment);
+			actual   .HelperScript.SetNeighbour (side, neighbour.HelperScript.roomSegment);
+			neighbour.HelperScript.SetNeighbour (DirectionHelper.GetOpposite(side), actual.HelperScript.roomSegment);
 		}
 	}
 
@@ -201,15 +205,15 @@ public class RoomHelper : MonoBehaviour {
 
 		if (rooms.IsNotAValidPosition (desiredPosition)) return;
 
-		RoomSegmentHelper neighbour = rooms.RoomAt (desiredPosition).HelperScript;
+		RoomSegment neighbour = rooms.RoomAt (desiredPosition);
 
 		if (neighbour != null) {
 			float size = (side == Direction.Top || side == Direction.Bottom) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
-			neighbour.pointRefs   .TurnOn    (DirectionHelper.GetOpposite(side));
-			neighbour.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), size);
+			neighbour.HelperScript.pointRefs   .TurnOn    (DirectionHelper.GetOpposite(side));
+			neighbour.HelperScript.platformRefs.SetXScale (DirectionHelper.GetOpposite(side), size);
 
-			neighbour.ResetNeighbour (DirectionHelper.GetOpposite(side));
+			neighbour.HelperScript.ResetNeighbour (DirectionHelper.GetOpposite(side));
 		}	
 	}
 
@@ -298,6 +302,9 @@ public class RoomHelper : MonoBehaviour {
 		roomPoint.Secondary = platformRefs.GetFromIndex(roomPoint.Main, int.Parse(secondaryString));
 		roomPoint.RoomIndex = newPoint.roomEditor.roomSegment.Index;
 
+		if (RoomCache.Instance == null)
+			return;
+			
 		float newSize = (roomPoint.Main == Direction.Top || roomPoint.Main == Direction.Bottom ) ? RoomCache.Instance.RoomSize.x / 2 : RoomCache.Instance.RoomSize.y / 2;
 
 		// Get which platforms to modify

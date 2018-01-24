@@ -57,6 +57,7 @@ public class Shop : Singleton <Shop> {
 			return;
 		}
 		SessionData.Instance.Lives.Max = (int) GetArmour ().GetAttribute (index).Value;
+		PlayerController.Instance.GetPlayerRefs.LoadWeapon (GetWeapon ());
 	}
 
 	/**
@@ -90,6 +91,8 @@ public class Shop : Singleton <Shop> {
 		if (purchased) {
 			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
 			PlayerController.Instance.GetAnimator.SetTrigger ("pickWeapon");
+
+			PlayerController.Instance.GetPlayerRefs.LoadWeapon (GetWeapon ());
 		}
 	}
 
@@ -130,6 +133,7 @@ public class Shop : Singleton <Shop> {
 					ShopItem nextItem = itemList [index.Value + 1];
 					itemRefs.UpdateRefs (item, nextItem);
 				}
+				ShopKeeper.Instance.LoadPurchaseQuote ();
 				return true;
 			}
 		}

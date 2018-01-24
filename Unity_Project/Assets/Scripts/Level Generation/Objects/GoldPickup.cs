@@ -7,7 +7,8 @@ using ObjectInterfaces;
  * A Gold Pickup is an object that gives gold when picked up.
  */
 public class GoldPickup : RoomObject, IPickable, IResetable {
-	[SerializeField] Animator  animator    ;
+	[SerializeField] Animator      animator     ;
+	[SerializeField] TriggerScript triggerScript;
 
 	[SerializeField] MinMaxInt goldGained  ;
 	[SerializeField] int       scorePerGold;
@@ -20,9 +21,9 @@ public class GoldPickup : RoomObject, IPickable, IResetable {
 	}
 		
 	public void Reset() {
-		if (GetComponent<TriggerScript> ().Triggered) {
+		if (triggerScript.Triggered) {
 			animator.SetTrigger ("reset");
-			GetComponent<TriggerScript> ().Triggered = false;
+			triggerScript.Reset ();
 		}
 	}
 }
