@@ -3,7 +3,7 @@ using System.Collections;
 using CustomPropertyDrawers;
 using UnityChan;
 
-public class PlayerController : Singleton<PlayerController> {
+public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	// Imports -------------------------------------------------------------------------------------------------------------
 	[SerializeField] PhysicsController2D physicsController;
 	[SerializeField] AttackTrigger       attackTrigger    ;
@@ -37,12 +37,16 @@ public class PlayerController : Singleton<PlayerController> {
 	[SerializeField][ReadOnly] bool      gravityEnabled    ; // Whether gravity will act upon the player
 	[SerializeField][ReadOnly] bool      wallSlidingEnabled; // Whether wall sliding is enabled
 	[SerializeField][ReadOnly] int       direction         ; // The direction the player is facing (may not always be the velocity)
-	[SerializeField][ReadOnly] Vector2   velocity          ; // Current velocity of the player
+	//[SerializeField][ReadOnly] Vector2   velocity          ; // Current velocity of the player
+	[SerializeField][ReadOnly] Vector2 gravityVelocity;
+	[SerializeField][ReadOnly] Vector2 jumpVelocity;
+	[SerializeField][ReadOnly] Vector2 movementVelocity;
 	[SerializeField][ReadOnly] Vector2   input             ; // Current input of the player
 	[SerializeField][ReadOnly] Vector2   simulatedInput    ; // Input to be used when input is disabled
 	[SerializeField][ReadOnly] float     gravity           ; // Calculated based on jumpHeight and timeToJump
 	[SerializeField][ReadOnly] float     maxJumpVelocity   ; // Calculated based on jumpHeight and timeToJump
 	[SerializeField][ReadOnly] float     minJumpVelocity   ; // Calculated based on jumpHeight and timeToJump
+	[SerializeField][ReadOnly] bool previouslyGrounded;
 	[SerializeField]           StateInfo stateInfo;
 
 	public enum State {
@@ -98,6 +102,13 @@ public class PlayerController : Singleton<PlayerController> {
 	// Properties
 	public PlayerRefs GetPlayerRefs { get { return playerRefs; } }
 	public Animator   GetAnimator   { get { return animator  ; } }
+
+	public Vector2 GetInput() {
+		return input;
+	}
+	public StateInfo GetStateInfo() {
+		return stateInfo;
+	}
 
 	// Physics -------------------------------------------------------------------------------------------------------------
 	/* Solve for gravity and jumpVelocity using jumpHeight and timeToJump
@@ -199,23 +210,23 @@ public class PlayerController : Singleton<PlayerController> {
 	void HandleMovement () {
 		float smoothingAmount = physicsController.GetCollisionInfo.below ? accelerationGrounded : accelerationAirborne;
 
-		float targetVelocity = Mathf.SmoothDamp (velocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
+		float targetVelocity = Mathf.SmoothDamp (movementVelocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
 
-		velocity.x = targetVelocity;
+		movementVelocity.x = targetVelocity;
 
-		direction = (int)Mathf.Sign (velocity.x);
+		direction = (int)Mathf.Sign (movementVelocity.x);
 	}
 
 	void HandleGravity() {
 		if (physicsController.GetCollisionInfo.below || physicsController.GetCollisionInfo.above)
-			velocity.y = 0;
+			gravityVelocity.y = 0;
 
 		if (gravityEnabled) {
 			// Apply gravity
-			velocity.y -= gravity * Time.deltaTime;
+			gravityVelocity.y -= gravity * Time.deltaTime;
 
 			// Make sure we don't fall or jump any faster than maxFallSpeed.
-			velocity.y = Mathf.Clamp (velocity.y, -maxFallSpeed, maxFallSpeed);
+			gravityVelocity.y = Mathf.Clamp (gravityVelocity.y, -maxFallSpeed, maxFallSpeed);
 		}
 	}
 
@@ -226,10 +237,14 @@ public class PlayerController : Singleton<PlayerController> {
 		if (wallSlidingEnabled && stateInfo.Jumping.GetState != State.CantDoAction) {
 			// We are wall sliding if there is a collision to the left or right, no collision below and if most of the rays are hitting
 			if ((info.left || info.right) && !info.below && physicsController.RayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
-				stateInfo.WallSliding.GetState = State.DoingAction;
+				if (stateInfo.WallSliding.GetState == State.CanDoAction) {
+					gravityVelocity = new Vector2 (0, 10f);
+					stateInfo.WallSliding.GetState = State.DoingAction;
+				}
+				jumpVelocity = new Vector2 ();
 				dashParticles.Stop ();
 
-				if (velocity.y < -maxWallSlideSpeed) { velocity.y = -maxWallSlideSpeed;	}
+				if (gravityVelocity.y < -maxWallSlideSpeed) { gravityVelocity.y = -maxWallSlideSpeed;	}
 
 				// We check if the player is trying to move away from a wall
 				if (stateInfo.Jumping.GetState == State.CanDoAction && input.x != 0 && input.x != wallDirection) {
@@ -256,7 +271,7 @@ public class PlayerController : Singleton<PlayerController> {
 					stateInfo.Jumping.Reset (this);
 				}
 
-				velocity.x = wallDirection;
+				movementVelocity.x = wallDirection;
 				smoothingX = 0;
 
 				// Player is facing away
@@ -284,8 +299,8 @@ public class PlayerController : Singleton<PlayerController> {
 				));
 
 				if (input.x != 0 && input.x != wallDirection) {
-					velocity.x = -wallDirection * wallJumpLeap.x;
-					velocity.y = maxJumpVelocity;
+					movementVelocity.x = -wallDirection * wallJumpLeap.x;
+					jumpVelocity.y = maxJumpVelocity;
 				} 
 				// Either jumping upwards or towards the wall
 				else {
@@ -301,19 +316,24 @@ public class PlayerController : Singleton<PlayerController> {
 			else if (stateInfo.WallSliding.GetState == State.DoingAction) {
 				// We are hopping up the wall
 				if (input.x == wallDirection) {
-					velocity.x = -wallDirection * wallJumpHop.x;
-					velocity.y = wallJumpHop.y;
+					movementVelocity.x = -wallDirection * wallJumpHop.x;
+					gravityVelocity.y = 0;
+					jumpVelocity.y = wallJumpHop.y;
 				} 
 				// We are leaping off the wall
 				else {
-					velocity.x = -wallDirection * wallJumpLeap.x;
-					velocity.y = wallJumpLeap.y;
+					movementVelocity.x = -wallDirection * wallJumpLeap.x;
+					gravityVelocity.y = 0;
+					jumpVelocity.y = wallJumpLeap.y;
 				}
 				stateInfo.WallSliding.GetState = State.CanDoAction;
 			}
 			// Normal Jumping
 			else if(stateInfo.Jumping.GetState == State.CanDoAction) {
-				velocity.y = maxJumpVelocity;
+				jumpVelocity.y = maxJumpVelocity;
+				if (physicsController.HasVelocity ("Platform")) {
+					movementVelocity.x = physicsController.GetSingleVelocity ("Platform").x;
+				}
 			}
 
 			stateInfo.Jumping.GetState = State.DoingAction;
@@ -322,7 +342,8 @@ public class PlayerController : Singleton<PlayerController> {
 		}
 		// If we end the jump early
 		if (Input.GetButtonUp ("Jump_P1")) {
-			if (velocity.y > minJumpVelocity) { velocity.y = minJumpVelocity; }
+			float speed = gravityVelocity.y + jumpVelocity.y;
+			if (speed > minJumpVelocity) { jumpVelocity.y = minJumpVelocity; }
 		}
 
 	}
@@ -342,8 +363,9 @@ public class PlayerController : Singleton<PlayerController> {
 
 
 	void HandleFallingOffPlatforms(bool previouslyGrounded) {
+		float speed = gravityVelocity.y + jumpVelocity.y;
 		// If we are previously grounded but now arent and are falling, it means we are jumping off a platform
-		if (previouslyGrounded && !physicsController.GetCollisionInfo.below && (int)Mathf.Sign (velocity.y) == -1) {
+		if (previouslyGrounded && !physicsController.GetCollisionInfo.below && (int)Mathf.Sign (speed) == -1) {
 			stateInfo.Jumping.Routine = StartCoroutine (WaitForCooldown (
 				() => { stateInfo.Jumping.GetState = State.CanDoAction ; },
 				timeToJumpAfterFalling,
@@ -357,7 +379,7 @@ public class PlayerController : Singleton<PlayerController> {
 		if (physicsController.GetCollisionInfo.below) {
 			if (stateInfo.WallSliding.GetState == State.DoingAction) {
 				// Make a grateful landing
-				velocity.x = direction * 0.001f;
+				movementVelocity.x = direction * 0.001f;
 			}
 			if (stateInfo.Dashing.GetState == State.CantDoAction) {
 				// Make a grateful landing
@@ -367,15 +389,23 @@ public class PlayerController : Singleton<PlayerController> {
 			stateInfo.Jumping    .Reset (this);
 			stateInfo.WallSliding.Reset (this);
 
+			jumpVelocity    = new Vector2 ();
+			gravityVelocity = new Vector2 ();
+		}
+		if (physicsController.GetCollisionInfo.above) {
+			jumpVelocity    = new Vector2 ();
+			gravityVelocity = new Vector2 ();
 		}
 	}
 
 	void HandleAnimation() {
+		float speed = gravityVelocity.y + jumpVelocity.y;
 		if    (stateInfo.WallSliding.GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
 		else /*not wall sliding */                                  { animator.SetBool ("sliding", false);}
-		animator.SetFloat("horrizontalSpeed", Mathf.Abs(velocity.x / runSpeed));
-		if    (velocity.y <  0)  { animator.SetFloat ("verticalSpeed", velocity.y / maxFallSpeed   ); } 
-		else /*velocity.y >= 0*/ { animator.SetFloat ("verticalSpeed", velocity.y / maxJumpVelocity); }
+		animator.SetFloat("horrizontalSpeed", Mathf.Abs(movementVelocity.x / runSpeed));
+		if    (speed <  0)  { animator.SetFloat ("verticalSpeed", speed / maxFallSpeed   ); } 
+		else /*speed >= 0*/ { animator.SetFloat ("verticalSpeed", speed / maxJumpVelocity); }
+		if (!physicsController.GetCollisionInfo.below ) { animator.SetBool ("grounded", false); }
 	}
 		
 	void HandleDashing () {
@@ -385,7 +415,8 @@ public class PlayerController : Singleton<PlayerController> {
 			stateInfo.WallSliding.Reset (this);
 			stateInfo.Dashing.GetState = State.DoingAction;
 
-			velocity = new Vector2 ();
+			gravityVelocity = new Vector2 ();
+			jumpVelocity = new Vector2 ();
 			dashParticles.Play ();
 
 			simulateRoutine = StartCoroutine (SimulateMovement (dashingDuration, new Vector2(direction * dashingSpeed, 0), () => { 
@@ -408,7 +439,8 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void StopDash() {
-		velocity = new Vector2 ();
+		gravityVelocity = new Vector2 ();
+		jumpVelocity = new Vector2 ();
 		stateInfo.Dashing.Reset (this);
 		if (simulateRoutine != null) {
 			StopCoroutine (simulateRoutine);
@@ -417,7 +449,7 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 		
 	void HandleHangingOnEdge() {
-		if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { velocity.y = 0; }
+		if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { gravityVelocity.y = 0; }
 	}
 
 	// Entering a Room -----------------------------------------------------------------------------------------------------
@@ -462,8 +494,6 @@ public class PlayerController : Singleton<PlayerController> {
 	}
 
 	void HandleEverything(bool overrideYVelocity = false, float YVelocity = 0f) {
-		bool previouslyGrounded = physicsController.GetCollisionInfo.below;
-
 		HandleMovement      ();
 		HandleGravity       ();
 		HandleWallSliding   ();
@@ -472,18 +502,23 @@ public class PlayerController : Singleton<PlayerController> {
 		HandleDashing       ();
 		HandleHangingOnEdge ();
 
+		if (overrideYVelocity) { gravityVelocity.y = YVelocity; }
 
-		if (overrideYVelocity) { velocity.y = YVelocity; }
-		transform.localRotation = Quaternion.Euler (new Vector3 ());
-		physicsController.Move (velocity * Time.deltaTime, input, stateInfo);
+		physicsController.AddVelocity ("Movement", movementVelocity);
+		physicsController.AddVelocity ("Gravity" , gravityVelocity );
+		physicsController.AddVelocity ("Jump"    , jumpVelocity    );
+	}
+
+	public void AfterMove() {
+		previouslyGrounded = physicsController.GetCollisionInfo.below;
+
+		//transform.localRotation = Quaternion.Euler (new Vector3 ());
+		//physicsController.Move (physicsController.GetVelocity() * Time.deltaTime, input, stateInfo);
 		transform.localRotation = Quaternion.Euler (new Vector3 (0, direction == 1 ? 0 : 180, 0));
 
 		HandleFallingOffPlatforms (previouslyGrounded);
 		HandleHittingGround ();
 		HandleAnimation     ();
-		if (!physicsController.GetCollisionInfo.below ) {
-			animator.SetBool ("grounded", false);
-		}
 	}
 }
 // -------------------------------------------------------------------------------------------------------------------------

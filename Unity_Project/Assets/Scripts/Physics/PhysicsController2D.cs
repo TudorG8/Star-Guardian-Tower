@@ -199,6 +199,14 @@ public class PhysicsController2D : ControllerBase {
 		}
 	}
 
+	public void Update() {
+		PrintVelocities ();
+		PlayerController.Instance.transform.localRotation = Quaternion.Euler (new Vector3 ());
+		Move (GetVelocity() * Time.deltaTime, PlayerController.Instance.GetInput (), PlayerController.Instance.GetStateInfo ());
+		PlayerController.Instance.AfterMove ();
+		ResetVelocity ();
+	}
+
 	public override void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo) {
 		raycastShooter.Reset ();
 		this.stateInfo = stateInfo;
@@ -231,6 +239,18 @@ public class PhysicsController2D : ControllerBase {
 				CheckForAngleChange (ref velocity);
 			}
 		}
+			
+		Vector2 downwards = new Vector2 (0f, -2f);
+		if (velocities["Gravity"].y == 0 && velocities["Jump"].y <= 0) {
+				raycastShooter.ShootVerticalRays (ref downwards, Color.blue, -1f, true, true, collisionMask, (rayInfo) => {
+				if (rayInfo.hit) {
+					GetCollisionInfo.below = true;
+					return StatementInfo.Break;
+				}
+				return StatementInfo.Continue;
+			});
+		}
+
 		player.Translate (velocity);
 	}
 }

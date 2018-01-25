@@ -17,4 +17,8 @@ public class UsefulMethods : MonoBehaviour {
 	public static bool IsRightLayer(LayerMask collisionMask, int layer) {
 		return collisionMask == (collisionMask | (1 << layer));
 	}
+
+	public static int mod(int k, int n) {
+		return ((k %= n) < 0) ? k+n : k;
+	}
 }
