@@ -7,7 +7,6 @@ public class CollisionInfo {
 	public bool above, below;
 	public bool left , right;
 	public bool ascendingSlope, descendingSlope;
-	public bool slidingDownSlope;
 	public bool hangingOnEdge;
 
 	public float slopeAngle;
@@ -16,7 +15,6 @@ public class CollisionInfo {
 	public void Reset() {
 		above = below = left = right = false;
 		ascendingSlope = descendingSlope = false;
-		slidingDownSlope = false;
 		hangingOnEdge = false;
 
 		slopeAngleOld = slopeAngle;

@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 114161000132410174}
   - component: {fileID: 114957652324526678}
   m_Layer: 13
-  m_Name: Gold Sack Pickup
+  m_Name: Small Gold Sack Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -55,7 +55,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	[System.Serializable]
 	public class RoutineState {
 		[SerializeField][ReadOnly] State state;
-		Coroutine routine;
+		[SerializeField] Coroutine routine;
 
 		public State     GetState { get { return state  ; } set { state   = value;} }
 		public Coroutine Routine  { get { return routine; } set { routine = value;} }
@@ -238,7 +238,8 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			// We are wall sliding if there is a collision to the left or right, no collision below and if most of the rays are hitting
 			if ((info.left || info.right) && !info.below && physicsController.RayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
 				if (stateInfo.WallSliding.GetState == State.CanDoAction) {
-					gravityVelocity = new Vector2 (0, 10f);
+					gravityVelocity = new Vector2 (0, gravityVelocity.y + jumpVelocity.y);
+					Debug.Log (gravityVelocity.y + jumpVelocity.y);
 					stateInfo.WallSliding.GetState = State.DoingAction;
 				}
 				jumpVelocity = new Vector2 ();
@@ -249,7 +250,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				// We check if the player is trying to move away from a wall
 				if (stateInfo.Jumping.GetState == State.CanDoAction && input.x != 0 && input.x != wallDirection) {
 					// If they are, we start this routine (once)
-					if(stateInfo.Jumping.Routine != null) {
+					if(stateInfo.Jumping.Routine == null) {
 						stateInfo.Jumping.Routine = StartCoroutine (WaitForCooldown (
 							() => { },
 							wallStickTime,
@@ -260,7 +261,10 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 									() => { stateInfo.WallSliding.GetState = State.CantDoAction; },
 									0.1f,
 									// We also disable wall sliding for a little 
-									() => { stateInfo.WallSliding.GetState = State.CanDoAction ; }
+									() => { 
+										stateInfo.WallSliding.GetState = State.CanDoAction ; 
+										stateInfo.Jumping.Routine = null;
+									}
 								));
 							}
 						));
@@ -305,10 +309,11 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				// Either jumping upwards or towards the wall
 				else {
 					Vector2 dir = new Vector2 (0, 1);
-					dir.x = wallDirection;
-					simulateRoutine = StartCoroutine(SimulateMovement (0.4f, dir, () => { 
+					dir.x = wallDirection * 2.5f;
+					jumpVelocity = new Vector2 ();
+					simulateRoutine = StartCoroutine(SimulateMovement (0.25f, dir, () => { 
 						inputEnabled = true;
-					}, true, 8f));
+					}, true, 6f));
 					return;
 				}
 			}
@@ -330,6 +335,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			}
 			// Normal Jumping
 			else if(stateInfo.Jumping.GetState == State.CanDoAction) {
+				gravityVelocity.y = 0;
 				jumpVelocity.y = maxJumpVelocity;
 				if (physicsController.HasVelocity ("Platform")) {
 					movementVelocity.x = physicsController.GetSingleVelocity ("Platform").x;
@@ -381,7 +387,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				// Make a grateful landing
 				movementVelocity.x = direction * 0.001f;
 			}
-			if (stateInfo.Dashing.GetState == State.CantDoAction) {
+			if (stateInfo.Dashing.Routine == null) {
 				// Make a grateful landing
 				stateInfo.Dashing    .Reset (this);
 			}
@@ -400,8 +406,9 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	void HandleAnimation() {
 		float speed = gravityVelocity.y + jumpVelocity.y;
-		if    (stateInfo.WallSliding.GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
-		else /*not wall sliding */                                  { animator.SetBool ("sliding", false);}
+		if      (stateInfo.WallSliding  .GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
+		else if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
+		else   /*not wall sliding */                                    { animator.SetBool ("sliding", false);}
 		animator.SetFloat("horrizontalSpeed", Mathf.Abs(movementVelocity.x / runSpeed));
 		if    (speed <  0)  { animator.SetFloat ("verticalSpeed", speed / maxFallSpeed   ); } 
 		else /*speed >= 0*/ { animator.SetFloat ("verticalSpeed", speed / maxJumpVelocity); }
@@ -434,6 +441,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				if(stateInfo.Jumping.GetState != State.DoingAction) {
 					stateInfo.Dashing.GetState = State.CanDoAction ; 
 				}
+				stateInfo.Dashing.Routine = null;
 			}
 		));
 	}
@@ -449,7 +457,10 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 		
 	void HandleHangingOnEdge() {
-		if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { gravityVelocity.y = 0; }
+		if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { 
+			stateInfo.WallSliding.Reset (this);
+			gravityVelocity.y = 0; 
+		}
 	}
 
 	// Entering a Room -----------------------------------------------------------------------------------------------------
@@ -462,7 +473,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			simulateRoutine = StartCoroutine (SimulateMovement (0.2f, dir, () => {
 				room.CloseEntryGate ();
 				inputEnabled = true; 
-			}, true, 12f));
+			}, true, 8f));
 		} 
 		else {
 			simulateRoutine = StartCoroutine (SimulateMovement (0.35f, dir, () => {
@@ -497,12 +508,15 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 		HandleMovement      ();
 		HandleGravity       ();
 		HandleWallSliding   ();
+		HandleHangingOnEdge ();
 		HandleJumping       ();
 		HandleAttacking     ();
 		HandleDashing       ();
-		HandleHangingOnEdge ();
 
-		if (overrideYVelocity) { gravityVelocity.y = YVelocity; }
+		if (overrideYVelocity) { 
+			gravityVelocity.y = YVelocity; 
+			jumpVelocity.y = YVelocity;
+		}
 
 		physicsController.AddVelocity ("Movement", movementVelocity);
 		physicsController.AddVelocity ("Gravity" , gravityVelocity );

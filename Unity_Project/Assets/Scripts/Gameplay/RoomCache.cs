@@ -168,6 +168,13 @@ public class RoomCache : Singleton<RoomCache> {
 			room.RoomGeneratorScript.SetActive (active);
 		}
 	}
+
+	public void ActivateAllRooms(bool active) {
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Room room = instantiatedRooms [i];
+			room.InUse = active;
+		}
+	}
 	#endif
 }
 // --------------------------------------------------------------------------------------------------------

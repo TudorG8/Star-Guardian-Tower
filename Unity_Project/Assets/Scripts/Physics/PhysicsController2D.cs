@@ -95,7 +95,7 @@ public class PhysicsController2D : ControllerBase {
 
 		if (rayInfo.hit) {
 			rayInfo.rayHits++;
-			if (rayInfo.hit.collider.tag == "through") {
+			if (rayInfo.hit.collider.name.Contains("Through")) {
 				if(rayInfo.direction == 1 || rayInfo.hit.distance == 0 || fallingThroughPlatform)
 					return StatementInfo.Continue;
 
@@ -129,14 +129,11 @@ public class PhysicsController2D : ControllerBase {
 	void ClimbSlope(ref Vector2 velocity, float slopeAngle) {
 		float moveDistance = Mathf.Abs (velocity.x);
 		float targetYVelocity = Mathf.Sin (slopeAngle * Mathf.Deg2Rad) * moveDistance;
-		// Allow jumping on a slope
-		if(velocity.y > targetYVelocity) {
-			//Debug.Log ("jumping");
-		}
+
 		if (velocity.y <= targetYVelocity) {
 			velocity.y = targetYVelocity;
 			velocity.x = Mathf.Cos (slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign (velocity.x);
-			raycastShooter.GetCollisionInfo.below = true;
+			raycastShooter.GetCollisionInfo.below          = true;
 			raycastShooter.GetCollisionInfo.ascendingSlope = true;
 		}
 	}
@@ -187,20 +184,8 @@ public class PhysicsController2D : ControllerBase {
 		}
 	}
 
-	void SlideDownMaxSlope(ref Vector2 velocity, RaycastHit2D hit) {
-		if (hit) {
-			float slopeAngle = Vector2.Angle (hit.normal, Vector2.up);
-
-			if (slopeAngle >= maxSlopeAngle) {
-				velocity.x = Mathf.Sign(hit.normal.x) * (Mathf.Abs (velocity.y) - hit.distance - raycastShooter.GetColliderCorners.Inset) / Mathf.Tan (slopeAngle * Mathf.Deg2Rad);
-				raycastShooter.GetCollisionInfo.slopeAngle = slopeAngle;
-				raycastShooter.GetCollisionInfo.slidingDownSlope = true;
-			}
-		}
-	}
-
 	public void Update() {
-		PrintVelocities ();
+		//PrintVelocities ();
 		PlayerController.Instance.transform.localRotation = Quaternion.Euler (new Vector3 ());
 		Move (GetVelocity() * Time.deltaTime, PlayerController.Instance.GetInput (), PlayerController.Instance.GetStateInfo ());
 		PlayerController.Instance.AfterMove ();
@@ -211,17 +196,6 @@ public class PhysicsController2D : ControllerBase {
 		raycastShooter.Reset ();
 		this.stateInfo = stateInfo;
 		previousVelocity = velocity;
-
-		// Check if we are descending a slope
-		if (velocity.y <  0) {
-			RaycastHit2D maxSlopeHitLeft  = Physics2D.Raycast (raycastShooter.GetColliderCorners.BottomLeft , Vector2.down, Mathf.Abs (velocity.y) + raycastShooter.GetColliderCorners.Inset, collisionMask);
-			RaycastHit2D maxSlopeHitRight = Physics2D.Raycast (raycastShooter.GetColliderCorners.BottomRight, Vector2.down, Mathf.Abs (velocity.y) + raycastShooter.GetColliderCorners.Inset, collisionMask);
-			SlideDownMaxSlope(ref velocity, maxSlopeHitLeft );
-			SlideDownMaxSlope(ref velocity, maxSlopeHitRight);
-
-			if(!raycastShooter.GetCollisionInfo.slidingDownSlope)
-				DescendSlope (ref velocity);
-		}
 			
 		// Handle horrizontal movement
 		rayHits = 0;
@@ -239,16 +213,20 @@ public class PhysicsController2D : ControllerBase {
 				CheckForAngleChange (ref velocity);
 			}
 		}
-			
-		Vector2 downwards = new Vector2 (0f, -2f);
-		if (velocities["Gravity"].y == 0 && velocities["Jump"].y <= 0) {
-				raycastShooter.ShootVerticalRays (ref downwards, Color.blue, -1f, true, true, collisionMask, (rayInfo) => {
-				if (rayInfo.hit) {
-					GetCollisionInfo.below = true;
-					return StatementInfo.Break;
-				}
-				return StatementInfo.Continue;
-			});
+
+		// Always check downwards if we are hitting something
+		// If for example we are on a platform, the checks before will never launch
+		Vector2 downwards = new Vector2 (0f, -0.5f);
+		if(HasVelocity("Gravity") && HasVelocity("Jump")) {
+			if (velocities["Gravity"].y == 0 && velocities["Jump"].y <= 0) {
+					raycastShooter.ShootVerticalRays (ref downwards, Color.blue, -1f, true, true, collisionMask, (rayInfo) => {
+					if (rayInfo.hit) {
+						GetCollisionInfo.below = true;
+						return StatementInfo.Break;
+					}
+					return StatementInfo.Continue;
+				});
+			}
 		}
 
 		player.Translate (velocity);

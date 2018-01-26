@@ -81,6 +81,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 	// Whenever the player finished the tutorial
 	public void FinishTutorial() {
+		PlayerController.Instance.EnterRoom (startingRoom, currentRoom.Exit.Main);
 		DataSaver.Instance.FinishedTutorial = true;
 		StartCoroutine (NormalSetUp (false, 0f));
 	}

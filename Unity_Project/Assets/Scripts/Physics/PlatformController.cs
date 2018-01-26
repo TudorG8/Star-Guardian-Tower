@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlatformController : ControllerBase {
 	[SerializeField] Transform platform;
 
-	List<PassangerMovement> passangerMovement;
+	List<TargetInformation> targetInformation;
 
 	StatementInfo MovePassangers(ref Vector2 velocity, RayInfo rayInfo) {
 		if (rayInfo.hit) {
@@ -14,7 +14,7 @@ public class PlatformController : ControllerBase {
 				float pushX = velocity.x;
 				float pushY = velocity.y;
 
-				passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, pushY), (Mathf.Sign(velocity.y) == 1), true));
+				targetInformation.Add(new TargetInformation(rayInfo.hit.transform, new Vector2(pushX, pushY), (Mathf.Sign(velocity.y) == 1), true));
 			}
 		}
 
@@ -28,7 +28,7 @@ public class PlatformController : ControllerBase {
 				float pushX = (rayInfo.direction == 1) ? velocity.x : 0;
 				float pushY = velocity.y- (rayInfo.hit.distance - raycastShooter.GetColliderCorners.Inset) * rayInfo.direction;
 
-				passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, pushY), moveBeforePlatform:false));
+				targetInformation.Add(new TargetInformation(rayInfo.hit.transform, new Vector2(pushX, pushY), moveBeforePlatform:false));
 			}
 		}
 
@@ -43,21 +43,21 @@ public class PlatformController : ControllerBase {
 				float pushX = velocity.x - (rayInfo.hit.distance - raycastShooter.GetColliderCorners.Inset) * rayInfo.direction;
 				//float pushY = - raycastShooter.GetColliderCorners.Inset;
 
-				passangerMovement.Add(new PassangerMovement(rayInfo.hit.transform, new Vector2(pushX, 0), moveBeforePlatform:false));
+				targetInformation.Add(new TargetInformation(rayInfo.hit.transform, new Vector2(pushX, 0), moveBeforePlatform:false));
 			}
 		}
 		return StatementInfo.Continue;
 	}
 
 	void MovePassangers(bool beforeMovePlatform) {
-		foreach (PassangerMovement passsanger in passangerMovement) {
-			if (passsanger.moveBeforePlatform == beforeMovePlatform) {
-				ControllerBase targetController = passsanger.transform.GetComponent<ControllerBase> ();
-				if (passsanger.reset) {
+		foreach (TargetInformation passsanger in targetInformation) {
+			if (passsanger.MoveBeforePlatform == beforeMovePlatform) {
+				ControllerBase targetController = passsanger.GetTransform.GetComponent<ControllerBase> ();
+				if (passsanger.Reset) {
 					targetController.SetVelocity ("Gravity", new Vector2 ());
 					targetController.GetRaycastShooter.GetCollisionInfo.below = true;
 				}
-				targetController.AddVelocity ("Platform", passsanger.velocity * (1/Time.deltaTime));
+				targetController.AddVelocity ("Platform", passsanger.Velocity * (1/Time.deltaTime));
 			}
 		}
 	}
@@ -70,7 +70,7 @@ public class PlatformController : ControllerBase {
 	public override void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo) {
 		raycastShooter.Reset ();
 
-		passangerMovement = new List<PassangerMovement> ();
+		targetInformation = new List<TargetInformation> ();
 
 		// Always shoot rays upwards to check if there is something on the platform
 		Vector2 upwardsVector = new Vector2(0, raycastShooter.GetColliderCorners.Inset * 2);
@@ -98,17 +98,22 @@ public class PlatformController : ControllerBase {
 		MovePassangers (beforeMovePlatform:false);
 	}
 
-	struct PassangerMovement {
-		public Transform transform;
-		public Vector2 velocity;
-		public bool moveBeforePlatform;
-		public bool reset;
+	class TargetInformation {
+		[SerializeField] Transform transform;
+		[SerializeField] Vector2 velocity;
+		[SerializeField] bool moveBeforePlatform;
+		[SerializeField] bool reset;
 
-		public PassangerMovement(Transform transform, Vector2 velocity, bool moveBeforePlatform, bool reset = false) {
+		public TargetInformation (Transform transform, Vector2 velocity, bool moveBeforePlatform, bool reset = false) {
 			this.transform = transform;
 			this.velocity = velocity;
 			this.moveBeforePlatform = moveBeforePlatform;
 			this.reset = reset;
 		}
+
+		public Transform GetTransform       { get { return transform         ; } set { transform          = value; } }
+		public Vector2   Velocity           { get { return velocity          ; } set { velocity           = value; } }
+		public bool      MoveBeforePlatform { get { return moveBeforePlatform; } set { moveBeforePlatform = value; } }
+		public bool      Reset              { get { return reset             ; } set { reset              = value; } }
 	}
 }

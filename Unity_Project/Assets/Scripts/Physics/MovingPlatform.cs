@@ -9,6 +9,7 @@ public class MovingPlatform : MonoBehaviour {
 
 	[SerializeField] bool  loop ;
 	[SerializeField] float speed;
+	[SerializeField] bool  move = true;
 
 	[SerializeField] AnimationCurve easeAmount;
 
@@ -48,13 +49,19 @@ public class MovingPlatform : MonoBehaviour {
 		return (newPosition - new Vector2(transform.position.x, transform.position.y)) ; 
 	}
 
+	public void StartMovement () {
+		move = true;
+	}
+
 	void Update () {
-		Vector2 velocity = GetVelocity ();
-		if (controller != null) {
-			controller.AddVelocity ("Platform", velocity);
+		if(move) {
+			Vector2 velocity = GetVelocity ();
+			if (controller != null) {
+				controller.AddVelocity ("Platform", velocity);
+			}
+			else
+				transform.Translate (velocity);
 		}
-		else
-			transform.Translate (velocity);
 	}
 
 	public void Reverse() {
