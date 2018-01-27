@@ -1,0 +1,77 @@
+Introduction
+	The game is about a brave heroine stuck in a never ending tower.
+	It is a roguelike (so it is randomly generated, and you lose every items that you find when you die, not that there
+	are any items to lose in this version).
+	The "rooms" that can be chosen are self made by me, but the order they get chosen is based on the random generator ingame.
+
+Plan
+	My goal was to make a succesfull prototype/demo for a roguelike platformer.
+	While I've made a physics system before, it was while watching guiding videos. I thought it would be a great idea to finally
+	implement it in a game I can be proud to showcase.
+	Aditionally, at one of my game interviews for a job I was mentioned how caches are often used in games, so I decided this would be a great opportunity for that.
+	Finally, I want to take a more Unity approach and create editor tools and prefabs that potentional designers would use to actually create the levels.
+	Using version control for the first time outside of my placement year is also a great idea.
+
+	Okay, lets go over the important features I expaplained above in more detail, from a programming view:
+		Physics and Player Controller
+			I thought the normal Unity controller is nowhere near good enough for precise platforming, so I decided to make my own. I previously attempted this, but this time I think I got it down pretty well.
+			It uses raycasting to detect obstacles, which can be fire either horizontally or vertically.
+			It has a state system that tells you exactly what actions the player is doing and what stage that action is in.
+
+		Room EDitor tools
+			Rooms. I need to create a lot of those and quick. Especially since they always have a start and exit, plus they are made of many segments.
+			So I made a editor tool that allows you to do all of those. Decide were the start and exit are by drag and dropping and add/remove room segments
+
+		ROom cache
+			In order to increase performance, rooms arent actually spawned in but rather held in a cache. SPawning a room in involves moving the room to the right position and despawning means moving it back to the cache and reseting the 
+			objects inside
+
+Research
+	The game is very similar to some of my favourite indie games out there, which I will go over:
+
+	The binding of isaac
+		Probably the most known roguelike, with so much replayability it's insane.
+		It is where i was inspired to make the game from, since my version also uses rooms and has a similar camera system.
+		I plan to add items and new special rooms similar to how isaac has.
+
+	Hollow Knight
+		An amazing 2d platformer from where I was inspired on how to do the player (dashing and attacking).
+		It also has great level design and looking over it was a great inspiration for how to go with my game.
+		SImilarly, it has parralax backgrounds, which I plan to implement one day
+
+	Other games that were used as inspiration:
+		Enter the gungeon, Dead Cells
+
+Externa Tools / Assets
+	I used Anima2D for everything related to animations, which a tool from the asset store.
+		This includes any instances of "bone" or "spring bone" scrips you may see.
+		Unity chan and the Trex are default sprites from them
+
+	The buzzsaw I took from
+
+	The physics controller for the player and platform was written fully by me, but I was
+	inspired by these videos:
+
+Controls:
+	Should be described in the tutorial at the start of the game, but there they are nevertheless:
+	a/d - move horizontally
+	space - jump
+	right click - attack
+	shift - dash
+
+	Should be played with a mouse and keyboard.
+
+	If the character ever gets stuck outside the screen, the unthinkable happened: 
+		the generator ran out of rooms to spawn in.
+		now that shouldnt ever happen, but if it does, the only way to make things right is to restart
+
+Reflection
+	DId I ever mention im on a placement year working full time? Well it turns out doing that
+	and working on a game like this is pretty tough. But I am ready for the popular game times
+	where people for 60-80 hours atleast!
+
+	If I would ever do this again, I would choose to not do it while working. It is a lot of stress and I just barely managed to finish in time. However, it was a great learning experience, I feel really confident in Unity and it is a great addition to my portfolio.
+
+	A lot of the stuff feels a bit rushed for the demo, for example room objects such as buzzsaws or platforms could have a lot more useful functions added as editor tools.
+
+	I plan to continue work after this and maybe one day even release it! Depending on how well it goes.

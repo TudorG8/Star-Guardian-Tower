@@ -347,7 +347,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				StopCoroutine (stateInfo.Jumping.Routine);
 		}
 		// If we end the jump early
-		if (Input.GetButtonUp ("Jump_P1")) {
+		if (Input.GetButtonUp ("Jump_P1") && jumpVelocity.y != 0) {
 			float speed = gravityVelocity.y + jumpVelocity.y;
 			if (speed > minJumpVelocity) { jumpVelocity.y = minJumpVelocity; }
 		}
