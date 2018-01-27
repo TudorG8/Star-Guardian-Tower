@@ -11,6 +11,7 @@ using CustomPropertyDrawers;
 public class ScoreSystem : Singleton<ScoreSystem> {
 	[SerializeField] Animator     parent    ;
 	[SerializeField] Animator     gameOverUI;
+	[SerializeField] GameObject   tutorialUI;
 
 	[SerializeField] Text         currentScoreText    ;
 	[SerializeField] Animator     currentScoreAnimator;
@@ -80,6 +81,14 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 		goldChanger.GainAmount (SessionData.Instance.CurrentGold , amount);
 	}
 
+	public void ShowTutorialUI() {
+		tutorialUI.SetActive (true);
+	}
+
+	public void HideTutorialUI() {
+		tutorialUI.SetActive (false);
+	}
+
 	public void ShowGameUI() {
 		LoadHP ();
 		parent.gameObject.SetActive (true);
@@ -93,5 +102,10 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	}
 	public void HideGameUI() {
 		parent.gameObject.SetActive (false);
+	}
+
+	public void QuitGame() {
+		UnityEditor.EditorApplication.isPlaying = false;
+		Application.Quit ();
 	}
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Squire Suit
   description: 
-  cost: 400
+  cost: 200
   shopImage: {fileID: 21300002, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
   sprites:
   - itemName: Chest
@@ -46,4 +46,4 @@ MonoBehaviour:
     additionalItems: []
   attributes:
   - attributeName: Hit Points
-    value: 3
+    value: 7

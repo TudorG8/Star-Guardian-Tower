@@ -51,6 +51,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 		// Player stuff
 		PlayerController.Instance.transform.position = tutorialPlayerLocation.position;
+		ScoreSystem.Instance.ShowTutorialUI ();
 
 		yield return new WaitForEndOfFrame ();
 	}
@@ -71,6 +72,8 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 
 		// Camera stuff
 		cameraScript.SetNewRoom (currentRoom);
+
+		ScoreSystem.Instance.HideTutorialUI ();
 
 		// Player stuff
 		if (movePlayer) {

@@ -1,9 +1,11 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using CustomPropertyDrawers;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /**
  * This class is used to make an editor friendly room generator.
@@ -15,6 +17,19 @@ using CustomPropertyDrawers;
  */
 [ExecuteInEditMode]
 public class RoomHelper : MonoBehaviour {
+	[SerializeField] Room roomScript;
+	[SerializeField] bool editable  ; // Update scripts won't run if this is set to false
+	public void SetActive(bool active) {
+		List<RoomSegment> validRooms = roomScript.Rooms.GetValidElements ();
+		for (int i = 0; i < validRooms.Count; i++) {
+			RoomSegment segment = validRooms [i];
+			segment.SetHelperScriptActiveAs (active);
+		}
+		roomScript.Entry.Sprite.gameObject.SetActive (active);
+		roomScript.Exit .Sprite.gameObject.SetActive (active);
+		editable = active;
+	}
+	#if UNITY_EDITOR
 	// Extra Classes ---------------------------------------------------------------------------------------------
 	/**
 	 * We use this to hold information about the previous point, platforms and size.
@@ -35,14 +50,14 @@ public class RoomHelper : MonoBehaviour {
 	}
 	// Variables -------------------------------------------------------------------------------------------------
 	// Imports
-	[SerializeField] Room roomScript;
+
 
 	// Information Fields
 	[SerializeField] PointExtraInfo entryPoint;
 	[SerializeField] PointExtraInfo exitPoint ;
 
 	// Settings
-	[SerializeField] bool editable                ; // Update scripts won't run if this is set to false
+
 	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
 
 	public bool Editable { get { return editable; } }
@@ -60,16 +75,7 @@ public class RoomHelper : MonoBehaviour {
 		AddRoomSegment (new Vector2(0, 0), Direction.None, newRoomSegment);
 	}
 
-	public void SetActive(bool active) {
-		List<RoomSegment> validRooms = roomScript.Rooms.GetValidElements ();
-		for (int i = 0; i < validRooms.Count; i++) {
-			RoomSegment segment = validRooms [i];
-			segment.SetHelperScriptActiveAs (active);
-		}
-		roomScript.Entry.Sprite.gameObject.SetActive (active);
-		roomScript.Exit .Sprite.gameObject.SetActive (active);
-		editable = active;
-	}
+
 
 	void Start() {
 		if(disconnectPrefabInstance)
@@ -423,5 +429,5 @@ public class RoomHelper : MonoBehaviour {
 		}
 	}
 	// -----------------------------------------------------------------------------------------------------------
+	#endif
 }
-#endif

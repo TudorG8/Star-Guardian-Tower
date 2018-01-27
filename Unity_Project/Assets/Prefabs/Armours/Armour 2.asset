@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Soldier Suit
   description: 
-  cost: 800
+  cost: 400
   shopImage: {fileID: 21300004, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
   sprites:
   - itemName: Chest
@@ -49,4 +49,4 @@ MonoBehaviour:
     additionalItems: []
   attributes:
   - attributeName: Hit Points
-    value: 100
+    value: 9

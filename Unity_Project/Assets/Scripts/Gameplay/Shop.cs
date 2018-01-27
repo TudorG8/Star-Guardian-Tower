@@ -25,7 +25,6 @@ public class Shop : Singleton <Shop> {
 	}
 
 	void Start() {
-		DataSaver.Instance.TotalGold.Value = 3000;
 		LoadInitialData ();
 		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}

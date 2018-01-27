@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Refined Sword
   description: 
-  cost: 300
+  cost: 200
   shopImage: {fileID: 21300004, guid: 72cf33596fe371f47be00b53c475b964, type: 3}
   sprites:
   - itemName: Weapon

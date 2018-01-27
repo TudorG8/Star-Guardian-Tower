@@ -470,7 +470,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 		if (room.Entry.Main == Direction.Bottom) {
 			dir.x = Input.GetAxisRaw ("Horizontal");
-			simulateRoutine = StartCoroutine (SimulateMovement (0.2f, dir, () => {
+			simulateRoutine = StartCoroutine (SimulateMovement (0.3f, dir, () => {
 				room.CloseEntryGate ();
 				inputEnabled = true; 
 			}, true, 8f));

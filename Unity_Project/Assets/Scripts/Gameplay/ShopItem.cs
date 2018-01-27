@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using Anima2D;
 
 public class ShopItem : ScriptableObject {
+	#if UNITY_EDITOR
 	/**
 	 * Menu Item to create a shop item.
 	 */
@@ -19,7 +22,7 @@ public class ShopItem : ScriptableObject {
 
 		Selection.activeObject = asset;
 	}
-
+	#endif
 	/**
 	 * Quick class to hold the mesh and additional items related to a sprite piece.
 	 */

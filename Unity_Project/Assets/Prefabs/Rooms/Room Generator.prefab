@@ -1449,6 +1449,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1203a95fee74be490ab919bae2d706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pointRefs:
+    points:
+    - {fileID: 114276639828229114}
+    - {fileID: 114486838900865914}
+    - {fileID: 114535969614500790}
+    - {fileID: 114338464389590288}
+    - {fileID: 114627835891340598}
+    - {fileID: 114768606186786028}
+    - {fileID: 114165062749940012}
+    - {fileID: 114787613480241728}
   roomGenerator: {fileID: 114158235947494922}
   roomSegment: {fileID: 114329937332615706}
   platformRefs:
@@ -1461,16 +1471,6 @@ MonoBehaviour:
     - {fileID: 1489828000653132}
     - {fileID: 1650203515257370}
     - {fileID: 1007385618763668}
-  pointRefs:
-    points:
-    - {fileID: 114276639828229114}
-    - {fileID: 114486838900865914}
-    - {fileID: 114535969614500790}
-    - {fileID: 114338464389590288}
-    - {fileID: 114627835891340598}
-    - {fileID: 114768606186786028}
-    - {fileID: 114165062749940012}
-    - {fileID: 114787613480241728}
 --- !u!114 &114158235947494922
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1483,6 +1483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   roomScript: {fileID: 114651846102439192}
+  editable: 1
   entryPoint:
     point: {fileID: 4626172711308502}
     previousPoint: {fileID: 4921134486522640}
@@ -1495,7 +1496,6 @@ MonoBehaviour:
     previousPlatform1: {fileID: 1063223925966324}
     previousPlatform2: {fileID: 1371942633483932}
     previousSize: 13.35
-  editable: 1
   disconnectPrefabInstance: 1
 --- !u!114 &114165062749940012
 MonoBehaviour:

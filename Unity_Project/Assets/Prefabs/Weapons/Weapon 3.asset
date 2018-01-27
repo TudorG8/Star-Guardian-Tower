@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Spiked Sword
   description: 
-  cost: 800
+  cost: 300
   shopImage: {fileID: 21300006, guid: 72cf33596fe371f47be00b53c475b964, type: 3}
   sprites:
   - itemName: Weapon

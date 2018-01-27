@@ -45,4 +45,4 @@ MonoBehaviour:
     additionalItems: []
   attributes:
   - attributeName: Hit Points
-    value: 2
+    value: 5

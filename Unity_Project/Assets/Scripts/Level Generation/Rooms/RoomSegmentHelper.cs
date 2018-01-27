@@ -1,9 +1,9 @@
-﻿#if UNITY_EDITOR
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
-
+#endif
 /**
  * Editor Tool for Room Segments
  */
@@ -11,6 +11,15 @@ using UnityEditor;
 [SelectionBase]
 [System.Serializable]
 public class RoomSegmentHelper : MonoBehaviour {
+	[SerializeField] public AllPointRefs  pointRefs          ; // References to the points
+	public void SetActive (bool active) {
+		for (int i = 0; i < pointRefs.points.Count; i++) {
+			PointRefs point = pointRefs.points [i];
+			point.gameObject.SetActive (active);
+		}
+	}
+
+
 	[System.Serializable]
 	public class PlatformRefs {
 		public List<GameObject> platforms;
@@ -79,14 +88,9 @@ public class RoomSegmentHelper : MonoBehaviour {
 	[SerializeField] public RoomSegment   roomSegment  ; // Attached script for the room segment
 
 	[SerializeField] public PlatformRefs  platformRefs       ; // References to the platforms
-	[SerializeField] public AllPointRefs  pointRefs          ; // References to the points
 
-	public void SetActive (bool active) {
-		for (int i = 0; i < pointRefs.points.Count; i++) {
-			PointRefs point = pointRefs.points [i];
-			point.gameObject.SetActive (active);
-		}
-	}
+
+	#if UNITY_EDITOR
 
 	public void SetNeighbour(Direction side, RoomSegment roomHelper) {
 		Neighbours neighbours = roomSegment.SegmentNeighbours; 
@@ -131,5 +135,5 @@ public class RoomSegmentHelper : MonoBehaviour {
 		if (roomSegment.SegmentNeighbours.Right  != null) return;	
 		AddRoom (Direction.Right );
 	}
+	#endif
 }
-#endif
