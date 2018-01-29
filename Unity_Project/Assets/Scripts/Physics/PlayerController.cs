@@ -36,6 +36,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	[SerializeField][ReadOnly] bool      inputEnabled      ; // Whether the player input is enabled or not
 	[SerializeField][ReadOnly] bool      gravityEnabled    ; // Whether gravity will act upon the player
 	[SerializeField][ReadOnly] bool      wallSlidingEnabled; // Whether wall sliding is enabled
+	[SerializeField][ReadOnly] bool dashingEnabled;
 	[SerializeField][ReadOnly] int       direction         ; // The direction the player is facing (may not always be the velocity)
 	//[SerializeField][ReadOnly] Vector2   velocity          ; // Current velocity of the player
 	[SerializeField][ReadOnly] Vector2 gravityVelocity;
@@ -145,6 +146,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	public void Reset() {
 		stateInfo.Reset(this);
+		dashingEnabled = true;
 		SetActive (gravity: true, input: true, wallSliding: true);
 	}
 
@@ -202,6 +204,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 		animator.SetBool ("respawn", false);
 
 		SetActive (gravity: true, input: true, wallSliding: true);
+		dashingEnabled = true;
 
 		stateInfo.TakingDamage.GetState = State.CanDoAction;
 	}
@@ -239,7 +242,6 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			if ((info.left || info.right) && !info.below && physicsController.RayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
 				if (stateInfo.WallSliding.GetState == State.CanDoAction) {
 					gravityVelocity = new Vector2 (0, gravityVelocity.y + jumpVelocity.y);
-					Debug.Log (gravityVelocity.y + jumpVelocity.y);
 					stateInfo.WallSliding.GetState = State.DoingAction;
 				}
 				jumpVelocity = new Vector2 ();
@@ -355,7 +357,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 
 	void HandleAttacking () {
-		if ( Input.GetMouseButtonDown(1) && stateInfo.Attacking.GetState == State.CanDoAction ) {
+		if ( (Input.GetAxisRaw("Attack") == 1 || Input.GetMouseButtonDown(1)) && stateInfo.Attacking.GetState == State.CanDoAction ) {
 			animator.SetTrigger ("attack");
 			attackTrigger.Attack ();
 			stateInfo.Attacking.Routine = StartCoroutine (WaitForCooldown (
@@ -416,24 +418,28 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 		
 	void HandleDashing () {
-		CollisionInfo info = physicsController.GetCollisionInfo;
-		if (stateInfo.Dashing.GetState == State.CanDoAction && Input.GetKeyDown (KeyCode.LeftShift)) {
-			SetActive (gravity: false, input: false, wallSliding: false);
-			stateInfo.WallSliding.Reset (this);
-			stateInfo.Dashing.GetState = State.DoingAction;
+		if (dashingEnabled) {
+			CollisionInfo info = physicsController.GetCollisionInfo;
+			if (stateInfo.Dashing.GetState == State.CanDoAction && (Input.GetKeyDown (KeyCode.LeftShift) || Input.GetAxisRaw("Dash") == 1)) {
+				SetActive (gravity: false, input: false, wallSliding: false);
+				dashingEnabled = false;
+				stateInfo.WallSliding.Reset (this);
+				stateInfo.Dashing.GetState = State.DoingAction;
 
-			gravityVelocity = new Vector2 ();
-			jumpVelocity = new Vector2 ();
-			dashParticles.Play ();
+				gravityVelocity = new Vector2 ();
+				jumpVelocity = new Vector2 ();
+				dashParticles.Play ();
 
-			simulateRoutine = StartCoroutine (SimulateMovement (dashingDuration, new Vector2(direction * dashingSpeed, 0), () => { 
-				OnDashEnd();
-			}));
+				simulateRoutine = StartCoroutine (SimulateMovement (dashingDuration, new Vector2 (direction * dashingSpeed, 0), () => { 
+					OnDashEnd ();
+				}));
+			}
 		}
 	}
 
 	void OnDashEnd() {
 		SetActive (gravity: true, input: true, wallSliding: true);
+		dashingEnabled = true;
 		stateInfo.Dashing.Routine = StartCoroutine(WaitForCooldown( 
 			() => { stateInfo.Dashing.GetState = State.Waiting; },
 			dashingCooldown,
@@ -470,9 +476,12 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 		if (room.Entry.Main == Direction.Bottom) {
 			dir.x = Input.GetAxisRaw ("Horizontal");
+			SetActive (true, false, true);
+			dashingEnabled = false;
 			simulateRoutine = StartCoroutine (SimulateMovement (0.3f, dir, () => {
 				room.CloseEntryGate ();
-				inputEnabled = true; 
+				SetActive (true, true, true);
+				dashingEnabled = true;
 			}, true, 8f));
 		} 
 		else {

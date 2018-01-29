@@ -21,6 +21,11 @@ public class ValueChanger : MonoBehaviour {
 	public int CurrentAmount { get { return currentAmount; } }
 	public int Difference    { get { return difference   ; } }
 
+	public void Reset() {
+		currentAmount = 0;
+		difference = 0;
+	}
+
 	// Methods
 	/**
 	 * Should be called to set up the value changer so it knows what value to use.

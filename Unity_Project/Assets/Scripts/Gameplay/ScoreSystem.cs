@@ -34,10 +34,12 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 		parent.gameObject.SetActive (false);
 	}
 
-	void Reset () {
+	public void Reset () {
 		currentScoreText  .text = "0";
 		currentGoldText   .text = "0";
 		goldDifferenceText.text =  "";
+		scoreChanger.Reset ();
+		goldChanger.Reset ();
 	}
 		
 	void Update() {
@@ -60,6 +62,7 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 			obj.transform.SetAsLastSibling ();
 			hitPointsInstances.Add(obj.GetComponent<Image>());
 		}
+		Reset ();
 	}
 
 	public void TakeDamage() {
@@ -105,7 +108,9 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	}
 
 	public void QuitGame() {
+		#if UNITY_EDITOR
 		UnityEditor.EditorApplication.isPlaying = false;
+		#endif
 		Application.Quit ();
 	}
 }

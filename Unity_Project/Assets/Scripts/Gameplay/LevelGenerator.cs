@@ -94,6 +94,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		SessionData.Instance.StartGame  ();
 		ScoreSystem.Instance.ShowGameUI ();
 		ScoreSystem.Instance.LoadHP ();
+		ScoreSystem.Instance.Reset (); 
 	}
 
 	// Whenever the player ends a game session

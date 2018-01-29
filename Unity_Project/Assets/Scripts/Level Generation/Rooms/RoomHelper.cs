@@ -180,9 +180,6 @@ public class RoomHelper : MonoBehaviour {
 
 		Vector2 desiredPosition = index + DirectionHelper.GetDirectionVector (side);
 
-		Debug.Log (index);
-		Debug.Log (desiredPosition);
-		Debug.Log (rooms.IsNotAValidPosition (desiredPosition));
 		if (rooms.IsNotAValidPosition (desiredPosition)) return;
 
 		RoomSegment neighbour = rooms.RoomAt(desiredPosition);
