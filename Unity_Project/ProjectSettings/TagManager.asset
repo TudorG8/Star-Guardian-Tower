@@ -22,9 +22,9 @@ TagManager:
   - Objects
   - Backgrounds
   - 
-  - 
-  - 
-  - 
+  - LightSources
+  - LightObstacles
+  - AmbientLight
   - 
   - 
   - 
