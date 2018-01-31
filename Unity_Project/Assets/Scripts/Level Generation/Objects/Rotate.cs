@@ -1,19 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ObjectInterfaces;
 
+/**
+ * Rotate an object effect thing.
+ */
 
-public class Rotate : MonoBehaviour {
-	public enum Direction {
-		Clockwise, Anticlockwise
-	}
+public class Rotate : RoomObjectEffect, IStartable, IResetable {
+	public enum Direction { Clockwise, Anticlockwise }
+
 	[SerializeField] Transform obj;
 
 	[SerializeField] float     timeToSpinOnce;
-	[SerializeField] float degrees;
+	[SerializeField] Vector3   degrees       ;
 	[SerializeField] Direction direction     ;
 
+	[SerializeField] bool      active        ;
+
 	void Update() {
-		transform.Rotate (0, 0, degrees * Time.deltaTime);
+		if (active) {
+			transform.Rotate (degrees * Time.deltaTime);
+		}
+	}
+
+	public void OnStart() {
+		active = true;
+	}
+
+	public void OnReset() {
+		active = false;
 	}
 }

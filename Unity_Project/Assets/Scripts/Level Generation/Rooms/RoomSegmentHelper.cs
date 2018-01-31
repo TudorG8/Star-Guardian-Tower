@@ -4,93 +4,28 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+
 /**
- * Editor Tool for Room Segments
+ * Editor Tool for Room Segments.
+ * Allows adding a new segment to the north, east, west and south.
+ * Also allows deletion of rooms.
  */
+
 [ExecuteInEditMode]
 [SelectionBase]
 [System.Serializable]
 public class RoomSegmentHelper : MonoBehaviour {
-	[SerializeField] public AllPointRefs  pointRefs          ; // References to the points
-	public void SetActive (bool active) {
-		for (int i = 0; i < pointRefs.points.Count; i++) {
-			PointRefs point = pointRefs.points [i];
-			point.gameObject.SetActive (active);
-		}
-	}
-
-
-	[System.Serializable]
-	public class PlatformRefs {
-		public List<GameObject> platforms;
-
-		public void SetXScale(Direction side, float xScale) {
-			foreach (GameObject platform in platforms) {
-				if(platform.name.Contains(side.ToString())) {
-					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
-				}
-			}
-		}
-		public void SetXScale(Direction side, int index, float xScale) {
-			foreach (GameObject platform in platforms) {
-				if(platform.name.Contains(side.ToString()) && platform.name.Contains(index.ToString())) {
-					platform.transform.localScale = new Vector2 (xScale, platform.transform.localScale.y);
-				}
-			}
-		}
-
-		public GameObject Get(Direction side, int index) {
-			for (int i = 0; i < platforms.Count; i++) {
-				if (platforms [i].name.Contains (side.ToString ()) && platforms [i].name.Contains (index.ToString ()))
-					return platforms [i];
-			}
-
-			Debug.LogError ("There was no platform of type " + side.ToString () + " " + index);
-			return null;
-		}
-
-		public Direction GetFromIndex(Direction main, int index) {
-			if (main == Direction.Top  || main == Direction.Bottom) {
-				if (index == 1) return Direction.Left ;
-				if (index == 2) return Direction.Right;
-			}
-			if (main == Direction.Left || main == Direction.Right ) {
-				if (index == 1) return Direction.Bottom;
-				if (index == 2) return Direction.Top   ;
-			}
-			Debug.LogError ("Bad Input");
-			return Direction.None;
-		}
-	}
-
-	[System.Serializable]
-	public class AllPointRefs {
-		public List<PointRefs> points;
-
-		public void TurnOff(Direction side) {
-			foreach (PointRefs point in points) {
-				if(point.name.Contains(side.ToString())) {
-					point.gameObject.SetActive (false);
-				}
-			}
-		}
-		public void TurnOn (Direction side) {
-			foreach (PointRefs point in points) {
-				if(point.name.Contains(side.ToString())) {
-					point.gameObject.SetActive (true);
-				}
-			}
-		}
-	}
-
+	#if UNITY_EDITOR
 	// Imports
 	[SerializeField] public RoomHelper    roomGenerator; // Parent that holds all editor information
 	[SerializeField] public RoomSegment   roomSegment  ; // Attached script for the room segment
+	[SerializeField] public PlatformRefs  platformRefs ; // References to the platforms
+	[SerializeField] public SegmentPoints pointRefs    ; // References to the points
 
-	[SerializeField] public PlatformRefs  platformRefs       ; // References to the platforms
-
-
-	#if UNITY_EDITOR
+	// Will disable all the points used for the arrows
+	public void SetActive (bool active) {
+		pointRefs.SetActive (active);
+	}
 
 	public void SetNeighbour(Direction side, RoomSegment roomHelper) {
 		Neighbours neighbours = roomSegment.SegmentNeighbours; 
@@ -108,11 +43,13 @@ public class RoomSegmentHelper : MonoBehaviour {
 		else if (side == Direction.Right ) neighbours.Right  = null;
 	}
 
+	// Deletes the segment and removes it from the room
 	public void DeleteRoom() {
 		if(roomGenerator.DeleteRoomSegment (roomSegment.Index))
 			DestroyImmediate (this.gameObject);
 	}
-		
+
+	// Creates a room segment in the given direction (if there isnt one already)
 	void AddRoom(Direction side) {
 		RoomSegment newRoom = this.roomGenerator.CreateRoomSegment (transform.localPosition, side);
 

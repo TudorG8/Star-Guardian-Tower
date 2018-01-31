@@ -34,9 +34,10 @@ public class FollowPlayer : MonoBehaviour {
 	[SerializeField][ReadOnly] Vector3     velocity      ; // Current velocity of the camera
 	[SerializeField][ReadOnly] bool canMoveLeft, canMoveRight, canMoveTop, canMoveBottom;
 	[SerializeField][ReadOnly] bool checkVerticalChange, checkHorizontalChange;
+
 	// Set the new room to follow when a player enters it.
 	public void SetNewRoom(Room room) {
-		currentRoom = room;
+		currentRoom    = room;
 		currentSegment = currentRoom.Rooms.RoomAt (room.Entry.RoomIndex);
 	}
 
@@ -50,6 +51,7 @@ public class FollowPlayer : MonoBehaviour {
 		return false;
 	}
 
+	// Here we check for the neighbour logic
 	void LateUpdate () {
 		if (currentRoom == null) return;
 		float distanceToCurrentPoint = Vector3.Distance (player.position, currentSegment.Middle.position);

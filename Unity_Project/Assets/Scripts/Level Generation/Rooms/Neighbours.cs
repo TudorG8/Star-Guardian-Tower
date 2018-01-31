@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Holds references to the neighbours of a room.
+ * Should probably be generic some day...
+ */
+
 [System.Serializable]
 public class Neighbours {
 	[SerializeField] RoomSegment top   ;

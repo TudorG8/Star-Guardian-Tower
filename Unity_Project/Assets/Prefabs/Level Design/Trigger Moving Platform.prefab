@@ -282,6 +282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -314,14 +315,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1627035300716220}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90edeec8821ddd64d8ce3629c0b29ca9, type: 3}
+  m_Script: {fileID: 11500000, guid: c8f7ca9b305ab465b8aa0e858ef06601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   controller: {fileID: 114819997559656592}
   waypointParent: {fileID: 4276170210419284}
   loop: 1
   speed: 3
-  move: 0
+  startMovingOnRoomEnter: 1
   easeAmount:
     serializedVersion: 2
     m_Curve:
@@ -341,6 +343,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 0
   waypoints: []
+  hasStarted: 0
   waypointIndex: 0
   percentageTraveled: 0
   direction: 0

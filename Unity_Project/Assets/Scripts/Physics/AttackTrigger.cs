@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Used to attack from the player.
+ */
+
 public class AttackTrigger : MonoBehaviour {
-	[SerializeField] Animator animator;
+	// Imports
+	[SerializeField] Animator   animator        ;
 	[SerializeField] Collider2D attachedCollider;
 
+	// Options
 	[SerializeField] float initialDelay;
+	[SerializeField] int   framesActive;
 
-	[SerializeField] int framesActive = 1;
-
-	public void SetUp(ShopItem item) {
-		// Set the mesh renderer
-		// Set the range of the slash
-	}
 
 	void Start() {
 		attachedCollider.enabled = false;

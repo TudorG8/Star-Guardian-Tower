@@ -7,7 +7,7 @@ using CustomPropertyDrawers;
  * Contains runtime information about a room segment.
  */
 public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
-	// Imports
+	// Imports ---------------------------------------------------------------------------------------------------
 	[SerializeField] RoomSegmentHelper helperScript;
 	[SerializeField] Transform         middle      ;
 
@@ -15,16 +15,18 @@ public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
 	[SerializeField]           Neighbours neighbours;
 	[SerializeField][ReadOnly] Vector2    index     ;
 
-	// Properties
+	// Properties ------------------------------------------------------------------------------------------------
 	public RoomSegmentHelper HelperScript      { get { return helperScript; } }
 	public Transform         Middle            { get { return middle      ; } }
 	public Neighbours        SegmentNeighbours { get { return neighbours  ; } }
 	public Vector2           Index             { get { return index       ; } set { index = value; }}
 
+	// Activate/Deactivate the helper script
 	public void SetHelperScriptActiveAs(bool active) {
 		helperScript.SetActive (active);
 	}
 
+	// Interface Requirements ------------------------------------------------------------------------------------
 	public void IncreaseIndex    (Vector2 increase) {
 		index += increase;
 	}
@@ -43,3 +45,4 @@ public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
 		name = "Room " + index.y + " " + index.x;
 	}
 }
+// ---------------------------------------------------------------------------------------------------------------

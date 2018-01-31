@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
 
+/**
+ * Physics controller for 2D entities.
+ */
+
 public class PhysicsController2D : ControllerBase {
 	[SerializeField] Transform player;
 
@@ -11,10 +15,10 @@ public class PhysicsController2D : ControllerBase {
 
 	[SerializeField][ReadOnly] bool fallingThroughPlatform = false;
 
-	PlayerController.StateInfo stateInfo;
-
 	[SerializeField] Vector2 previousVelocity;
 	[SerializeField] int rayHits;
+
+	StateInfo stateInfo;
 
 	public int RayHits { get { return rayHits; } }
 
@@ -30,41 +34,41 @@ public class PhysicsController2D : ControllerBase {
 		CollisionInfo   collisionInfo = raycastShooter.GetCollisionInfo  ;
 		ColliderCorners boxCorners    = raycastShooter.GetColliderCorners;
 
-		if (rayInfo.hit) {
+		if (rayInfo.Hit) {
 			rayHits++;
 
-			if (rayInfo.hit.distance == 0) { return StatementInfo.Continue; }
+			if (rayInfo.Hit.distance == 0) { return StatementInfo.Continue; }
 
-			float slopeAngle = Vector2.Angle (rayInfo.hit.normal, Vector2.up);
+			float slopeAngle = Vector2.Angle (rayInfo.Hit.normal, Vector2.up);
 
 			// We check the bottommost ray to see if we are climbing a slope
-			if (rayInfo.rayIndex == 0 && slopeAngle < maxSlopeAngle) {
+			if (rayInfo.RayIndex == 0 && slopeAngle < maxSlopeAngle) {
 				float distanceToSlopeStart = 0;
-				if (slopeAngle != collisionInfo.slopeAngleOld) {
-					distanceToSlopeStart = rayInfo.hit.distance-boxCorners.Inset;
-					velocity.x -= distanceToSlopeStart * rayInfo.direction;
+				if (slopeAngle != collisionInfo.SlopeAngleOld) {
+					distanceToSlopeStart = rayInfo.Hit.distance-boxCorners.Inset;
+					velocity.x -= distanceToSlopeStart * rayInfo.Direction;
 				}
 
-				collisionInfo.slopeAngle = slopeAngle;
+				collisionInfo.SlopeAngle = slopeAngle;
 				// Going from an descending slope to an ascending slope
-				if (collisionInfo.descendingSlope) {
-					collisionInfo.descendingSlope = false;
+				if (collisionInfo.DescendingSlope) {
+					collisionInfo.DescendingSlope = false;
 					velocity = previousVelocity;
 				}
 
 				ClimbSlope (ref velocity, slopeAngle);
-				velocity.x += distanceToSlopeStart * rayInfo.direction;
+				velocity.x += distanceToSlopeStart * rayInfo.Direction;
 			} 
 
 			// Check for edges
-			if (stateInfo != null && stateInfo.HoldingOnEdge.GetState == PlayerController.State.CanDoAction && rayInfo.rayIndex == raycastShooter.HorizontalRayCount - 1) {
-				Collider2D target = rayInfo.hit.transform.GetComponent<Collider2D> ();
+			if (stateInfo != null && stateInfo.HoldingOnEdge.GetState == StateInfo.State.CanDoAction && rayInfo.RayIndex == raycastShooter.HorizontalRayCount - 1) {
+				Collider2D target = rayInfo.Hit.transform.GetComponent<Collider2D> ();
 				// We actually hit a target
 				if (target != null && target.name.Contains("Grabbable")) {
-					Vector2 point = rayInfo.hit.point;
+					Vector2 point = rayInfo.Hit.point;
 					float distance = Mathf.Abs (target.bounds.max.y - point.y);
 					if (distance < edgeGrabAmount) {
-						stateInfo.HoldingOnEdge.GetState = PlayerController.State.DoingAction;
+						stateInfo.HoldingOnEdge.GetState = StateInfo.State.DoingAction;
 						velocity = new Vector2 (0, distance - 0.01f);
 						return StatementInfo.Break;
 					}
@@ -72,17 +76,17 @@ public class PhysicsController2D : ControllerBase {
 			}
 
 			// Check if we encountered an unclimbable slope
-			if (!collisionInfo.ascendingSlope || slopeAngle > maxSlopeAngle) {
-				velocity.x = rayInfo.direction * (rayInfo.hit.distance - boxCorners.Inset);
-				rayInfo.rayLength  = rayInfo.hit.distance;
+			if (!collisionInfo.AscendingSlope || slopeAngle > maxSlopeAngle) {
+				velocity.x = rayInfo.Direction * (rayInfo.Hit.distance - boxCorners.Inset);
+				rayInfo.RayLength  = rayInfo.Hit.distance;
 
-				if (collisionInfo.ascendingSlope) {
-					float targetYVelocity = Mathf.Tan (collisionInfo.slopeAngle  * Mathf.Deg2Rad) * Mathf.Abs (velocity.x);
+				if (collisionInfo.AscendingSlope) {
+					float targetYVelocity = Mathf.Tan (collisionInfo.SlopeAngle  * Mathf.Deg2Rad) * Mathf.Abs (velocity.x);
 					velocity.y = targetYVelocity;
 				}
 
-				collisionInfo.left  = rayInfo.direction == -1;
-				collisionInfo.right = rayInfo.direction ==  1;
+				collisionInfo.Left  = rayInfo.Direction == -1;
+				collisionInfo.Right = rayInfo.Direction ==  1;
 			}
 		}
 
@@ -93,34 +97,36 @@ public class PhysicsController2D : ControllerBase {
 		CollisionInfo   collisionInfo = raycastShooter.GetCollisionInfo  ;
 		ColliderCorners boxCorners    = raycastShooter.GetColliderCorners;
 
-		if (rayInfo.hit) {
-			rayInfo.rayHits++;
-			if (rayInfo.hit.collider.name.Contains("Through")) {
-				if(rayInfo.direction == 1 || rayInfo.hit.distance == 0 || fallingThroughPlatform)
+		if (rayInfo.Hit) {
+			rayInfo.RayHits++;
+			if (rayInfo.Hit.collider.name.Contains("Through")) {
+				if(rayInfo.Direction == 1 || rayInfo.Hit.distance == 0 || fallingThroughPlatform)
 					return StatementInfo.Continue;
 
 				if (input.y == -1) {
 					StartCoroutine(WaitForCooldown( 
 						() => {fallingThroughPlatform = true;}, 
 						0.5f, 
-						() => {fallingThroughPlatform = false;}
+						() => {fallingThroughPlatform = false;} 
 					));
 					return StatementInfo.Continue;
 				}
 			}
-			if(rayInfo.hit.distance <= boxCorners.Inset) {
-				rayInfo.hit.distance = boxCorners.Inset;
+			if(rayInfo.Hit.distance <= boxCorners.Inset) {
+				RaycastHit2D hit = rayInfo.Hit;
+				hit.distance = boxCorners.Inset;
+				rayInfo.Hit = hit;
 			}
 
-			velocity.y = rayInfo.direction * (rayInfo.hit.distance - boxCorners.Inset);
-			rayInfo.rayLength  = rayInfo.hit.distance;
+			velocity.y = rayInfo.Direction * (rayInfo.Hit.distance - boxCorners.Inset);
+			rayInfo.RayLength  = rayInfo.Hit.distance;
 
-			if (collisionInfo.ascendingSlope) {
-				velocity.x = velocity.y / Mathf.Tan (collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign (velocity.x);
+			if (collisionInfo.AscendingSlope) {
+				velocity.x = velocity.y / Mathf.Tan (collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Sign (velocity.x);
 			}
 
-			collisionInfo.below = rayInfo.direction == -1;
-			collisionInfo.above = rayInfo.direction ==  1;
+			collisionInfo.Below = rayInfo.Direction == -1;
+			collisionInfo.Above = rayInfo.Direction ==  1;
 		}
 
 		return StatementInfo.Continue;
@@ -133,8 +139,8 @@ public class PhysicsController2D : ControllerBase {
 		if (velocity.y <= targetYVelocity) {
 			velocity.y = targetYVelocity;
 			velocity.x = Mathf.Cos (slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign (velocity.x);
-			raycastShooter.GetCollisionInfo.below          = true;
-			raycastShooter.GetCollisionInfo.ascendingSlope = true;
+			raycastShooter.GetCollisionInfo.Below          = true;
+			raycastShooter.GetCollisionInfo.AscendingSlope = true;
 		}
 	}
 
@@ -158,7 +164,7 @@ public class PhysicsController2D : ControllerBase {
 				float targetYVelocity = Mathf.Sin (slopeAngle * Mathf.Deg2Rad) * moveDistance;
 				velocity.x = Mathf.Cos (slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign (velocity.x);
 				velocity.y -= targetYVelocity;
-				collisionInfo.descendingSlope = true;
+				collisionInfo.DescendingSlope = true;
 			}
 		}
 	}
@@ -167,7 +173,7 @@ public class PhysicsController2D : ControllerBase {
 		CollisionInfo   collisionInfo = raycastShooter.GetCollisionInfo;
 		ColliderCorners boxCorners    = raycastShooter.GetColliderCorners   ;
 
-		if (collisionInfo.ascendingSlope) {
+		if (collisionInfo.AscendingSlope) {
 			float direction = Mathf.Sign(velocity.x);
 			float rayLength = Mathf.Abs (velocity.x) + boxCorners.Inset;
 			Vector2 rayOrigin = direction == -1 ? boxCorners.BottomLeft : boxCorners.BottomRight;
@@ -176,23 +182,22 @@ public class PhysicsController2D : ControllerBase {
 			RaycastHit2D hit = Physics2D.Raycast (rayOrigin, Vector2.right * direction, rayLength, collisionMask);
 			if (hit) {
 				float slopeAngle = Vector2.Angle (hit.normal, Vector2.up);
-				if (slopeAngle != collisionInfo.slopeAngle) {
+				if (slopeAngle != collisionInfo.SlopeAngle) {
 					velocity.x = (hit.distance - boxCorners.Inset) * direction;
-					collisionInfo.slopeAngle = slopeAngle;
+					collisionInfo.SlopeAngle = slopeAngle;
 				}
 			}
 		}
 	}
 
 	public void Update() {
-		//PrintVelocities ();
 		PlayerController.Instance.transform.localRotation = Quaternion.Euler (new Vector3 ());
 		Move (GetVelocity() * Time.deltaTime, PlayerController.Instance.GetInput (), PlayerController.Instance.GetStateInfo ());
 		PlayerController.Instance.AfterMove ();
 		ResetVelocity ();
 	}
 
-	public override void Move(Vector2 velocity, Vector2 input, PlayerController.StateInfo stateInfo) {
+	public override void Move(Vector2 velocity, Vector2 input, StateInfo stateInfo) {
 		raycastShooter.Reset ();
 		this.stateInfo = stateInfo;
 		previousVelocity = velocity;
@@ -203,7 +208,7 @@ public class PhysicsController2D : ControllerBase {
 			return HorrizontalRayFunction(ref velocity, rayInfo);
 		});
 
-		if (!raycastShooter.GetCollisionInfo.hangingOnEdge) {
+		if (!raycastShooter.GetCollisionInfo.HangingOnEdge) {
 			// Handle vertical movement
 			if (velocity.y != 0) {
 				raycastShooter.ShootVerticalRays (ref velocity, Color.red, velocity.y, true, true, collisionMask, (rayInfo) => {
@@ -220,8 +225,8 @@ public class PhysicsController2D : ControllerBase {
 		if(HasVelocity("Gravity") && HasVelocity("Jump")) {
 			if (velocities["Gravity"].y == 0 && velocities["Jump"].y <= 0) {
 					raycastShooter.ShootVerticalRays (ref downwards, Color.blue, -1f, true, true, collisionMask, (rayInfo) => {
-					if (rayInfo.hit) {
-						GetCollisionInfo.below = true;
+					if (rayInfo.Hit) {
+						GetCollisionInfo.Below = true;
 						return StatementInfo.Break;
 					}
 					return StatementInfo.Continue;

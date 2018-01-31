@@ -162,6 +162,7 @@ public class RoomCache : Singleton<RoomCache> {
 		instantiatedRooms = new List<Room> ();
 	}
 
+	// Whether editor tools are active or not
 	public void SetRoomsAs(bool active) {
 		for (int i = 0; i < instantiatedRooms.Count; i++) {
 			Room room = instantiatedRooms [i];
@@ -169,6 +170,7 @@ public class RoomCache : Singleton<RoomCache> {
 		}
 	}
 
+	// Whether rooms can be chosen or not in the game
 	public void ActivateAllRooms(bool active) {
 		for (int i = 0; i < instantiatedRooms.Count; i++) {
 			Room room = instantiatedRooms [i];

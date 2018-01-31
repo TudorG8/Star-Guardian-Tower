@@ -2,18 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
+using ObjectInterfaces;
 
-public class MovingPlatform : MonoBehaviour {
+/**
+ * An object that moves between a waypoint system.
+ */
+
+public class MovingObject : RoomObject, IResetable, IStartable {
 	[SerializeField] ControllerBase controller    ;
 	[SerializeField] Transform      waypointParent;
 
 	[SerializeField] bool  loop ;
 	[SerializeField] float speed;
-	[SerializeField] bool  move = true;
+
+	[SerializeField] bool  startMovingOnRoomEnter = true;
 
 	[SerializeField] AnimationCurve easeAmount;
 
 	[SerializeField] List<Transform> waypoints = new List<Transform>();
+	[SerializeField][ReadOnly] bool  hasStarted        ;
 	[SerializeField][ReadOnly] int   waypointIndex     ;
 	[SerializeField][ReadOnly] float percentageTraveled;
 	[SerializeField][ReadOnly] int   direction         ;
@@ -50,11 +57,12 @@ public class MovingPlatform : MonoBehaviour {
 	}
 
 	public void StartMovement () {
-		move = true;
+		hasStarted = true;
+		StartEffects ();
 	}
 
 	void Update () {
-		if(move) {
+		if(hasStarted) {
 			Vector2 velocity = GetVelocity ();
 			if (controller != null) {
 				controller.AddVelocity ("Platform", velocity);
@@ -68,5 +76,17 @@ public class MovingPlatform : MonoBehaviour {
 		waypointIndex = UsefulMethods.mod (waypointIndex + direction, waypoints.Count);
 		direction = direction * -1;
 		percentageTraveled = 1 - percentageTraveled;
+	}
+
+	public void OnReset () {
+		hasStarted = false;
+		ResetEffects ();
+	}
+
+	public void OnStart () {
+		if (startMovingOnRoomEnter) {
+			hasStarted = true;
+			StartEffects ();
+		}
 	}
 }

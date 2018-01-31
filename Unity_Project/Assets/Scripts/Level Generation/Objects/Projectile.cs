@@ -1,17 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ObjectInterfaces;
 
-public class Projectile : MonoBehaviour {
+/**
+ * A projectile is a runtime object created by object spawners.
+ * Ideally, I would introduce a cache for this
+ */
+
+public class Projectile : RoomObject, IResetable {
 	[SerializeField] Animator animator ;
 	[SerializeField] Collider2D coll;
 	[SerializeField] Vector2  direction;
 	[SerializeField] float    speed    ;
+	[SerializeField] OnProjectileDeath onProjectileDeath;
 
-	public void SetUp(Vector2 direction) {
+	public delegate void OnProjectileDeath (Projectile projectile);
+
+	public void SetUp(Vector2 direction, OnProjectileDeath onProjectileDeath) {
 		this.direction = direction;
+		this.onProjectileDeath = onProjectileDeath;
 
-		//transform.rotation = Quaternion.LookRotation (direction, Vector3.up);
 		StartCoroutine (MoveRoutine ());
 	}
 
@@ -19,9 +28,10 @@ public class Projectile : MonoBehaviour {
 		StopAllCoroutines ();
 		coll.enabled = false;
 		animator.SetTrigger ("fade");
+		onProjectileDeath (this);
 	}
 
-	public void Destroy() {
+	public void OnReset () {
 		Destroy (gameObject);
 	}
 

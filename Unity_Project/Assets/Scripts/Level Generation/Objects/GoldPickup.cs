@@ -6,7 +6,8 @@ using ObjectInterfaces;
 /**
  * A Gold Pickup is an object that gives gold when picked up.
  */
-public class GoldPickup : RoomObject, IPickable, IResetable {
+
+public class GoldPickup : RoomObject, IStartable, IPickable, IResetable {
 	[SerializeField] Animator      animator     ;
 	[SerializeField] TriggerScript triggerScript;
 
@@ -19,11 +20,16 @@ public class GoldPickup : RoomObject, IPickable, IResetable {
 		ScoreSystem.Instance.GainGold  (reward);
 		ScoreSystem.Instance.GainScore (reward * scorePerGold);
 	}
+
+	public void OnStart () {
+		StartEffects ();
+	}
 		
-	public void Reset() {
+	public void OnReset () {
 		if (triggerScript.Triggered) {
 			animator.SetTrigger ("reset");
-			triggerScript.Reset ();
+			triggerScript.OnReset ();
 		}
+		ResetEffects ();
 	}
 }

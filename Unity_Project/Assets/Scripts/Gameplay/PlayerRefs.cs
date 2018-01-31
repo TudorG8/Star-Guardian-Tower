@@ -71,6 +71,7 @@ public class PlayerRefs : MonoBehaviour {
 		}
 	}
 
+	// Load the weapon and upgrade the weapons range
 	public void LoadWeapon(ShopItem item) {
 		Vector2 scale = weapon.localScale;
 		int index = item.HasAttribute ("Range");
@@ -99,5 +100,4 @@ public class PlayerRefs : MonoBehaviour {
 		leftEye .spriteMesh = emotion.LeftEye ;
 		mouth   .spriteMesh = emotion.Mouth   ;
 	}
-
 }

@@ -1,10 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Anima2D;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using Anima2D;
+
+/**
+ * Scriptable object to hold data about an item.
+ * It holds the sprites needed to instantiate and the attributes of the items.
+ */
 
 public class ShopItem : ScriptableObject {
 	#if UNITY_EDITOR

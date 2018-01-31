@@ -14,7 +14,6 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	[SerializeField] GameObject   tutorialUI;
 
 	[SerializeField] Text         currentScoreText    ;
-	[SerializeField] Animator     currentScoreAnimator;
 	[SerializeField] ValueChanger scoreChanger        ;
 
 	[SerializeField] Text         currentGoldText     ;
@@ -39,7 +38,7 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 		currentGoldText   .text = "0";
 		goldDifferenceText.text =  "";
 		scoreChanger.Reset ();
-		goldChanger.Reset ();
+		goldChanger .Reset ();
 	}
 		
 	void Update() {
@@ -68,44 +67,28 @@ public class ScoreSystem : Singleton<ScoreSystem> {
 	public void TakeDamage() {
 		hitPointsInstances [(int)SessionData.Instance.Lives.Value].color = damagedHP;
 	}
-
-	/**
-	 * Should be called by events to gain a specific amount of score during a runtime session.
-	 */
+		
 	public void GainScore(int amount) {
 		scoreChanger.GainAmount (SessionData.Instance.CurrentScore, amount);
-		//currentScoreAnimator.SetTrigger ("scoreGained");
 	}
-
-	/**
-	 * Should be called by events to gain a specific amount of gold during a runtime session.
-	 */
+		
 	public void GainGold (int amount) {
 		goldChanger.GainAmount (SessionData.Instance.CurrentGold , amount);
 	}
 
-	public void ShowTutorialUI() {
-		tutorialUI.SetActive (true);
-	}
-
-	public void HideTutorialUI() {
-		tutorialUI.SetActive (false);
-	}
+	public void ShowTutorialUI() { tutorialUI.SetActive (true); }
+	public void HideTutorialUI() { tutorialUI.SetActive (false); }
 
 	public void ShowGameUI() {
 		LoadHP ();
 		parent.gameObject.SetActive (true);
 	}
-
-	public void ShowGameoverUI () {
-		gameOverUI.gameObject.SetActive (true);
-	}
-	public void HideGameoverUI () {
-		gameOverUI.gameObject.SetActive (false);
-	}
 	public void HideGameUI() {
 		parent.gameObject.SetActive (false);
 	}
+
+	public void ShowGameoverUI () { gameOverUI.gameObject.SetActive (true ); }
+	public void HideGameoverUI () { gameOverUI.gameObject.SetActive (false); }
 
 	public void QuitGame() {
 		#if UNITY_EDITOR

@@ -4,7 +4,7 @@ using UnityEngine;
 using CustomPropertyDrawers;
 
 /**
- * Used to slowly change the value of an Serializable Integer.
+ * Used to slowly change the value of a Serializable Integer.
  * The actual value will instantly be set, but the current value 
  * and difference will slowly move to that amount over a given period.
  */

@@ -15,7 +15,7 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 
 	void OnTriggerEnter2D(Collider2D other) {
 		if (UsefulMethods.IsRightLayer(collisionMask, other.gameObject.layer)) {
-			StartCoroutine (WaitForSeconds (0.2f, () => { Destroy(); }));
+			StartCoroutine (WaitForSeconds (0.2f, () => { OnDestroy(); }));
 		}
 	}
 
@@ -24,12 +24,12 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 		action ();
 	}
 
-	public void Reset  () {
+	public void OnReset  () {
 		animator  .SetTrigger ("reset");
 		coll.enabled = true;
 	}
 
-	public void Destroy() {
+	public void OnDestroy() {
 		coll.enabled = false;
 		animator.SetTrigger ("fade");
 	}

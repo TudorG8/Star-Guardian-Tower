@@ -3,6 +3,11 @@ using System.Collections;
 using CustomPropertyDrawers;
 using UnityChan;
 
+/**
+ * The script for the player that handles... everything
+ * This mostly means input and their actions.
+ */
+
 public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	// Imports -------------------------------------------------------------------------------------------------------------
 	[SerializeField] PhysicsController2D physicsController;
@@ -36,65 +41,18 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	[SerializeField][ReadOnly] bool      inputEnabled      ; // Whether the player input is enabled or not
 	[SerializeField][ReadOnly] bool      gravityEnabled    ; // Whether gravity will act upon the player
 	[SerializeField][ReadOnly] bool      wallSlidingEnabled; // Whether wall sliding is enabled
-	[SerializeField][ReadOnly] bool dashingEnabled;
+	[SerializeField][ReadOnly] bool      dashingEnabled    ; // Whether dashing is enabled
 	[SerializeField][ReadOnly] int       direction         ; // The direction the player is facing (may not always be the velocity)
-	//[SerializeField][ReadOnly] Vector2   velocity          ; // Current velocity of the player
-	[SerializeField][ReadOnly] Vector2 gravityVelocity;
-	[SerializeField][ReadOnly] Vector2 jumpVelocity;
-	[SerializeField][ReadOnly] Vector2 movementVelocity;
+	[SerializeField][ReadOnly] Vector2   gravityVelocity   ; // The gravity vector
+	[SerializeField][ReadOnly] Vector2   jumpVelocity      ; // The velocity vector
+	[SerializeField][ReadOnly] Vector2   movementVelocity  ; // The movement vector
 	[SerializeField][ReadOnly] Vector2   input             ; // Current input of the player
 	[SerializeField][ReadOnly] Vector2   simulatedInput    ; // Input to be used when input is disabled
 	[SerializeField][ReadOnly] float     gravity           ; // Calculated based on jumpHeight and timeToJump
 	[SerializeField][ReadOnly] float     maxJumpVelocity   ; // Calculated based on jumpHeight and timeToJump
 	[SerializeField][ReadOnly] float     minJumpVelocity   ; // Calculated based on jumpHeight and timeToJump
-	[SerializeField][ReadOnly] bool previouslyGrounded;
-	[SerializeField]           StateInfo stateInfo;
-
-	public enum State {
-		CanDoAction, DoingAction, CantDoAction, Waiting
-	}
-	[System.Serializable]
-	public class RoutineState {
-		[SerializeField][ReadOnly] State state;
-		[SerializeField] Coroutine routine;
-
-		public State     GetState { get { return state  ; } set { state   = value;} }
-		public Coroutine Routine  { get { return routine; } set { routine = value;} }
-
-		public void Reset(MonoBehaviour parent) {
-			state = State.CanDoAction;
-			if (routine != null) {
-				parent.StopCoroutine (routine);
-			}
-		}
-	}
-
-	[System.Serializable]
-	public class StateInfo {
-		[SerializeField] RoutineState attacking    ;
-		[SerializeField] RoutineState jumping      ;
-		[SerializeField] RoutineState dashing      ;
-		[SerializeField] RoutineState takingDamage ;
-		[SerializeField] RoutineState wallSliding  ;
-		[SerializeField] RoutineState holdingOnEdge;
-
-		public RoutineState Attacking      { get { return attacking    ; } set { attacking     = value;} }
-		public RoutineState Jumping        { get { return jumping      ; } set { jumping       = value;} }
-		public RoutineState Dashing        { get { return dashing      ; } set { dashing       = value;} }
-		public RoutineState TakingDamage   { get { return takingDamage ; } set { takingDamage  = value;} }
-		public RoutineState WallSliding    { get { return wallSliding  ; } set { wallSliding   = value;} }
-		public RoutineState HoldingOnEdge  { get { return holdingOnEdge; } set { holdingOnEdge = value;} }
-
-		public void Reset(MonoBehaviour monobehaviour) {
-			attacking    .Reset (monobehaviour);
-			jumping      .Reset (monobehaviour);
-			dashing      .Reset (monobehaviour);
-			takingDamage .Reset (monobehaviour);
-			wallSliding  .Reset (monobehaviour);
-			holdingOnEdge.Reset (monobehaviour);
-		}
-	}
-
+	[SerializeField][ReadOnly] bool      previouslyGrounded; // Whether the player was grounded last frame
+	[SerializeField]           StateInfo stateInfo         ; // Holds the actions of the player
 
 	// Private Stuff --------------------------------------------------------
 	float     smoothingX     ; // Horizontal smoothing
@@ -163,8 +121,8 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	// Damage --------------------------------------------------------------------------------------------------------------
 	public void OnDamageTaken() {
-		if (stateInfo.TakingDamage.GetState == State.CanDoAction) {
-			stateInfo.TakingDamage.GetState = State.DoingAction;
+		if (stateInfo.TakingDamage.GetState == StateInfo.State.CanDoAction) {
+			stateInfo.TakingDamage.GetState = StateInfo.State.DoingAction;
 			if (DataSaver.Instance.FinishedTutorial) {
 				SessionData.Instance.TakeDamage ();
 				ScoreSystem.Instance.TakeDamage ();
@@ -206,12 +164,12 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 		SetActive (gravity: true, input: true, wallSliding: true);
 		dashingEnabled = true;
 
-		stateInfo.TakingDamage.GetState = State.CanDoAction;
+		stateInfo.TakingDamage.GetState = StateInfo.State.CanDoAction;
 	}
 
 	// Handle Input --------------------------------------------------------------------------------------------------------
 	void HandleMovement () {
-		float smoothingAmount = physicsController.GetCollisionInfo.below ? accelerationGrounded : accelerationAirborne;
+		float smoothingAmount = physicsController.GetCollisionInfo.Below ? accelerationGrounded : accelerationAirborne;
 
 		float targetVelocity = Mathf.SmoothDamp (movementVelocity.x, input.x * runSpeed, ref smoothingX, smoothingAmount);
 
@@ -221,7 +179,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 
 	void HandleGravity() {
-		if (physicsController.GetCollisionInfo.below || physicsController.GetCollisionInfo.above)
+		if (physicsController.GetCollisionInfo.Below || physicsController.GetCollisionInfo.Above)
 			gravityVelocity.y = 0;
 
 		if (gravityEnabled) {
@@ -235,14 +193,14 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	void HandleWallSliding() {
 		CollisionInfo info = physicsController.GetCollisionInfo;
-		int wallDirection = info.left ? -1 : 1;
+		int wallDirection = info.Left ? -1 : 1;
 
-		if (wallSlidingEnabled && stateInfo.Jumping.GetState != State.CantDoAction) {
+		if (wallSlidingEnabled && stateInfo.Jumping.GetState != StateInfo.State.CantDoAction) {
 			// We are wall sliding if there is a collision to the left or right, no collision below and if most of the rays are hitting
-			if ((info.left || info.right) && !info.below && physicsController.RayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
-				if (stateInfo.WallSliding.GetState == State.CanDoAction) {
+			if ((info.Left || info.Right) && !info.Below && physicsController.RayHits >= physicsController.GetRaycastShooter.HorizontalRayCount - 1) {
+				if (stateInfo.WallSliding.GetState == StateInfo.State.CanDoAction) {
 					gravityVelocity = new Vector2 (0, gravityVelocity.y + jumpVelocity.y);
-					stateInfo.WallSliding.GetState = State.DoingAction;
+					stateInfo.WallSliding.GetState = StateInfo.State.DoingAction;
 				}
 				jumpVelocity = new Vector2 ();
 				dashParticles.Stop ();
@@ -250,7 +208,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				if (gravityVelocity.y < -maxWallSlideSpeed) { gravityVelocity.y = -maxWallSlideSpeed;	}
 
 				// We check if the player is trying to move away from a wall
-				if (stateInfo.Jumping.GetState == State.CanDoAction && input.x != 0 && input.x != wallDirection) {
+				if (stateInfo.Jumping.GetState == StateInfo.State.CanDoAction && input.x != 0 && input.x != wallDirection) {
 					// If they are, we start this routine (once)
 					if(stateInfo.Jumping.Routine == null) {
 						stateInfo.Jumping.Routine = StartCoroutine (WaitForCooldown (
@@ -258,13 +216,13 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 							wallStickTime,
 							() => { 
 								// At the end of it, the player cant jump anymore
-								stateInfo.Jumping    .GetState = State.CantDoAction; 
+								stateInfo.Jumping    .GetState = StateInfo.State.CantDoAction; 
 								stateInfo.WallSliding.Routine = StartCoroutine(WaitForCooldown (
-									() => { stateInfo.WallSliding.GetState = State.CantDoAction; },
+									() => { stateInfo.WallSliding.GetState = StateInfo.State.CantDoAction; },
 									0.1f,
 									// We also disable wall sliding for a little 
 									() => { 
-										stateInfo.WallSliding.GetState = State.CanDoAction ; 
+										stateInfo.WallSliding.GetState = StateInfo.State.CanDoAction ; 
 										stateInfo.Jumping.Routine = null;
 									}
 								));
@@ -285,23 +243,23 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			}
 		}
 		else {
-			if (info.left ) direction =  1;
-			if (info.right) direction = -1;
+			if (info.Left ) direction =  1;
+			if (info.Right) direction = -1;
 		}	
 	}
 
 	void HandleJumping() {
 		CollisionInfo info = physicsController.GetCollisionInfo;
-		int wallDirection = info.left ? -1 : 1;
+		int wallDirection = info.Left ? -1 : 1;
 
 		if (Input.GetButtonDown("Jump_P1")) {
 			animator.SetBool ("grounded", false);
 			// Hanging on an edge
-			if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) {
+			if (stateInfo.HoldingOnEdge.GetState == StateInfo.State.DoingAction) {
 				stateInfo.HoldingOnEdge.Routine = StartCoroutine (WaitForCooldown (
-					() => { stateInfo.HoldingOnEdge.GetState = State.CantDoAction; },
+					() => { stateInfo.HoldingOnEdge.GetState = StateInfo.State.CantDoAction; },
 					0.50f,
-					() => { stateInfo.HoldingOnEdge.GetState = State.CanDoAction ; }
+					() => { stateInfo.HoldingOnEdge.GetState = StateInfo.State.CanDoAction ; }
 				));
 
 				if (input.x != 0 && input.x != wallDirection) {
@@ -320,7 +278,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				}
 			}
 			// Wall Sliding
-			else if (stateInfo.WallSliding.GetState == State.DoingAction) {
+			else if (stateInfo.WallSliding.GetState == StateInfo.State.DoingAction) {
 				// We are hopping up the wall
 				if (input.x == wallDirection) {
 					movementVelocity.x = -wallDirection * wallJumpHop.x;
@@ -333,10 +291,10 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 					gravityVelocity.y = 0;
 					jumpVelocity.y = wallJumpLeap.y;
 				}
-				stateInfo.WallSliding.GetState = State.CanDoAction;
+				stateInfo.WallSliding.GetState = StateInfo.State.CanDoAction;
 			}
 			// Normal Jumping
-			else if(stateInfo.Jumping.GetState == State.CanDoAction) {
+			else if(stateInfo.Jumping.GetState == StateInfo.State.CanDoAction) {
 				gravityVelocity.y = 0;
 				jumpVelocity.y = maxJumpVelocity;
 				if (physicsController.HasVelocity ("Platform")) {
@@ -344,7 +302,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 				}
 			}
 
-			stateInfo.Jumping.GetState = State.DoingAction;
+			stateInfo.Jumping.GetState = StateInfo.State.DoingAction;
 			if(stateInfo.Jumping.Routine != null)
 				StopCoroutine (stateInfo.Jumping.Routine);
 		}
@@ -357,13 +315,13 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 
 	void HandleAttacking () {
-		if ( (Input.GetAxisRaw("Attack") == 1 || Input.GetMouseButtonDown(1)) && stateInfo.Attacking.GetState == State.CanDoAction ) {
+		if ( (Input.GetAxisRaw("Attack") == 1 || Input.GetMouseButtonDown(1)) && stateInfo.Attacking.GetState == StateInfo.State.CanDoAction ) {
 			animator.SetTrigger ("attack");
 			attackTrigger.Attack ();
 			stateInfo.Attacking.Routine = StartCoroutine (WaitForCooldown (
-				() => {stateInfo.Attacking.GetState = State.Waiting; },
+				() => {stateInfo.Attacking.GetState = StateInfo.State.Waiting; },
 				attackCooldown,
-				() => {stateInfo.Attacking.GetState = State.CanDoAction ; }
+				() => {stateInfo.Attacking.GetState = StateInfo.State.CanDoAction ; }
 			));
 		}
 	}
@@ -373,19 +331,19 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	void HandleFallingOffPlatforms(bool previouslyGrounded) {
 		float speed = gravityVelocity.y + jumpVelocity.y;
 		// If we are previously grounded but now arent and are falling, it means we are jumping off a platform
-		if (previouslyGrounded && !physicsController.GetCollisionInfo.below && (int)Mathf.Sign (speed) == -1) {
+		if (previouslyGrounded && !physicsController.GetCollisionInfo.Below && (int)Mathf.Sign (speed) == -1) {
 			stateInfo.Jumping.Routine = StartCoroutine (WaitForCooldown (
-				() => { stateInfo.Jumping.GetState = State.CanDoAction ; },
+				() => { stateInfo.Jumping.GetState = StateInfo.State.CanDoAction ; },
 				timeToJumpAfterFalling,
-				() => { stateInfo.Jumping.GetState = State.CantDoAction; }
+				() => { stateInfo.Jumping.GetState = StateInfo.State.CantDoAction; }
 			));
 		}
 	}
 
 	void HandleHittingGround() {
 		CollisionInfo info = physicsController.GetCollisionInfo;
-		if (physicsController.GetCollisionInfo.below) {
-			if (stateInfo.WallSliding.GetState == State.DoingAction) {
+		if (physicsController.GetCollisionInfo.Below) {
+			if (stateInfo.WallSliding.GetState == StateInfo.State.DoingAction) {
 				// Make a grateful landing
 				movementVelocity.x = direction * 0.001f;
 			}
@@ -400,7 +358,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			jumpVelocity    = new Vector2 ();
 			gravityVelocity = new Vector2 ();
 		}
-		if (physicsController.GetCollisionInfo.above) {
+		if (physicsController.GetCollisionInfo.Above) {
 			jumpVelocity    = new Vector2 ();
 			gravityVelocity = new Vector2 ();
 		}
@@ -408,23 +366,23 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	void HandleAnimation() {
 		float speed = gravityVelocity.y + jumpVelocity.y;
-		if      (stateInfo.WallSliding  .GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
-		else if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { animator.SetBool ("sliding", true );} 
+		if      (stateInfo.WallSliding  .GetState == StateInfo.State.DoingAction) { animator.SetBool ("sliding", true );} 
+		else if (stateInfo.HoldingOnEdge.GetState == StateInfo.State.DoingAction) { animator.SetBool ("sliding", true );} 
 		else   /*not wall sliding */                                    { animator.SetBool ("sliding", false);}
 		animator.SetFloat("horrizontalSpeed", Mathf.Abs(movementVelocity.x / runSpeed));
 		if    (speed <  0)  { animator.SetFloat ("verticalSpeed", speed / maxFallSpeed   ); } 
 		else /*speed >= 0*/ { animator.SetFloat ("verticalSpeed", speed / maxJumpVelocity); }
-		if (!physicsController.GetCollisionInfo.below ) { animator.SetBool ("grounded", false); }
+		if (!physicsController.GetCollisionInfo.Below ) { animator.SetBool ("grounded", false); }
 	}
 		
 	void HandleDashing () {
 		if (dashingEnabled) {
 			CollisionInfo info = physicsController.GetCollisionInfo;
-			if (stateInfo.Dashing.GetState == State.CanDoAction && (Input.GetKeyDown (KeyCode.LeftShift) || Input.GetAxisRaw("Dash") == 1)) {
+			if (stateInfo.Dashing.GetState == StateInfo.State.CanDoAction && (Input.GetKeyDown (KeyCode.LeftShift) || Input.GetAxisRaw("Dash") == 1)) {
 				SetActive (gravity: false, input: false, wallSliding: false);
 				dashingEnabled = false;
 				stateInfo.WallSliding.Reset (this);
-				stateInfo.Dashing.GetState = State.DoingAction;
+				stateInfo.Dashing.GetState = StateInfo.State.DoingAction;
 
 				gravityVelocity = new Vector2 ();
 				jumpVelocity = new Vector2 ();
@@ -441,20 +399,21 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 		SetActive (gravity: true, input: true, wallSliding: true);
 		dashingEnabled = true;
 		stateInfo.Dashing.Routine = StartCoroutine(WaitForCooldown( 
-			() => { stateInfo.Dashing.GetState = State.Waiting; },
+			() => { stateInfo.Dashing.GetState = StateInfo.State.Waiting; },
 			dashingCooldown,
 			() => { 
-				if(stateInfo.Jumping.GetState != State.DoingAction) {
-					stateInfo.Dashing.GetState = State.CanDoAction ; 
+				if(stateInfo.Jumping.GetState != StateInfo.State.DoingAction) {
+					stateInfo.Dashing.GetState = StateInfo.State.CanDoAction ; 
 				}
 				stateInfo.Dashing.Routine = null;
 			}
 		));
 	}
 
+	// Instantly stop a dash
 	void StopDash() {
 		gravityVelocity = new Vector2 ();
-		jumpVelocity = new Vector2 ();
+		jumpVelocity    = new Vector2 ();
 		stateInfo.Dashing.Reset (this);
 		if (simulateRoutine != null) {
 			StopCoroutine (simulateRoutine);
@@ -463,7 +422,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 		
 	void HandleHangingOnEdge() {
-		if (stateInfo.HoldingOnEdge.GetState == State.DoingAction) { 
+		if (stateInfo.HoldingOnEdge.GetState == StateInfo.State.DoingAction) { 
 			stateInfo.WallSliding.Reset (this);
 			gravityVelocity.y = 0; 
 		}
@@ -479,14 +438,12 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 			SetActive (true, false, true);
 			dashingEnabled = false;
 			simulateRoutine = StartCoroutine (SimulateMovement (0.3f, dir, () => {
-				room.CloseEntryGate ();
 				SetActive (true, true, true);
 				dashingEnabled = true;
 			}, true, 8f));
 		} 
 		else {
 			simulateRoutine = StartCoroutine (SimulateMovement (0.35f, dir, () => {
-				room.CloseEntryGate ();
 				inputEnabled = true; 
 			}));
 		}
@@ -533,7 +490,7 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 	}
 
 	public void AfterMove() {
-		previouslyGrounded = physicsController.GetCollisionInfo.below;
+		previouslyGrounded = physicsController.GetCollisionInfo.Below;
 
 		//transform.localRotation = Quaternion.Euler (new Vector3 ());
 		//physicsController.Move (physicsController.GetVelocity() * Time.deltaTime, input, stateInfo);

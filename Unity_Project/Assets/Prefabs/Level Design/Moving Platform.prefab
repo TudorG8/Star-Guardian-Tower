@@ -146,7 +146,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1916835434889414}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 35.95, y: 4.57, z: 0}
+  m_LocalPosition: {x: 15.47, y: 4.57, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4038599815159120}
@@ -184,8 +184,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1326764101333224}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.37, y: 1.98, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 8.370003, y: 0.81, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4038599815159120}
@@ -200,7 +200,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1942096686472468}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.46, z: 0}
+  m_LocalPosition: {x: -1.23, y: 4.46, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4038599815159120}
@@ -213,7 +213,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1974904079496544}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.45, z: 0}
+  m_LocalPosition: {x: -1.14, y: 4.45, z: 0}
   m_LocalScale: {x: 2, y: 0.5, z: 1}
   m_Children:
   - {fileID: 4226499472249668}
@@ -295,39 +295,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 1974904079496544}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90edeec8821ddd64d8ce3629c0b29ca9, type: 3}
+  m_Script: {fileID: 11500000, guid: c8f7ca9b305ab465b8aa0e858ef06601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   controller: {fileID: 114004224755884106}
   waypointParent: {fileID: 4038599815159120}
   loop: 1
   speed: 3
-  move: 0
+  startMovingOnRoomEnter: 1
   easeAmount:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 2
       time: 0
       value: 0
-      inSlope: 0.05660377
-      outSlope: 0.05660377
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 0.5
-      value: 0.5
-      inSlope: 3.2857141
-      outSlope: 3.2857141
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
     - serializedVersion: 2
       time: 1
       value: 1
-      inSlope: 0.030612657
-      outSlope: 0.030612657
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
   waypoints: []
+  hasStarted: 0
   waypointIndex: 0
   percentageTraveled: 0
   direction: 0
@@ -378,6 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1024

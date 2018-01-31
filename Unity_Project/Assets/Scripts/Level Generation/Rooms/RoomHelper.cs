@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
-
+using ObjectInterfaces;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,23 +17,9 @@ using UnityEditor;
  */
 [ExecuteInEditMode]
 public class RoomHelper : MonoBehaviour {
-	[SerializeField] Room roomScript;
-	[SerializeField] bool editable  ; // Update scripts won't run if this is set to false
-	public void SetActive(bool active) {
-		List<RoomSegment> validRooms = roomScript.Rooms.GetValidElements ();
-		for (int i = 0; i < validRooms.Count; i++) {
-			RoomSegment segment = validRooms [i];
-			segment.SetHelperScriptActiveAs (active);
-		}
-		roomScript.Entry.Sprite.gameObject.SetActive (active);
-		roomScript.Exit .Sprite.gameObject.SetActive (active);
-		editable = active;
-	}
 	#if UNITY_EDITOR
 	// Extra Classes ---------------------------------------------------------------------------------------------
-	/**
-	 * We use this to hold information about the previous point, platforms and size.
-	 */
+	// We use this to hold information about the previous point, platforms and size.
 	[System.Serializable]
 	public class PointExtraInfo {
 		[SerializeField] Transform  point            ;
@@ -50,18 +36,19 @@ public class RoomHelper : MonoBehaviour {
 	}
 	// Variables -------------------------------------------------------------------------------------------------
 	// Imports
-
+	[SerializeField] Room roomScript;
+	[SerializeField] bool editable  ; // Update scripts won't run if this is set to false
 
 	// Information Fields
 	[SerializeField] PointExtraInfo entryPoint;
 	[SerializeField] PointExtraInfo exitPoint ;
 
 	// Settings
-
 	[SerializeField] bool disconnectPrefabInstance; // Only leave this on if you are editing the base prefab
 
+	// Properties ------------------------------------------------------------------------------------------------
 	public bool Editable { get { return editable; } }
-	public bool InUse { get { return roomScript.InUse; } set { roomScript.InUse = value; } }
+	public bool InUse    { get { return roomScript.InUse; } set { roomScript.InUse = value; } }
 
 	// Methods ---------------------------------------------------------------------------------------------------
 	// Print the rooms
@@ -75,8 +62,19 @@ public class RoomHelper : MonoBehaviour {
 		AddRoomSegment (new Vector2(0, 0), Direction.None, newRoomSegment);
 	}
 
+	// Set all the helper scripts from the segments as inactive and turns off the entry/exit points
+	public void SetActive(bool active) {
+		List<RoomSegment> validRooms = roomScript.Rooms.GetValidElements ();
+		for (int i = 0; i < validRooms.Count; i++) {
+			RoomSegment segment = validRooms [i];
+			segment.SetHelperScriptActiveAs (active);
+		}
+		roomScript.Entry.Sprite.gameObject.SetActive (active);
+		roomScript.Exit .Sprite.gameObject.SetActive (active);
+		editable = active;
+	}
 
-
+	// So that changes dont override the prefab, the horror
 	void Start() {
 		if(disconnectPrefabInstance)
 			PrefabUtility.DisconnectPrefabInstance(gameObject);
@@ -296,7 +294,7 @@ public class RoomHelper : MonoBehaviour {
 	 * Update the previous point info for the next update cycle.
 	 */
 	void HandlePlatformSize(PointRefs newPoint, PointExtraInfo previousInfo, PointDTO roomPoint) {
-		RoomSegmentHelper.PlatformRefs platformRefs = newPoint.roomEditor.platformRefs;
+		PlatformRefs platformRefs = newPoint.roomEditor.platformRefs;
 
 		string mainString      = newPoint.name.Substring (0, newPoint.name.Length - 2);
 		string secondaryString = newPoint.name.Substring (newPoint.name.Length - 1);
@@ -346,22 +344,28 @@ public class RoomHelper : MonoBehaviour {
 		}
 		// Check if a room was added in the editor
 		foreach (Transform child in parent) {
-			RoomObject obj = child.GetComponent<RoomObject> ();
-			if (obj != null && !objects.Contains (obj)) {
-				objects.Add (obj);
+			RoomObject[] obj = child.GetComponentsInChildren<RoomObject> ();
+			for (int i = 0; i < obj.Length; i++) {
+				if (obj[i] != null && !objects.Contains (obj[i])) {
+					objects.Add (obj[i]);
+				}
 			}
 		}
 	}
 
+	/**
+	 * Every update cycle, we check if everything is alright.
+	 * We also calculate the closest point to the entry and exit arrows, so that
+	 * if the player moves them in the editor, they wills snap to the available points.
+	 * Also keep a list of all the room objects and update it if new objects are added.
+	 */
 	void Update () {
 		if (editable) {
 			SegmentArray rooms = roomScript.Rooms;
 
 			CheckIfRoomHasAValidID ();
 
-			if (rooms.IsNull ()) {
-				Reset ();
-			}
+			if (rooms.IsNull ()) { Reset (); }
 
 			roomScript.Size = new Vector2 (rooms.Cols, rooms.Rows);
 
@@ -425,6 +429,6 @@ public class RoomHelper : MonoBehaviour {
 			HandleObjectsChange (roomScript.Platforms, roomScript.PlatformsParent);
 		}
 	}
-	// -----------------------------------------------------------------------------------------------------------
 	#endif
 }
+// ---------------------------------------------------------------------------------------------------------------

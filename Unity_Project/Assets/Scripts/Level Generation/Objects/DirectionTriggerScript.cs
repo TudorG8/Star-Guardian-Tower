@@ -2,8 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using ObjectInterfaces;
 
-public class DirectionTriggerScript : MonoBehaviour {
+/**
+ * Used to trigger an event depending on what direction the player entered from.
+ */
+
+public class DirectionTriggerScript : RoomObject, IResetable {
 	[SerializeField] LayerMask collisionMask;
 	[SerializeField] bool  retriggable;
 	[SerializeField] bool  triggered  ;
@@ -15,7 +20,7 @@ public class DirectionTriggerScript : MonoBehaviour {
 	public bool Triggered { get { return triggered; } set { triggered = value; } }
 
 	void OnTriggerEnter2D(Collider2D other) {
-		if (CorrectTarget (other)) {
+		if (UsefulMethods.IsRightLayer (collisionMask, other.gameObject.layer)) {
 			float difference = this.transform.position.x - other.transform.position.x;
 			currentDirection = difference > 0 ? Direction.Left : Direction.Right;
 
@@ -26,7 +31,7 @@ public class DirectionTriggerScript : MonoBehaviour {
 	}
 
 	void OnTriggerExit2D(Collider2D other) {
-		if(CorrectTarget(other)) {
+		if(UsefulMethods.IsRightLayer (collisionMask, other.gameObject.layer)) {
 			float difference = this.transform.position.x - other.transform.position.x;
 			Direction newDirection = difference > 0 ? Direction.Left : Direction.Right;
 
@@ -49,12 +54,13 @@ public class DirectionTriggerScript : MonoBehaviour {
 		}
 	}
 
-	bool CorrectTarget(Collider2D other) {
-		return collisionMask == (collisionMask | (1 << other.gameObject.layer));
-	}
-
 	IEnumerator Wait(float delay) {
 		yield return new WaitForSeconds (delay);
+		triggered = false;
+	}
+
+	public void OnReset() {
+		StopAllCoroutines ();
 		triggered = false;
 	}
 }

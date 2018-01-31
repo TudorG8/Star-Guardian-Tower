@@ -69,6 +69,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaaf6cc9208f146099fa73e8109b4045, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects:
+  - {fileID: 114388259283756776}
 --- !u!114 &114388259283756776
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -82,8 +84,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obj: {fileID: 4591310518926124}
   timeToSpinOnce: 1
-  degrees: -360
+  degrees: {x: 0, y: 0, z: 0}
   direction: 0
+  active: 0
 --- !u!212 &212875164908832598
 SpriteRenderer:
   m_ObjectHideFlags: 1

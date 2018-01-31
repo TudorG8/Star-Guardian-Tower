@@ -4,6 +4,7 @@ using UnityEngine;
 
 /**
  * This class holds everything that will actually be saved between play sessions.
+ * It is what will actually be saved whenever the player quits, eventually...
  */
 
 public class DataSaver : Singleton<DataSaver> {
@@ -21,6 +22,9 @@ public class DataSaver : Singleton<DataSaver> {
 
 	void Awake() { InitiateSingleton (); }
 
+	/**
+	 * Insert code to save the data locally
+	 */
 	public void Save () {
 	}
 }

@@ -117,7 +117,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1238237347098116}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.42, y: 6.15, z: 0}
+  m_LocalPosition: {x: 16, y: 6.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4295174267727250}
@@ -132,7 +132,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1973018792441566}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -4.43, z: 0}
+  m_LocalPosition: {x: 0, y: -4.62, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4295174267727250}
@@ -173,7 +173,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1659610422725474}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.09, y: 6.67, z: 0}
+  m_LocalPosition: {x: 5.95, y: 2.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4541386609023046}
@@ -187,7 +187,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1672833839223066}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.28, z: 0}
+  m_LocalPosition: {x: 6.05, y: 2.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4295174267727250}
@@ -241,14 +241,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1659610422725474}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90edeec8821ddd64d8ce3629c0b29ca9, type: 3}
+  m_Script: {fileID: 11500000, guid: c8f7ca9b305ab465b8aa0e858ef06601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects:
+  - {fileID: 114458943466774350}
   controller: {fileID: 0}
   waypointParent: {fileID: 4295174267727250}
   loop: 1
-  speed: 6
-  move: 1
+  speed: 3
+  startMovingOnRoomEnter: 1
   easeAmount:
     serializedVersion: 2
     m_Curve:
@@ -274,6 +276,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 0
   waypoints: []
+  hasStarted: 0
   waypointIndex: 0
   percentageTraveled: 0
   direction: 0
@@ -357,8 +360,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obj: {fileID: 4541386609023046}
   timeToSpinOnce: 0
-  degrees: 500
+  degrees: {x: 0, y: 0, z: 720}
   direction: 0
+  active: 0
 --- !u!114 &114470263328716174
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -370,6 +374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaaf6cc9208f146099fa73e8109b4045, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
 --- !u!212 &212938694646220668
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -401,8 +406,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1296195473
-  m_SortingLayer: 6
+  m_SortingLayerID: -153718449
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: d8756c08d298ed24b8be578df00b2b8c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

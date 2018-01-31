@@ -16,10 +16,9 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	[SerializeField] Transform    startingPlayerLocation;
 	[SerializeField] Room         tutorialRoom          ;
 	[SerializeField] Transform    tutorialPlayerLocation;
-	[SerializeField] Transform    tower                 ;
 	  
 	// Settings
-	[SerializeField] int  maxColumns        ; // Nax columns the tower will have
+	[SerializeField] int  maxColumns        ; // Max columns the tower will have
 	[SerializeField] bool returnRoomsToCache; // Should rooms be returned to the cache after they have been used?
 
 	// Readonly
@@ -136,6 +135,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		cameraScript.SetNewRoom (room);
 	}
 
+	// Whenever the player finishes a room, he gets a reward.
 	public void WhenPlayerFinishesARoom(Room room) {
 		ScoreSystem.Instance.GainScore (1000);
 	}

@@ -16,16 +16,18 @@ public class Shop : Singleton <Shop> {
 	[SerializeField] Text         goldDifferenceText;
 	[SerializeField] Text         scoreText         ;
 
+	public List<ShopItem> Weapons    { get { return weapons; } }
+	public List<ShopItem> Armours    { get { return armours; } }
+	public ShopItemRefs   WeaponRefs { get { return weaponRefs; } }
+	public ShopItemRefs   ArmourRefs { get { return armourRefs; } }
+
 	public void SaveStats() {
 		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}
 
-	void Awake() {
-		InitiateSingleton ();
-	}
+	void Awake() { InitiateSingleton ();}
 
 	void Start() {
-		LoadInitialData ();
 		valueChanger.SetUp (DataSaver.Instance.TotalGold);
 	}
 
@@ -37,49 +39,8 @@ public class Shop : Singleton <Shop> {
 		else/*valueChanger.Difference == 0*/ { goldDifferenceText.text = ""; }
 	}
 
-	public ShopItem GetWeapon() { return weapons [DataSaver.Instance.CurrentWeapon.Value]; }
-	public ShopItem GetArmour() { return armours [DataSaver.Instance.CurrentArmour.Value]; }
-
-	// Loading
-	/**
-	 * To be used to load the current weapon and armour into the shop and player.
-	 */
-	void LoadInitialData() {
-		LoadItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
-		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
-
-		LoadItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
-		PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
-		int index = GetArmour ().HasAttribute ("Hit Points");
-		if (index == -1) {
-			Debug.LogError ("Armour does not have hit points");
-			return;
-		}
-		SessionData.Instance.Lives.Max = (int) GetArmour ().GetAttribute (index).Value;
-		PlayerController.Instance.GetPlayerRefs.LoadWeapon (GetWeapon ());
-	}
-
-	/**
-	 * Loads an item onto the shop.
-	 * @param index    : index of the item
-	 * @param itemList : list item belongs in
-	 * @param itemRefs : references to the UI elements
-	 */
-	void LoadItem(SerializableInt index, List<ShopItem> itemList, ShopItemRefs itemRefs) {
-		int currentIndex = index.Value < itemList.Count - 1? index.Value + 1 : itemList.Count - 1;
-		bool final = (index.Value == itemList.Count - 1);
-
-		if (!final) {
-			ShopItem currentItem = itemList [currentIndex - 1];
-			ShopItem nextItem    = itemList [currentIndex];
-			itemRefs.UpdateRefs (currentItem, nextItem);
-		} 
-		else {
-			ShopItem currentItem = itemList [currentIndex];
-			itemRefs.UpdateRefs (currentItem);
-			itemRefs.DisableBuying ();
-		}
-	}
+	public ShopItem GetCurrentWeapon() { return weapons [DataSaver.Instance.CurrentWeapon.Value]; }
+	public ShopItem GetCurrentArmour() { return armours [DataSaver.Instance.CurrentArmour.Value]; }
 		
 	// Purchasing
 	/**
@@ -88,10 +49,7 @@ public class Shop : Singleton <Shop> {
 	public void BuyWeapon() {
 		bool purchased = BuyItem (DataSaver.Instance.CurrentWeapon, weapons, weaponRefs);
 		if (purchased) {
-			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetWeapon ().GetSprites ());
-			PlayerController.Instance.GetAnimator.SetTrigger ("pickWeapon");
-
-			PlayerController.Instance.GetPlayerRefs.LoadWeapon (GetWeapon ());
+			PlayerLoader.Instance.LoadCurrentWeapon ();
 		}
 	}
 
@@ -101,14 +59,7 @@ public class Shop : Singleton <Shop> {
 	public void BuyArmour () {
 		bool purchased = BuyItem (DataSaver.Instance.CurrentArmour, armours, armourRefs);
 		if (purchased) {
-			PlayerController.Instance.GetPlayerRefs.UpdateRefs (GetArmour ().GetSprites ());
-			PlayerController.Instance.GetAnimator.SetTrigger ("pickArmour");
-			int index = GetArmour ().HasAttribute ("Hit Points");
-			if (index == -1) {
-				Debug.LogError ("Armour does not have hit points");
-				return;
-			}
-			SessionData.Instance.Lives.Max = (int) GetArmour ().GetAttribute (index).Value;
+			PlayerLoader.Instance.LoadCurrentArmour ();
 		}
 	}
 

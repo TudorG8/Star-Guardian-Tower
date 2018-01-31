@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using CustomPropertyDrawers;
 
+/**
+ * Quick access information about a collision box.
+ */
+
 [System.Serializable]
 public class ColliderCorners {
 	BoxCollider2D boxCollider; // Collider used to determine from where to shoot the rays
@@ -17,7 +21,7 @@ public class ColliderCorners {
 
 	private ColliderCorners() {}
 
-	public void setBoxCollider(BoxCollider2D boxCollider) {
+	public void SetBoxCollider(BoxCollider2D boxCollider) {
 		this.boxCollider = boxCollider;
 		UpdateCorners ();
 	}

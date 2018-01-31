@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/**
+ * For loading quotes
+ */
+
 public class ShopKeeper : Singleton<ShopKeeper> {
 	[SerializeField] Text text;
 	[SerializeField] string welcomeQuote;

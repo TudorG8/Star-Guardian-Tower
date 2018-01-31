@@ -7,7 +7,6 @@ using UnityEngine.UI;
  * Quick class to hold references to an upgrade in the shop.
  * Hold references to the current level of an upgrade and the next level of it.
  * Also has a reference to the cost, arrow and button.
- * 
  */
 public class ShopItemRefs : MonoBehaviour {
 	/**

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using CustomPropertyDrawers;
+using ObjectInterfaces;
+
+/**
+ * Used to trigger an event when a trigger collision happens on the object it was added to.
+ */
 
 public class TriggerScript : RoomObject, IResetable {
 	[SerializeField] LayerMask collisionMask;
@@ -51,7 +56,7 @@ public class TriggerScript : RoomObject, IResetable {
 		action ();
 	}
 
-	public void Reset() {
+	public void OnReset() {
 		StopAllCoroutines ();
 		triggered = false;
 	}

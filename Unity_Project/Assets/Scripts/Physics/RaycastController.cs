@@ -42,7 +42,7 @@ public class RaycastController : MonoBehaviour {
 	}
 
 	void Awake () {
-		boxCorners.setBoxCollider (boxCollider);
+		boxCorners.SetBoxCollider (boxCollider);
 		CalculateSpacing ();
 	}
 	void SpawnPhantom() {
@@ -71,35 +71,33 @@ public class RaycastController : MonoBehaviour {
 				// We check the bottommost ray to see if we are climbing a slope
 				if (i == 0 && slopeAngle < maxSlopeAngle) {
 					float distanceToSlopeStart = 0;
-					if (slopeAngle != collisionInfo.slopeAngleOld) {
+					if (slopeAngle != collisionInfo.SlopeAngleOld) {
 						distanceToSlopeStart = hit.distance-boxCorners.Inset;
 						velocity.x -= distanceToSlopeStart * direction;
 					}
 
-					collisionInfo.slopeAngle = slopeAngle;
+					collisionInfo.SlopeAngle = slopeAngle;
 					// Going from an descending slope to an ascending slope
-					if (collisionInfo.descendingSlope) {
-						collisionInfo.descendingSlope = false;
+					if (collisionInfo.DescendingSlope) {
+						collisionInfo.DescendingSlope = false;
 						velocity = previousVelocity;
 					}
 
 					ClimbSlope (ref velocity, slopeAngle);
 					velocity.x += distanceToSlopeStart * direction;
-					Debug.Log ("no");
 					continue;
 				} 
-				if (!collisionInfo.ascendingSlope || slopeAngle > maxSlopeAngle) {
-					Debug.Log ("yes");
+				if (!collisionInfo.AscendingSlope || slopeAngle > maxSlopeAngle) {
 					velocity.x = direction * (hit.distance - boxCorners.Inset);
 					rayLength  = hit.distance;
 
-					if (collisionInfo.ascendingSlope) {
-						float targetYVelocity = Mathf.Tan (collisionInfo.slopeAngle  * Mathf.Deg2Rad) * Mathf.Abs (velocity.x);
+					if (collisionInfo.AscendingSlope) {
+						float targetYVelocity = Mathf.Tan (collisionInfo.SlopeAngle  * Mathf.Deg2Rad) * Mathf.Abs (velocity.x);
 						velocity.y = targetYVelocity;
 					}
 
-					collisionInfo.left  = direction == -1;
-					collisionInfo.right = direction ==  1;
+					collisionInfo.Left  = direction == -1;
+					collisionInfo.Right = direction ==  1;
 				}
 			}
 
@@ -121,18 +119,18 @@ public class RaycastController : MonoBehaviour {
 				velocity.y = direction * (hit.distance - boxCorners.Inset);
 				rayLength  = hit.distance;
 
-				if (collisionInfo.ascendingSlope) {
-					velocity.x = velocity.y / Mathf.Tan (collisionInfo.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign (velocity.x);
+				if (collisionInfo.AscendingSlope) {
+					velocity.x = velocity.y / Mathf.Tan (collisionInfo.SlopeAngle * Mathf.Deg2Rad) * Mathf.Sign (velocity.x);
 				}
 
-				collisionInfo.below = direction == -1;
-				collisionInfo.above = direction ==  1;
+				collisionInfo.Below = direction == -1;
+				collisionInfo.Above = direction ==  1;
 			}
 
 			Debug.DrawRay (raycastOrigin, Vector2.up * direction * (rayLength), Color.red);
 		}
 
-		if (collisionInfo.ascendingSlope) {
+		if (collisionInfo.AscendingSlope) {
 			direction = Mathf.Sign(velocity.x);
 			rayLength = Mathf.Abs (velocity.x) + boxCorners.Inset;
 			Vector2 rayOrigin = direction == -1 ? boxCorners.BottomLeft : boxCorners.BottomRight;
@@ -141,9 +139,9 @@ public class RaycastController : MonoBehaviour {
 			RaycastHit2D hit = Physics2D.Raycast (rayOrigin, Vector2.right * direction, rayLength, collisionMask);
 			if (hit) {
 				float slopeAngle = Vector2.Angle (hit.normal, Vector2.up);
-				if (slopeAngle != collisionInfo.slopeAngle) {
+				if (slopeAngle != collisionInfo.SlopeAngle) {
 					velocity.x = (hit.distance - boxCorners.Inset) * direction;
-					collisionInfo.slopeAngle = slopeAngle;
+					collisionInfo.SlopeAngle = slopeAngle;
 				}
 			}
 		}
@@ -159,8 +157,8 @@ public class RaycastController : MonoBehaviour {
 		if (velocity.y <= targetYVelocity) {
 			velocity.y = targetYVelocity;
 			velocity.x = Mathf.Cos (slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign (velocity.x);
-			collisionInfo.below = true;
-			collisionInfo.ascendingSlope = true;
+			collisionInfo.Below = true;
+			collisionInfo.AscendingSlope = true;
 		}
 	}
 
@@ -181,7 +179,7 @@ public class RaycastController : MonoBehaviour {
 				float targetYVelocity = Mathf.Sin (slopeAngle * Mathf.Deg2Rad) * moveDistance;
 				velocity.x = Mathf.Cos (slopeAngle * Mathf.Deg2Rad) * moveDistance * Mathf.Sign (velocity.x);
 				velocity.y -= targetYVelocity;
-				collisionInfo.descendingSlope = true;
+				collisionInfo.DescendingSlope = true;
 			}
 		}
 	}

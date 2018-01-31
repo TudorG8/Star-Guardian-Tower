@@ -32,7 +32,7 @@ public class RaycastShooter : MonoBehaviour {
 	public delegate StatementInfo RayFunction(RayInfo rayInfo);
 
 	void Start() {
-		colliderCorners.setBoxCollider (boxCollider);
+		colliderCorners.SetBoxCollider (boxCollider);
 		targetsHit = new HashSet<Transform> ();
 		Reset ();
 	}

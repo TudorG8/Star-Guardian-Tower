@@ -11,7 +11,6 @@ public class SessionData : Singleton<SessionData> {
 	[SerializeField] SerializableInt currentGold ;
 	[SerializeField] SerializableInt currentScore;
 
-
 	public bool            GameStarted  { get { return gameStarted ; } set { gameStarted  = value; } }
 	public Stat            Lives        { get { return lives       ; } set { lives        = value; } }
 	public SerializableInt CurrentGold  { get { return currentGold ; } set { currentGold  = value; } }

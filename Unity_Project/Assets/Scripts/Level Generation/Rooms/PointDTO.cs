@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ * Holds information about an arrow (entry and exit).
+ * This is the actual stuff used ingame, rather than with an editor.
+ */
+
 [System.Serializable]
 public class PointDTO {
 	[SerializeField] Direction      main         ;
