@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 212938694646220668}
   - component: {fileID: 114458943466774350}
   - component: {fileID: 58264264188017356}
+  - component: {fileID: 114248820750086958}
   m_Layer: 12
   m_Name: Sprite
   m_TagString: Untagged
@@ -116,7 +117,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1238237347098116}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.24, y: 6.15, z: 0}
+  m_LocalPosition: {x: 19.42, y: 6.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4295174267727250}
@@ -172,7 +173,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1659610422725474}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.09, y: 4.47, z: 0}
+  m_LocalPosition: {x: 0.09, y: 6.67, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4541386609023046}
@@ -186,7 +187,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1672833839223066}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 4.46, z: 0}
+  m_LocalPosition: {x: 0, y: 7.28, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4295174267727250}
@@ -243,10 +244,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90edeec8821ddd64d8ce3629c0b29ca9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platformController: {fileID: 114065387973210754}
+  controller: {fileID: 0}
   waypointParent: {fileID: 4295174267727250}
   loop: 1
   speed: 6
+  move: 1
   easeAmount:
     serializedVersion: 2
     m_Curve:
@@ -271,6 +273,9 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+  waypoints: []
+  waypointIndex: 0
+  percentageTraveled: 0
   direction: 0
 --- !u!114 &114065387973210754
 MonoBehaviour:
@@ -321,10 +326,24 @@ MonoBehaviour:
     right: 0
     ascendingSlope: 0
     descendingSlope: 0
-    slidingDownSlope: 0
     hangingOnEdge: 0
     slopeAngle: 0
     slopeAngleOld: 0
+--- !u!114 &114248820750086958
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1104924640920576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0184ff86886f974d95dfead14754f36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MultiplicativeColor: {r: 0, g: 0, b: 0, a: 0}
+  AdditiveColor: {r: 0, g: 0, b: 0, a: 0}
+  Material: {fileID: 2100000, guid: 0a8c132f813f5514b9f5b48ff3956482, type: 2}
+  LightObstacleScale: 1
 --- !u!114 &114458943466774350
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -365,7 +384,7 @@ SpriteRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: a0e085cdf6b584e2fad0adcb264506a0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -383,7 +402,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1296195473
-  m_SortingLayer: 7
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: d8756c08d298ed24b8be578df00b2b8c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

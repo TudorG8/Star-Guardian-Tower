@@ -131,8 +131,6 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 			previousRoom = currentRoom;
 			currentRoom = nextRoom;
 			nextRoom = GenerateRandomRoom (currentRoom);
-
-			tower.localScale = UsefulMethods.vectorProduct (RoomCache.Instance.RoomSize, new Vector2 (maxColumns, currentHeight));
 		}
 
 		cameraScript.SetNewRoom (room);
