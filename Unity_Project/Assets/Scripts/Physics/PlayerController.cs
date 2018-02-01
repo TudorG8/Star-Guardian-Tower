@@ -145,7 +145,6 @@ public class PlayerController : Singleton<PlayerController>, InputableEntity {
 
 	IEnumerator GameOverRoutine() {
 		yield return new WaitForSeconds (0.5f);
-		this.transform.position = new Vector2 (-200f, -200f);
 	}
 
 	IEnumerator DamageTakenRoutine() {

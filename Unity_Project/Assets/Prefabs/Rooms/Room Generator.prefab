@@ -1403,6 +1403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -1449,16 +1450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1203a95fee74be490ab919bae2d706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointRefs:
-    points:
-    - {fileID: 114276639828229114}
-    - {fileID: 114486838900865914}
-    - {fileID: 114535969614500790}
-    - {fileID: 114338464389590288}
-    - {fileID: 114627835891340598}
-    - {fileID: 114768606186786028}
-    - {fileID: 114165062749940012}
-    - {fileID: 114787613480241728}
   roomGenerator: {fileID: 114158235947494922}
   roomSegment: {fileID: 114329937332615706}
   platformRefs:
@@ -1471,6 +1462,16 @@ MonoBehaviour:
     - {fileID: 1489828000653132}
     - {fileID: 1650203515257370}
     - {fileID: 1007385618763668}
+  pointRefs:
+    points:
+    - {fileID: 114276639828229114}
+    - {fileID: 114486838900865914}
+    - {fileID: 114535969614500790}
+    - {fileID: 114338464389590288}
+    - {fileID: 114627835891340598}
+    - {fileID: 114768606186786028}
+    - {fileID: 114165062749940012}
+    - {fileID: 114787613480241728}
 --- !u!114 &114158235947494922
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1532,6 +1533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -1567,6 +1569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dd2ecf36fc954db29a9d36bb92bdff1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
 --- !u!114 &114329937332615706
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1714,6 +1717,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1024

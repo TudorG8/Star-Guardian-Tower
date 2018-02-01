@@ -23,6 +23,5 @@ namespace ObjectInterfaces {
 	// Denotes an object that will start its actions only when the player enters the room (or a trigger happens)
 	public interface IStartable {
 		void OnStart();
-		void OnStop ();
 	}
 }

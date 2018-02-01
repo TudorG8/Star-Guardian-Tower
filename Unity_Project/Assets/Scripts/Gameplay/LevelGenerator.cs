@@ -105,12 +105,15 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		ScoreSystem.Instance.HideGameUI     ();
 		ShopKeeper.Instance.LoadDeathQuote ();
 		if (previousRoom != null && previousRoom != startingRoom) {
+			//previousRoom.FinishRoom ();
 			RoomCache.Instance.ReturnRoomToCache (previousRoom);
 		}
 		if (currentRoom != null && currentRoom != startingRoom) {
+			//currentRoom.FinishRoom ();
 			RoomCache.Instance.ReturnRoomToCache (currentRoom);
 		}
 		if (nextRoom != null && nextRoom != startingRoom) {
+			//nextRoom.FinishRoom ();
 			RoomCache.Instance.ReturnRoomToCache (nextRoom);
 		}
 		cameraScript.transform.position = currentRoom.Rooms.RoomAt (startingRoom.Entry.RoomIndex).Middle.position;

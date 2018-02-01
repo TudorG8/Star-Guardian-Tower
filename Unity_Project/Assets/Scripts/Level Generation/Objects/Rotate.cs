@@ -20,7 +20,8 @@ public class Rotate : RoomObjectEffect, IStartable, IResetable {
 
 	void Update() {
 		if (active) {
-			transform.Rotate (degrees * Time.deltaTime);
+			int dir = (direction == Direction.Clockwise ? 1 : -1);
+			transform.Rotate (dir * degrees * Time.deltaTime);
 		}
 	}
 

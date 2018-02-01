@@ -93,11 +93,15 @@ public class Room : MonoBehaviour {
 	// Should be called by a trigger script
 	public void OnExit () {
 		LevelGenerator.Instance.WhenPlayerFinishesARoom (this);
-		StartCoroutine (ExitRoutine ());
+		StartCoroutine (ExitRoutine (1f));
 	}
 
-	IEnumerator ExitRoutine() {
-		yield return new WaitForSeconds (1f);
+	public void FinishRoom() {
+		StartCoroutine (ExitRoutine (0.1f));
+	}
+
+	IEnumerator ExitRoutine(float delay) {
+		yield return new WaitForSeconds (delay);
 
 		entry.TriggerScript.OnReset ();
 		entry.Door.SetTrigger ("open");

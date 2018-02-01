@@ -81,6 +81,10 @@ public class MovingObject : RoomObject, IResetable, IStartable {
 	public void OnReset () {
 		hasStarted = false;
 		ResetEffects ();
+		waypointIndex = 0;
+		direction     = 1;
+		percentageTraveled = 0;
+		transform.position = waypoints [0].position;
 	}
 
 	public void OnStart () {

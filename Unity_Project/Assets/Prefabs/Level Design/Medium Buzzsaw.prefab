@@ -84,8 +84,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obj: {fileID: 4833919494357024}
   timeToSpinOnce: 1
-  degrees: {x: 0, y: 0, z: 0}
-  direction: 0
+  degrees: {x: 0, y: 0, z: 360}
+  direction: 1
   active: 0
 --- !u!212 &212763391493309338
 SpriteRenderer:
