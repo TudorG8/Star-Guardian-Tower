@@ -91,7 +91,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1607468249014574}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 18.63, y: 2.1, z: 0}
+  m_LocalPosition: {x: 0.74, y: 4.38, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4011756531865476}
@@ -110,11 +110,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b786a7b1fcf648b9bf77f36045f6b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   shootingPoint: {fileID: 4011756531865476}
-  triggerScript: {fileID: 0}
   projectile: {fileID: 1173132215945874, guid: 4b5eae719ff47e342bf122426b146a5a, type: 2}
-  delay: 1
+  delay: 3
   direction: 4
+  startMovingOnRoomEnter: 1
+  projectiles: []
+  hasStarted: 0
 --- !u!212 &212404611484613912
 SpriteRenderer:
   m_ObjectHideFlags: 1
