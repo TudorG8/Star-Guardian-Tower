@@ -56,6 +56,9 @@ GameObject:
   - component: {fileID: 4527141853976040}
   - component: {fileID: 212956173203382446}
   - component: {fileID: 95439816007084632}
+  - component: {fileID: 114331226888987988}
+  - component: {fileID: 114111756299872286}
+  - component: {fileID: 114803986629444236}
   m_Layer: 0
   m_Name: Torch
   m_TagString: Untagged
@@ -95,8 +98,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1409791022974636}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 47.12, y: 2.69, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.08, y: 12.95, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4332421473698736}
@@ -162,6 +165,18 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114111756299872286
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1409791022974636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaba9ff3800cca84e83b7d4c621db144, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particles: {fileID: 198148177912471364}
 --- !u!114 &114216595372653250
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -179,6 +194,32 @@ MonoBehaviour:
   Material: {fileID: 2100000, guid: 5d8645bc2e5501a4ebd138db5aa609bd, type: 2}
   LightOrigin: {x: 0, y: 0, z: 1}
   Shape: 0
+--- !u!114 &114331226888987988
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1409791022974636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 936a2d74e033ba54d892eff4e249c080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - {fileID: 114803986629444236}
+  - {fileID: 114111756299872286}
+--- !u!114 &114803986629444236
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1409791022974636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230a4fc95990afb4b9cdcf7ac1b281cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  light: {fileID: 1372694208329746}
 --- !u!198 &198148177912471364
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -239,7 +280,7 @@ ParticleSystem:
   moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
-  randomSeed: -229855141
+  randomSeed: -268900214
   InitialModule:
     serializedVersion: 3
     enabled: 1
@@ -3618,8 +3659,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1224178333
-  m_SortingLayer: 4
+  m_SortingLayerID: -2146045311
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 0
@@ -3670,7 +3711,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -153718449
+  m_SortingLayerID: -2146045311
   m_SortingLayer: 2
   m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: e98c03c4c24714e6e80f5053a3f8c34a, type: 3}

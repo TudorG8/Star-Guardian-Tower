@@ -15,17 +15,19 @@ using UnityEditor;
 [SelectionBase]
 [System.Serializable]
 public class RoomSegmentHelper : MonoBehaviour {
+	[SerializeField] public SegmentPoints pointRefs    ; // References to the points
+	// Will disable all the points used for the arrows
+	public void SetActive (bool active) {
+		pointRefs.SetActive (active);
+	}
 	#if UNITY_EDITOR
 	// Imports
 	[SerializeField] public RoomHelper    roomGenerator; // Parent that holds all editor information
 	[SerializeField] public RoomSegment   roomSegment  ; // Attached script for the room segment
 	[SerializeField] public PlatformRefs  platformRefs ; // References to the platforms
-	[SerializeField] public SegmentPoints pointRefs    ; // References to the points
 
-	// Will disable all the points used for the arrows
-	public void SetActive (bool active) {
-		pointRefs.SetActive (active);
-	}
+
+
 
 	public void SetNeighbour(Direction side, RoomSegment roomHelper) {
 		Neighbours neighbours = roomSegment.SegmentNeighbours; 

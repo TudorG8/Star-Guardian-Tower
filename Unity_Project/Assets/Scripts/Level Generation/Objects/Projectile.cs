@@ -22,6 +22,7 @@ public class Projectile : RoomObject, IResetable {
 		this.onProjectileDeath = onProjectileDeath;
 
 		StartCoroutine (MoveRoutine ());
+		StartEffects ();
 	}
 
 	public void OnLevelCollision() {
@@ -29,6 +30,7 @@ public class Projectile : RoomObject, IResetable {
 		coll.enabled = false;
 		animator.SetTrigger ("fade");
 		onProjectileDeath (this);
+		ResetEffects ();
 	}
 
 	public void OnReset () {

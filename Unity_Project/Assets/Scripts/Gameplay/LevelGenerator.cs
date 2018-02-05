@@ -58,7 +58,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 	/**
 	 * For normal gameplay, we must generate the next room and be ready for when the player enters it.
 	 */
-	IEnumerator NormalSetUp(bool movePlayer, float initialDelay) {
+	IEnumerator NormalSetUp(bool movePlayer, float initialDelay) {	
 		// Close the tutorial door
 		currentRoom.Entry.Door.SetTrigger("close");
 
@@ -118,7 +118,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		}
 		cameraScript.transform.position = currentRoom.Rooms.RoomAt (startingRoom.Entry.RoomIndex).Middle.position;
 		startingRoom.Entry.Door.SetTrigger ("close");
-		StartCoroutine (NormalSetUp   (true, 0f));
+		StartCoroutine (NormalSetUp   (true, 0.1f));
 	}
     
 	// When the player enters a new room, delete the previous and generate a new one
@@ -126,7 +126,7 @@ public class LevelGenerator : Singleton<LevelGenerator> {
 		PlayerController.Instance.EnterRoom (room, currentRoom.Exit.Main);
 		if (DataSaver.Instance.FinishedTutorial) {
 			// Return the room to the cache, but dont do it the first time (since its the starting room)
-			if (previousRoom != null && returnRoomsToCache) {
+			if (previousRoom != null && previousRoom != startingRoom && returnRoomsToCache) {
 				RoomCache.Instance.ReturnRoomToCache (previousRoom);
 			}
 

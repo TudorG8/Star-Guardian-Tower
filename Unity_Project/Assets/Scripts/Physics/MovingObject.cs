@@ -84,7 +84,8 @@ public class MovingObject : RoomObject, IResetable, IStartable {
 		waypointIndex = 0;
 		direction     = 1;
 		percentageTraveled = 0;
-		transform.position = waypoints [0].position;
+		if(waypoints.Count != 0)
+			transform.position = waypoints [0].position;
 	}
 
 	public void OnStart () {

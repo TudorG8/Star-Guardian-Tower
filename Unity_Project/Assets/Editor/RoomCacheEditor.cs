@@ -14,5 +14,7 @@ public class RoomCacheEditor : Editor {
 		if (GUILayout.Button ("Activate All Room Tools"   )) { script.SetRoomsAs       (active: true ); }
 		if (GUILayout.Button ("Activate All Rooms"        )) { script.ActivateAllRooms (active: false ); }
 		if (GUILayout.Button ("Deactivate All Rooms"      )) { script.ActivateAllRooms (active: true ); }
+		if (GUILayout.Button ("Prepare for release "      )) { script.PrepareForRelease   (); }
+		if (GUILayout.Button ("UnPrepare for release "    )) { script.UnPrepareForRelease (); }
 	}
 }

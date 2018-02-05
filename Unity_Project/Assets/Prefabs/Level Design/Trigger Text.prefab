@@ -138,7 +138,7 @@ MonoBehaviour:
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 100
+  m_DynamicPixelsPerUnit: 600
 --- !u!114 &114697133225087712
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -159,7 +159,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 8d8b8f9de6806cb46ab9e77c9c98fa3b, type: 3}
     m_FontSize: 1
     m_FontStyle: 0
     m_BestFit: 0
@@ -286,8 +286,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5.23, y: 0.51}
-  m_SizeDelta: {x: 11.605, y: 4.847}
+  m_AnchoredPosition: {x: -4.21, y: 0.51}
+  m_SizeDelta: {x: 6.987, y: 4.847}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224723179383404164
 RectTransform:

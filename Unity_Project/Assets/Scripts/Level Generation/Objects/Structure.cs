@@ -31,6 +31,7 @@ public class Structure : RoomObject, IResetable, IDestroyable {
 
 	public void OnDestroy() {
 		coll.enabled = false;
-		animator.SetTrigger ("fade");
+		if(animator.gameObject.activeSelf)
+			animator.SetTrigger ("fade");
 	}
 }

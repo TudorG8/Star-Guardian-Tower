@@ -66,7 +66,7 @@ public class RoomCache : Singleton<RoomCache> {
 		}
 		int random = Random.Range (0, rooms.Count);
 		Room chosenRoom = rooms [random];
-
+		chosenRoom.gameObject.SetActive (true);
 		chosenRoom.InUse = true;
 
 		return chosenRoom;
@@ -175,6 +175,25 @@ public class RoomCache : Singleton<RoomCache> {
 		for (int i = 0; i < instantiatedRooms.Count; i++) {
 			Room room = instantiatedRooms [i];
 			room.InUse = active;
+		}
+	}
+
+	public void PrepareForRelease() {
+		SetRoomsAs       (false);
+		ActivateAllRooms (false);
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Room room = instantiatedRooms [i];
+			room.ResetObjects ();
+			room.Reset ();
+		}
+	}
+
+	public void UnPrepareForRelease() {
+		SetRoomsAs       (true );
+		ActivateAllRooms (false);
+		for (int i = 0; i < instantiatedRooms.Count; i++) {
+			Room room = instantiatedRooms [i];
+			room.gameObject.SetActive (true);
 		}
 	}
 	#endif

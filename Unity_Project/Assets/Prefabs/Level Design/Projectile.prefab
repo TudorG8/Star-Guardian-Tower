@@ -40,7 +40,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1173132215945874}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.76, y: 1.95, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -109,6 +109,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3167fd27129db5e4cbba92cb832bcd91, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects:
+  - {fileID: 114968446242605822}
   animator: {fileID: 95951500416997196}
   coll: {fileID: 58600995616397100}
   direction: {x: 0, y: 0}
@@ -126,8 +128,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   obj: {fileID: 4015434323325442}
   timeToSpinOnce: 0
-  degrees: 360
+  degrees: {x: 0, y: 0, z: 0}
   direction: 0
+  active: 0
 --- !u!114 &114997012084040676
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -139,6 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd4101d0cb45583469833631407cfd53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effects: []
   collisionMask:
     serializedVersion: 2
     m_Bits: 1280
@@ -195,9 +199,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1296195473
-  m_SortingLayer: 6
+  m_SortingLayer: 7
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: d8756c08d298ed24b8be578df00b2b8c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8c89f3636f0e4814cb75628c70d376c0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

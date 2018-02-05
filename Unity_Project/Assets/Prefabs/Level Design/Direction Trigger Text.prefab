@@ -72,7 +72,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1400790264756254}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.37, y: 0.89, z: 0}
+  m_LocalPosition: {x: 1.69, y: 0.93, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224241007779890614}
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 100
+  m_DynamicPixelsPerUnit: 600
 --- !u!114 &114308911489009248
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -248,7 +248,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 8d8b8f9de6806cb46ab9e77c9c98fa3b, type: 3}
     m_FontSize: 1
     m_FontStyle: 0
     m_BestFit: 0
@@ -260,7 +260,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Right click / X to attack and destroy brown structures.
+  m_Text: You can wall jump by jumping in the opposite direction
 --- !u!222 &222534403786346024
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -323,8 +323,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 5.31, y: 4.31}
-  m_SizeDelta: {x: 8.651, y: 5.493}
+  m_AnchoredPosition: {x: 6.88797, y: 4.74}
+  m_SizeDelta: {x: 5.025, y: 7.515}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224512594645201218
 RectTransform:

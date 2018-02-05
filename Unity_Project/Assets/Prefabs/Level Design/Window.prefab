@@ -52,6 +52,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4639103040698772}
+  - component: {fileID: 114217530044423446}
+  - component: {fileID: 114490292912567348}
+  - component: {fileID: 114904424096196606}
   m_Layer: 0
   m_Name: Window
   m_TagString: Untagged
@@ -203,6 +206,32 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1707629129716998}
   m_Mesh: {fileID: 0}
+--- !u!114 &114217530044423446
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1509199749533876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 936a2d74e033ba54d892eff4e249c080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - {fileID: 114490292912567348}
+  - {fileID: 114904424096196606}
+--- !u!114 &114490292912567348
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1509199749533876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230a4fc95990afb4b9cdcf7ac1b281cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  light: {fileID: 1707629129716998}
 --- !u!114 &114784219362733872
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -220,6 +249,18 @@ MonoBehaviour:
   Material: {fileID: 2100000, guid: 5d8645bc2e5501a4ebd138db5aa609bd, type: 2}
   LightOrigin: {x: 0, y: 0, z: 1}
   Shape: 0
+--- !u!114 &114904424096196606
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1509199749533876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaba9ff3800cca84e83b7d4c621db144, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particles: {fileID: 198489293601613078}
 --- !u!198 &198489293601613078
 ParticleSystem:
   m_ObjectHideFlags: 1

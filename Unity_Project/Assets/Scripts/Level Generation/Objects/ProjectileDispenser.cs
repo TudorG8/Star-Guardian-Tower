@@ -16,7 +16,6 @@ public class ProjectileDispenser : RoomObject, IStartable, IResetable {
 	// Settings
 	[SerializeField] float      delay                 ;
 	[SerializeField] Direction  direction             ;
-	[SerializeField] bool       startMovingOnRoomEnter;
 
 	// Read only
 	[SerializeField] List<Projectile> projectiles;
@@ -38,6 +37,7 @@ public class ProjectileDispenser : RoomObject, IStartable, IResetable {
 	}
 
 	public void AutomaticShooting(float initialDelay) {
+		hasStarted = true;
 		StartCoroutine (ShootingRoutine (initialDelay));
 	}
 

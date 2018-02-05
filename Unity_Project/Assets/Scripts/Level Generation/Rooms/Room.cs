@@ -58,6 +58,18 @@ public class Room : MonoBehaviour {
 	public void Reset() {
 		transform.localPosition = previousPosition;
 		inUse = false;
+
+		entry.TriggerScript.OnReset ();
+		entry.Door.SetTrigger ("open");
+		ResetObjects ();
+		gameObject.SetActive (false);
+	}
+
+	public void ResetObjects() {
+		ResetObjects (objects  );
+		ResetObjects (hazards  );
+		ResetObjects (treasure );
+		ResetObjects (platforms);
 	}
 
 	// Generic version to reset all objects that are resetable
@@ -97,7 +109,7 @@ public class Room : MonoBehaviour {
 	}
 
 	public void FinishRoom() {
-		StartCoroutine (ExitRoutine (0.1f));
+		StartCoroutine (ExitRoutine (0.01f));
 	}
 
 	IEnumerator ExitRoutine(float delay) {
