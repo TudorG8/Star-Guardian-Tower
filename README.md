@@ -1,32 +1,25 @@
-# README #
+# Procedural Tree Generator
 
-This README documents whatever steps are necessary to get your application up and running.
+Repository for Star Guardian Tower.
 
-### What is this repository for? ###
+# Getting Started
 
-* Search For A Star 2018
+This game is a custom physics engine made for a 2D platformer.
 
-### Unity_Project folder? ###
+It was primarly made for the Rising Star competition.
 
-* This folder contains the base Unity project of the game.
+Unity Editor scripts are used for level creation, which is then stored in a cache that selects random rooms during play. 
 
-### Playable_Demo folder? ###
+The Camera is bound inside the rooms to give a roguelike feeling. 
 
-* This folder contains an .exe file that you can run to play a build version of the core project.
+# Running
 
-### What are the controls? ###
+In the executable folder you can find a runnable version of the application.
+ 
+# Built With
 
-* Player 1 uses W,A,S,D keys to move and SPACE to jump.
-* Player 2 uses ARROW keys to move and RIGHT CTRL to jump.
+* [Unity](https://unity.com/) - Main Engine
 
-### What does the UI represent? ###
+# Authors
 
-* If Player 1 falls into the water Player 2 gets a point and vice versa.
-
-### Do I have to keep the same game mechanics? ###
-
-* No, you can be as creative as you like. :)
-
-### Can I edit the existing code? ###
-
-* Yes, we encourage you to use and edit the existing code to your needs. It must be clear to the assessors though that there is purpose behind these changes and that you fully understand the original source.
+* **Tudor Gheorghe** - (http://www.tudorgheorghe.net)

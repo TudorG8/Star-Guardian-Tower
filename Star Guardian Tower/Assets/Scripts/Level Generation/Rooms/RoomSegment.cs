@@ -1,0 +1,48 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using CustomPropertyDrawers;
+
+/**
+ * Contains runtime information about a room segment.
+ */
+public class RoomSegment : MonoBehaviour, IndexableArrayPiece<RoomSegment> {
+	// Imports ---------------------------------------------------------------------------------------------------
+	[SerializeField] RoomSegmentHelper helperScript;
+	[SerializeField] Transform         middle      ;
+
+	// Readonly
+	[SerializeField]           Neighbours neighbours;
+	[SerializeField][ReadOnly] Vector2    index     ;
+
+	// Properties ------------------------------------------------------------------------------------------------
+	public RoomSegmentHelper HelperScript      { get { return helperScript; } }
+	public Transform         Middle            { get { return middle      ; } }
+	public Neighbours        SegmentNeighbours { get { return neighbours  ; } }
+	public Vector2           Index             { get { return index       ; } set { index = value; }}
+
+	// Activate/Deactivate the helper script
+	public void SetHelperScriptActiveAs(bool active) {
+		helperScript.SetActive (active);
+	}
+
+	// Interface Requirements ------------------------------------------------------------------------------------
+	public void IncreaseIndex    (Vector2 increase) {
+		index += increase;
+	}
+
+	public void IncreasePosition (Vector2 increase) {
+		Vector2 position = transform.position;
+		position += UsefulMethods.vectorProduct(increase, RoomCache.Instance.RoomSize);
+		transform.position = position;
+	}
+
+	public GameObject GetGameObject () {
+		return gameObject;
+	}
+
+	public void SetName() {
+		name = "Room " + index.y + " " + index.x;
+	}
+}
+// ---------------------------------------------------------------------------------------------------------------

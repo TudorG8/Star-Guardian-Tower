@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55fb3b4fb432047118f0fd1d3ef3d5f9, type: 3}
+  m_Name: Armour 1
+  m_EditorClassIdentifier: 
+  itemName: Squire Suit
+  description: 
+  cost: 200
+  shopImage: {fileID: 21300002, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
+  sprites:
+  - itemName: Chest
+    meshToUse: {fileID: 11400000, guid: 1a3ecf683fb3c18418ecc28a23f6d212, type: 2}
+    additionalItems:
+    - {fileID: 4237144573287546, guid: fbe5956fcbfbf5149b04e4316672773d, type: 2}
+  - itemName: Right Arm
+    meshToUse: {fileID: 11400000, guid: 90082770f0b61fe409fc6bdc214cd2e3, type: 2}
+    additionalItems: []
+  - itemName: Right Hand
+    meshToUse: {fileID: 11400000, guid: 32a46de219744dc4099b4c056d81c225, type: 2}
+    additionalItems: []
+  - itemName: Left Arm
+    meshToUse: {fileID: 11400000, guid: 731c1250c7c2f1544a3fa59f9fdd86b8, type: 2}
+    additionalItems: []
+  - itemName: Left Hand
+    meshToUse: {fileID: 11400000, guid: 4d72a55f92faae04c9b86b4b26aea323, type: 2}
+    additionalItems: []
+  - itemName: Right Leg
+    meshToUse: {fileID: 11400000, guid: d38cdd6f7d69660468cbdfd3d76125f0, type: 2}
+    additionalItems: []
+  - itemName: Right Foot
+    meshToUse: {fileID: 11400000, guid: 82c0748fcc3b0c9428dbb258590a2488, type: 2}
+    additionalItems: []
+  - itemName: Left Leg
+    meshToUse: {fileID: 11400000, guid: 9e87f888f116c2044a80a2a87259e08a, type: 2}
+    additionalItems: []
+  - itemName: Left Foot
+    meshToUse: {fileID: 11400000, guid: 602b3fd77ef1fb8478c8b984f2412648, type: 2}
+    additionalItems: []
+  attributes:
+  - attributeName: Hit Points
+    value: 7

@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55fb3b4fb432047118f0fd1d3ef3d5f9, type: 3}
+  m_Name: Armour 2
+  m_EditorClassIdentifier: 
+  itemName: Soldier Suit
+  description: 
+  cost: 400
+  shopImage: {fileID: 21300004, guid: cf5a4c97896d50c42b89214c3f4addb2, type: 3}
+  sprites:
+  - itemName: Chest
+    meshToUse: {fileID: 11400000, guid: 3246d3956f7541a4087781af4361f9b3, type: 2}
+    additionalItems:
+    - {fileID: 4597976395293906, guid: 193854aca5dbb2949bcc51f59ad40e1d, type: 2}
+    - {fileID: 4614561206866916, guid: 6a7166461981abb4297734362ca4bcf1, type: 2}
+    - {fileID: 4952820762444032, guid: f15f4fd8cd82a4247889be294893ad27, type: 2}
+    - {fileID: 4793229880800080, guid: accf72dececd9254d824c9bab5ba0be2, type: 2}
+  - itemName: Right Arm
+    meshToUse: {fileID: 11400000, guid: ab0b3b8c7a51e0f49ba07f202869edb4, type: 2}
+    additionalItems: []
+  - itemName: Right Hand
+    meshToUse: {fileID: 11400000, guid: 1958c6e79b03c914bb7ee18154628a2d, type: 2}
+    additionalItems: []
+  - itemName: Left Arm
+    meshToUse: {fileID: 11400000, guid: d237f7693b5c4c048a237480b5e5da4e, type: 2}
+    additionalItems: []
+  - itemName: Left Hand
+    meshToUse: {fileID: 11400000, guid: 4f90d201d1e0a674695d0ddad28a776d, type: 2}
+    additionalItems: []
+  - itemName: Right Leg
+    meshToUse: {fileID: 11400000, guid: b2ebeb1067c833849b6ff0209e81528a, type: 2}
+    additionalItems: []
+  - itemName: Right Foot
+    meshToUse: {fileID: 11400000, guid: 0112882277da0824dace65be85ca3b04, type: 2}
+    additionalItems: []
+  - itemName: Left Leg
+    meshToUse: {fileID: 11400000, guid: 446673deb38a6e44c8ad31981c2f20b7, type: 2}
+    additionalItems: []
+  - itemName: Left Foot
+    meshToUse: {fileID: 11400000, guid: cca8693e2a3bad7418b088756ddb774c, type: 2}
+    additionalItems: []
+  attributes:
+  - attributeName: Hit Points
+    value: 9
