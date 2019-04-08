@@ -6,7 +6,7 @@ Repository for Star Guardian Tower.
 
 This game is a custom physics engine made for a 2D platformer.
 
-It was primarly made for the Rising Star competition.
+It was primarily  made for the Rising Star competition.
 
 Unity Editor scripts are used for level creation, which is then stored in a cache that selects random rooms during play. 
 
